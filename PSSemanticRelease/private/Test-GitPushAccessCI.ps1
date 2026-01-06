@@ -28,17 +28,17 @@ function Test-GitPushAccessCI {
         $output = git push --dry-run origin $($context.Branch) 2>&1
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
-            & $context.Logger "Allowed to push on branch $($context.Branch) to the Git repository"
+            Add-ConsoleLog "Allowed to push on branch $($context.Branch) to the Git repository"
             return $true
         }
         else {
-            & $context.Logger "Push failed: permission denied."
+            Add-ConsoleLog "Push failed: permission denied."
             return $false
         }
     }
     catch {
         Write-Error $_
-        & $context.Logger "Push check failed: $_"
+        Add-ConsoleLog "Push check failed: $_"
         return $false
     }
 }

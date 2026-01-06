@@ -20,20 +20,20 @@ function Get-ReleaseTypeFromCommits {
     $types = @()
 
     foreach ($commit in $context.Commits.List) {
-        & $context.Logger "Analyzing commit: $($commit.Message)"
+        Add-ConsoleLog "Analyzing commit: $($commit.Message)"
 
         $commitType = $rules | Where-Object { $_.type -eq $commit.Type }
 
         if ($null -eq $commitType) {
-            & $context.Logger "The commit should not trigger a release"
+            Add-ConsoleLog "The commit should not trigger a release"
         }
         else {
             if ($commit.Breaking -eq $true) {
-                & $context.Logger "The release type for the commit is major"
+                Add-ConsoleLog "The release type for the commit is major"
                 $types += "major"
             }
             else {
-                & $context.Logger "The release type for the commit is $($commitType.release)"
+                Add-ConsoleLog "The release type for the commit is $($commitType.release)"
                 $types += $commitType.release
             }            
         }
@@ -55,7 +55,7 @@ function Get-ReleaseTypeFromCommits {
 
     $releaseType = if ($null -eq $type) { "no release needed" } else { "$type release" }
 
-    & $context.Logger "Analysis of $($context.Commits.Formatted) completed: $releaseType"
+    Add-ConsoleLog "Analysis of $($context.Commits.Formatted) completed: $releaseType"
 
     return $type
 }

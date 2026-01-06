@@ -7,7 +7,7 @@ function Invoke-SemanticRelease {
         $context = New-ReleaseContext $DryRun
 
         $semanticVersion = Get-PSSemanticReleaseVersion
-        & $context.Logger "PSSemanticRelease version $semanticVersion"
+        Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
 
         $branchConfig = Confirm-ReleaseBranch
         $context.Branch = $branchConfig.Branch
@@ -16,19 +16,19 @@ function Invoke-SemanticRelease {
     
         if (-not $context.Branch) { return }
 
-        & $context.Logger "Running automated release from branch $($context.Branch) on repository $($context.Repository)"
+        Add-ConsoleLog "Running automated release from branch $($context.Branch) on repository $($context.Repository)"
 
         Confirm-EnvironmentCI
 
         if (-not (Test-GitPushAccessCI -context $context)) { return }
 
         if ($context.DryRun) {
-            & $context.Logger "Running in dry mode"
+            Add-ConsoleLog "Running in dry mode"
         }
         else {
             if (-not $context.CI) {
                 $context.DryRun = $true
-                & $context.Logger "Running in dry mode (not in CI environment)"
+                Add-ConsoleLog "Running in dry mode (not in CI environment)"
             }
         }
 
@@ -36,21 +36,21 @@ function Invoke-SemanticRelease {
         $context.CurrentVersion.Branch = Get-CurrentSemanticVersion
 
         if (-not  $context.CurrentVersion.Branch) {
-            & $context.Logger "No previous release found, retrieving all commits"
+            Add-ConsoleLog "No previous release found, retrieving all commits"
         }
         else {
-            & $context.Logger "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Branch)"
+            Add-ConsoleLog "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Branch)"
         }
 
         $context.Commits.List = Get-ConventionalCommits -context $context
         $context.Commits.Formatted = if ($context.Commits.List.Count -eq 1) { "1 commit" } else { "$($context.Commits.List.Count) commits" }
 
         if ($context.Commits.List.Count -eq 0) {
-            & $context.Logger "No commits found, no release needed"
+            Add-ConsoleLog "No commits found, no release needed"
             return
         }
         else {
-            & $context.Logger "Found $($context.Commits.Formatted) since last release"
+            Add-ConsoleLog "Found $($context.Commits.Formatted) since last release"
         }
 
         $context.NextRelease.Type = Get-ReleaseTypeFromCommits -context $context

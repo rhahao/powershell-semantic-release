@@ -26,10 +26,5 @@ function New-ReleaseContext {
             Type    = $null
             Version = $null
         }
-
-        Logger         = {
-            param($Message)
-            Write-Host "[ps-semantic-release] $Message"
-        }
     }
 }

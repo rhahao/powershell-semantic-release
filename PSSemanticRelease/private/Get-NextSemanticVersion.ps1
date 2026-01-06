@@ -34,13 +34,13 @@ function Get-NextSemanticVersion {
         }
     }
 
-    $versionChannel = if ($context.NextRelease.Channel -ne "lastest") { "$($context.NextRelease.Channel) "}
+    $versionChannel = if ($context.NextRelease.Channel -ne "lastest") { "$($context.NextRelease.Channel) " }
     
     if ($null -eq $context.CurrentVersion.Published) {
-        & $context.Logger "There is no previous $($versionChannel)release, the next release version is $nextVersion"
+        Add-ConsoleLog "There is no previous $($versionChannel)release, the next release version is $nextVersion"
     }
     else {
-        & $context.Logger "The next $($versionChannel)release version is $nextVersion"
+        Add-ConsoleLog "The next $($versionChannel)release version is $nextVersion"
     }
 
     return $nextVersion
