@@ -6,8 +6,8 @@ function Invoke-SemanticRelease {
     try {
         $context = New-ReleaseContext $DryRun
 
-        $semanticVersion = Get-PSSemanticReleaseVersion
-        Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
+        # $semanticVersion = Get-PSSemanticReleaseVersion
+        # Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
 
         # $branchConfig = Confirm-ReleaseBranch
         # $context.Branch = $branchConfig.Branch

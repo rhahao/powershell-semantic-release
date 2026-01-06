@@ -1,6 +1,6 @@
 param (
     [string]$DryRun = "false",
-    [string]$Version = "1.1.4",
+    [string]$Version = "1.1.5",
     [string]$Prerelease = "alpha"
 )
 
