@@ -1,7 +1,7 @@
 param (
-    [string]$DryRun,
-    [string]$Version = "0.0.0",
-    [string]$Prerelease = $null
+    [string]$DryRun = "false",
+    [string]$Version = "1.1.4",
+    [string]$Prerelease = "alpha"
 )
 
 try {
