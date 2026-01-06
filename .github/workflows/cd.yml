@@ -5,7 +5,7 @@ on:
 
 jobs:
   package_publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
@@ -13,19 +13,7 @@ jobs:
           ref: ${{ github.head_ref }}
           persist-credentials: false
           fetch-depth: 0
-      
-      - name: Import Code Signing Certificate
-        shell: pwsh
-        run: |
-          $pfxBase64 = "${{ secrets.CODE_SIGN_PFX }}"
-          $pfxBytes = [Convert]::FromBase64String($pfxBase64)
-          $pfxPath = "$env:GITHUB_WORKSPACE/temp-cert.pfx"
-          [System.IO.File]::WriteAllBytes($pfxPath, $pfxBytes)
 
-          $Password = ConvertTo-SecureString "${{ secrets.CODE_SIGN_PASSWORD }}" -AsPlainText -Force
-          $cert = Import-PfxCertificate -FilePath $pfxPath -CertStoreLocation Cert:\CurrentUser\My -Password $Password
-          Write-Host "Certificate imported: $($cert.Thumbprint)"
-      
       - name: Run PSSemanticRelease
         shell: pwsh
         run: |
