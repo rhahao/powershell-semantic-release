@@ -18,9 +18,9 @@ function Invoke-SemanticRelease {
 
         & $context.Logger "Running automated release from branch $($context.Branch) on repository $($context.Repository)"
 
-        if (-not (Test-GitPushAccessCI -context $context)) { return }
-
         Confirm-EnvironmentCI
+
+        if (-not (Test-GitPushAccessCI -context $context)) { return }        
 
         if ($DryRun) {
             & $context.Logger "Running in dry mode"
