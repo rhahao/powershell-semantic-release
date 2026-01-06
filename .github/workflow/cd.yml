@@ -1,0 +1,20 @@
+name: Create dist and publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          persist-credentials: false
+
+      - name: Create dist
+        run: |
+            pwsh -ExecutionPolicy Bypass -NoProfile -File create-dist.ps1
+        env:
+          NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
+          NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}
