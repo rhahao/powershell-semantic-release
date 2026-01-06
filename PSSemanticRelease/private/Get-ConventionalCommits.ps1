@@ -1,9 +1,20 @@
 function Get-ConventionalCommits {
-    param ($context)
+    param($context)
 
-    $branch = $context.Branch    
-    $lastTag = git describe --tags --abbrev=0 $branch 2>$null
-    $range = if ($lastTag) { "$lastTag..$branch" } else { $branch }
+    $Branch = $context.Branch
+
+    if ($Branch) {
+        $localBranchExists = git show-ref --verify --quiet "refs/heads/$Branch"
+        if (-not $localBranchExists) {
+            git fetch origin "${Branch}:$Branch" --quiet
+        }
+    }
+
+    $ref = if ($Branch) { $Branch } else { 'HEAD' }
+
+    $lastTag = git describe --tags --abbrev=0 $ref 2>$null
+
+    $range = if ($lastTag) { "$lastTag..$ref" } else { $ref }
 
     $commits = [System.Collections.Generic.List[object]]::new()
 
