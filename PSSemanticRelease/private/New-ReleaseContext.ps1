@@ -1,8 +1,6 @@
 function New-ReleaseContext {
     return [PSCustomObject]@{
-        Env = [PSCustomObject]@{
-            IsCI = Test-CIEnvironment
-        }
+        CI = Test-CIEnvironment
 
         Config = Get-SemanticReleaseConfig
 

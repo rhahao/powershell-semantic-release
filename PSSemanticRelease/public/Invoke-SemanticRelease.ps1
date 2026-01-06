@@ -28,7 +28,7 @@ function Invoke-SemanticRelease {
             & $context.Logger "Running in dry mode"
         }
         else {
-            if (-not $context.IsCI) {
+            if (-not $context.CI) {
                 & $context.Logger "Running in dry mode (not in CI environment)"
             }
         }
