@@ -23,6 +23,7 @@ try {
     Get-ChildItem -Path $masterPath | Copy-Item -Destination $distModuleFolder -Recurse
 
     $psd1Path = "$distModuleFolder/$moduleName.psd1"
+    $psm1Path = "$distModuleFolder/$moduleName.psm1"
 
     $names = (Get-ChildItem "$PSScriptRoot/$moduleName/public/*.ps1").BaseName
 
@@ -41,13 +42,22 @@ try {
 
     Set-Content $psd1Path -Value $psd1
 
-    Write-Host "$moduleName.psd1 successfully created."
+    Write-Host "$moduleName.psd1 successfully created."   
 
-    if ($DryRun -like "false") {
+    if ($DryRun -like "false") {   
+        $cert = New-SelfSignedCertificate -DnsName "$moduleName-Signing" -CertStoreLocation "Cert:\CurrentUser\My" -Type CodeSigningCert
+        Write-Host "Created self-signed certificate: $($cert.Thumbprint)"
+
+        Set-AuthenticodeSignature -FilePath $psd1Path -Certificate $cert | Out-Null
+        Write-Host "$moduleName.psd1 module manifest file signed"
+
+        Set-AuthenticodeSignature -FilePath $psm1Path -Certificate $cert | Out-Null
+        Write-Host "$moduleName.psm1 module script file signed"
+    
         Publish-Module -Path $distModuleFolder -NuGetApiKey $env:NUGET_API_KEY
+        Write-Host "$moduleName published successfully"
     }
 }
 catch {
     throw $_
 }
-
