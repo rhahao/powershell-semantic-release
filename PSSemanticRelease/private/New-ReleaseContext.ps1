@@ -7,7 +7,7 @@ function New-ReleaseContext {
         Config = Get-SemanticReleaseConfig
 
         Branch = $null
-        Repository = $null
+        Repository = ""
 
         Commits = [PSCustomObject]@{
             List = @()
