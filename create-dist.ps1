@@ -31,6 +31,7 @@ try {
         -RootModule "$moduleName.psm1" `
         -ModuleVersion $Version `
         -Author $env:NUGET_PUBLISHER `
+        -Description "A PowerShell module for automated release using semantic versioning" `
         -FunctionsToExport $names `
         -CmdletsToExport @() `
         -Guid $env:NUGET_PACKAGE_GUID
