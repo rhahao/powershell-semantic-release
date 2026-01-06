@@ -4,55 +4,56 @@ function Invoke-SemanticRelease {
     )
 
     try {
-        $branchConfig = Confirm-ReleaseBranch
-
-        if (-not $branchConfig) { return }
+        $context = New-ReleaseContext
 
         $semanticVersion = Get-PSSemanticReleaseVersion
-        Write-Host "PSSemanticRelease version $semanticVersion"
+        & $context.Logger "PSSemanticRelease version $semanticVersion"
 
-        $remoteUrl = Get-GitRemoteUrl
-        $branch = $branchConfig.Branch
-        Write-Host "Running automated release from branch $branch on repository $remoteUrl"
+        $branchConfig = Confirm-ReleaseBranch
+        $context.Branch = $branchConfig.Branch
+        $context.NextVersion.Channel = $branchConfig.Channel
+        $context.Repository = Get-GitRemoteUrl
+    
+        if (-not $context.Branch) { return }
 
-        if (-not (Test-GitPushAccessCI)) { return }
+        & $context.Logger "Running automated release from branch $($context.Branch) on repository $($context.Repository)"
+
+        if (-not (Test-GitPushAccessCI -context $context)) { return }
 
         Confirm-EnvironmentCI
 
         if ($DryRun) {
-            Write-Host "Running in dry mode"
+            & $context.Logger "Running in dry mode"
         }
         else {
-            $IsCI = Test-CIEnvironment
-
-            if (-not $IsCI) {
-                Write-Host "Running in dry mode (not in CI environment)"
+            if (-not $context.IsCI) {
+                & $context.Logger "Running in dry mode (not in CI environment)"
             }
-        }       
+        }
 
-        $latestVersion = Get-CurrentSemanticVersion -branch "main"
-        $latestBranchVersion = Get-CurrentSemanticVersion
+        $context.CurrentVersion.Published = Get-CurrentSemanticVersion -branch "main"
+        $context.CurrentVersion.Branch = Get-CurrentSemanticVersion
 
-        if (-not $latestBranchVersion) {
-            Write-Host "No previous release found, retrieving all commits"
+        if (-not  $context.CurrentVersion.Branch) {
+            & $context.Logger "No previous release found, retrieving all commits"
         }
         else {
-            Write-Host "Found git tag v$latestBranchVersion on branch $branch"
+            & $context.Logger "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Branch)"
         }
 
-        $commits = Get-ConventionalCommits
+        $context.Commits.List = Get-ConventionalCommits
+        $context.Commits.Formatted = if ($context.Commits.List.Count -eq 1) { "1 commit" } else { "$($context.Commits.List.Count) commits" }
 
-        if ($commits.Count -eq 0) {
-            Write-Host "No commits found, no release needed"
+        if ($context.Commits.List.Count -eq 0) {
+            & $context.Logger "No commits found, no release needed"
             return
         }
         else {
-            $commitsCount = if ($commits.Count -eq 1) { "1 commit" } else { "$($commits.Count) commits" }
-            Write-Host "Found $commitsCount since last release"
+            & $context.Logger "Found $($context.Commits.Formatted) since last release"
         }
 
-        $releaseType = Get-ReleaseTypeFromCommits -Commits $commits
-        Get-NextSemanticVersion -Type $releaseType -BaseVersion $latestVersion -BranchVersion $latestBranchVersion -Channel $branchConfig.Channel
+        $context.NextVersion.Type = Get-ReleaseTypeFromCommits -context $context
+        $context.NextVersion.Value = Get-NextSemanticVersion -context $context
     }
     catch {
         Write-Error $_

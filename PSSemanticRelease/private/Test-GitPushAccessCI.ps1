@@ -1,6 +1,8 @@
 function Test-GitPushAccessCI {
+    param($context)
+    
     $currentBranch = git rev-parse --abbrev-ref HEAD
-    $remoteUrl = Get-GitRemoteUrl 
+    $remoteUrl = $context.Repository
 
     # Detect CI environment and set token
     $ciToken = $null
@@ -19,6 +21,7 @@ function Test-GitPushAccessCI {
         # Remove existing username if present
         $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
         $remoteUrl = "https://ps-semantic-release-bot:$($ciToken)$($remoteUrl -replace '^https://','')"
+        $context.Repository = $remoteUrl
         git remote set-url origin $remoteUrl
     }
 
@@ -26,16 +29,16 @@ function Test-GitPushAccessCI {
         $output = git push --dry-run origin $currentBranch 2>&1
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
-            Write-Host "Allowed to push to the Git repository"
+            & $context.Logger "Allowed to push to the Git repository"
             return $true
         }
         else {
-            Write-Warning "Push failed: permission denied."
+            & $context.Logger "Push failed: permission denied."
             return $false
         }
     }
     catch {
-        Write-Error "Push check failed: $_"
+        & $context.Logger "Push check failed: $_"
         return $false
     }
 }
