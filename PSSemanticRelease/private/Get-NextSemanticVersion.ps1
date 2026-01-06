@@ -22,15 +22,15 @@ function Get-NextSemanticVersion {
     }    
 
     if ($context.NextRelease.Channel -ne "latest" -and -not $context.Config.unify_tag) {
-        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextRelease.Channel)\d+$" }
+        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextRelease.Channel)\.\d+$" }
 
         if (-not $tags) {
-            $nextVersion = "$nextVersion-$($context.NextRelease.Channel)1"
+            $nextVersion = "$nextVersion-$($context.NextRelease.Channel).1"
         }
         else {
-            $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($context.NextRelease.Channel)", "") } | Sort-Object | Select-Object -Last 1)
+            $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($context.NextRelease.Channel)\.", "") } | Sort-Object | Select-Object -Last 1)
 
-            $nextVersion = "$nextVersion-$($context.NextRelease.Channel)$($last + 1)"
+            $nextVersion = "$nextVersion-$($context.NextRelease.Channel).$($last + 1)"
         }
     }
 
