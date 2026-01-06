@@ -21,7 +21,7 @@ function Get-NextSemanticVersion {
         }
     }    
 
-    if ($context.NextRelease.Channel -ne "latest") {
+    if ($context.NextRelease.Channel -ne "latest" -and $context.Config.prerelease_suffix) {
         $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextRelease.Channel)\d+$" }
 
         if (-not $tags) {

@@ -31,7 +31,7 @@ function Invoke-SemanticRelease {
             }
         }
 
-        $context.CurrentVersion.Published = Get-CurrentSemanticVersion -branch "main"
+        $context.CurrentVersion.Published = Get-CurrentSemanticVersion -context $context -Branch "main"
         $context.CurrentVersion.Branch = Get-CurrentSemanticVersion
 
         if (-not  $context.CurrentVersion.Branch) {

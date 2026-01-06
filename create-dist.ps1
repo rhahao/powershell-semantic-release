@@ -1,5 +1,6 @@
 param (
-    [string]$Version = "0.0.0"
+    [string]$Version = "0.0.0",
+    [string]$Prerelease = $null
 )
 
 $moduleName = "PSSemanticRelease"
@@ -31,3 +32,8 @@ New-ModuleManifest `
     -FunctionsToExport $names `
     -CmdletsToExport @() `
     -Guid $env:NUGET_PACKAGE_GUID
+    
+$psd1 = Get-Content $psd1Path -Raw
+$psd1 = $psd1 -replace "# ReleaseNotes = ''", "ReleaseNotes = '$Prerelease'"
+
+Set-Content $psd1Path -Value $psd1

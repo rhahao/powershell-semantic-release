@@ -4,7 +4,7 @@ function Get-ConventionalCommits {
 
     $commits = [System.Collections.Generic.List[object]]::new()
 
-    foreach ($line in git log $range --pretty=format:%s) {
+    foreach ($line in git log $range --pretty=format:%s --reverse) {
         $commit = ConvertFrom-Commit $line
         if ($commit) {
             [void]$commits.Add($commit)
