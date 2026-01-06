@@ -37,3 +37,5 @@ $psd1 = Get-Content $psd1Path -Raw
 $psd1 = $psd1 -replace "# ReleaseNotes = ''", "ReleaseNotes = '$Prerelease'"
 
 Set-Content $psd1Path -Value $psd1
+
+Write-Host "$psd1Path successfully created."
