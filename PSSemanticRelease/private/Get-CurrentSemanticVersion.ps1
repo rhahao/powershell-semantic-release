@@ -4,7 +4,7 @@ function Get-CurrentSemanticVersion {
         $Branch = "HEAD"
     )
 
-    if (-not $context.Config.prerelease_suffix -and $Branch -eq "main") {
+    if ($context.Config.unify_tag -and $Branch -eq "main") {
         $lastTag = git tag --list | Sort-Object { [version]($_ -replace '^v', '') } -Descending | Select-Object -First 1
     }
     else {

@@ -4,6 +4,6 @@
     { "name": "beta", "prerelease": "beta" },
     { "name": "alpha", "prerelease": "alpha" }
   ],
-  "prerelease_suffix": false,
+  "unify_tag": true,
   "script": "create-dist.ps1"
 }
