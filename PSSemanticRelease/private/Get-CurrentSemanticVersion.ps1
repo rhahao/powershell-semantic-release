@@ -14,7 +14,7 @@ function Get-CurrentSemanticVersion {
             $exists = git show-ref --verify --quiet "refs/heads/$Branch"
 
             if (-not $exists) {
-                git fetch origin "${Branch}:$Branch" --quiet
+                git fetch origin "${Branch}:$Branch" --depth=0 --quiet
             }
         }
 

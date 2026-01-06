@@ -4,7 +4,7 @@ function Get-ConventionalCommits {
     $Branch = $context.Branch
 
     if ($Branch -and $Branch -ne 'HEAD') {
-        git fetch origin $Branch --quiet
+        git fetch origin $Branch --depth=0 --quiet
     }
 
     $ref = if ($Branch -and $Branch -ne 'HEAD') { "origin/$Branch" } else { 'HEAD' }
