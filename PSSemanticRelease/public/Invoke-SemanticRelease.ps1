@@ -11,7 +11,7 @@ function Invoke-SemanticRelease {
 
         $branchConfig = Confirm-ReleaseBranch
         $context.Branch = $branchConfig.Branch
-        $context.NextVersion.Channel = $branchConfig.Channel
+        $context.NextRelease.Channel = $branchConfig.Channel
         $context.Repository = Get-GitRemoteUrl
     
         if (-not $context.Branch) { return }
@@ -52,8 +52,10 @@ function Invoke-SemanticRelease {
             & $context.Logger "Found $($context.Commits.Formatted) since last release"
         }
 
-        $context.NextVersion.Type = Get-ReleaseTypeFromCommits -context $context
-        $context.NextVersion.Value = Get-NextSemanticVersion -context $context
+        $context.NextRelease.Type = Get-ReleaseTypeFromCommits -context $context
+        $context.NextRelease.Version = Get-NextSemanticVersion -context $context
+
+        Invoke-ReleaseScript -context $context
     }
     catch {
         Write-Error $_

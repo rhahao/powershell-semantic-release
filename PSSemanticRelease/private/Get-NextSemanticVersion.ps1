@@ -8,7 +8,7 @@ function Get-NextSemanticVersion {
     }
     else {
         $v = [version]$context.CurrentVersion.Published
-        $Type = $context.NextVersion.Type
+        $Type = $context.NextRelease.Type
 
         if ($Type -eq 'major') {
             $nextVersion = "{0}.0.0" -f ($v.Major + 1)
@@ -21,20 +21,21 @@ function Get-NextSemanticVersion {
         }
     }    
 
-    if ($context.NextVersion.Channel -ne "latest") {
-        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextVersion.Channel)\.\d+$" }
+    if ($context.NextRelease.Channel -ne "latest") {
+        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextRelease.Channel)\d+$" }
 
         if (-not $tags) {
-            $nextVersion = "$nextVersion-$($context.NextVersion.Channel).1"
+            $nextVersion = "$nextVersion-$($context.NextRelease.Channel)1"
         }
         else {
-            $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($context.NextVersion.Channel)\.", "") } | Sort-Object | Select-Object -Last 1)
+            $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($context.NextRelease.Channel)", "") } | Sort-Object | Select-Object -Last 1)
 
-            $nextVersion = "$nextVersion-$($context.NextVersion.Channel).$($last + 1)"
+            $nextVersion = "$nextVersion-$($context.NextRelease.Channel)$($last + 1)"
         }
     }
 
-    $versionChannel = if ($context.NextVersion.Channel -ne "lastest") { "$($context.NextVersion.Channel) "}
+    $versionChannel = if ($context.NextRelease.Channel -ne "lastest") { "$($context.NextRelease.Channel) "}
+    
     if ($null -eq $context.CurrentVersion.Published) {
         & $context.Logger "There is no previous $($versionChannel)release, the next release version is $nextVersion"
     }

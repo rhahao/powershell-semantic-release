@@ -19,10 +19,10 @@ function New-ReleaseContext {
             Branch = $null
         }
 
-        NextVersion = [PSCustomObject]@{
+        NextRelease = [PSCustomObject]@{
             Channel = $null
             Type = $null
-            Value = $null
+            Version = $null
         }
 
         Logger = {

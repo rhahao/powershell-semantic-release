@@ -3,5 +3,7 @@
     "main",
     { "name": "beta", "prerelease": "beta" },
     { "name": "alpha", "prerelease": "alpha" }
-  ]
+  ],
+  "prerelease_suffix": false,
+  "script": "create-dist.ps1"
 }
