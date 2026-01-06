@@ -13,6 +13,7 @@ jobs:
           persist-credentials: false
       
       - name: Run PSSemanticRelease
+        shell: pwsh
         run: |
           Import-Module ./PSSemanticRelease -Force
           Invoke-SemanticRelease
