@@ -20,3 +20,4 @@ jobs:
         env:
           NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
           NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
