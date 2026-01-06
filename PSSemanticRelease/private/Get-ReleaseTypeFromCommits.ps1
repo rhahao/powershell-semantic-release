@@ -31,7 +31,7 @@ function Get-ReleaseTypeFromCommits {
             Write-Host "The commit should not trigger a release"
         }
         else {
-            if ($commit.Breaking -eq $false) {
+            if ($commit.Breaking -eq $true) {
                 Write-Host "The release type for the commit is major"
                 $types += "major"
             }

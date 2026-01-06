@@ -1,5 +1,9 @@
 function Get-CurrentSemanticVersion {
-    $currentBranch = git rev-parse --abbrev-ref HEAD
+    param (
+        $Branch = "HEAD"
+    )
+    
+    $currentBranch = git rev-parse --abbrev-ref $Branch
 
     $lastTag = git describe --tags --abbrev=0 $currentBranch 2>$null
 

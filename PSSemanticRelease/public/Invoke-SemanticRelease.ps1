@@ -4,15 +4,16 @@ function Invoke-SemanticRelease {
     )
 
     try {
-        $confirmBranch = Confirm-ReleaseBranch
+        $branchConfig = Confirm-ReleaseBranch
 
-        if (-not $confirmBranch) { return }
+        if (-not $branchConfig) { return }
 
         $semanticVersion = Get-PSSemanticReleaseVersion
         Write-Host "PSSemanticRelease version $semanticVersion"
 
         $remoteUrl = Get-GitRemoteUrl
-        Write-Host "Running automated release from branch $confirmBranch on repository $remoteUrl"
+        $branch = $branchConfig.Branch
+        Write-Host "Running automated release from branch $branch on repository $remoteUrl"
 
         if (-not (Test-GitPushAccessCI)) { return }
 
@@ -27,16 +28,16 @@ function Invoke-SemanticRelease {
             if (-not $IsCI) {
                 Write-Host "Running in dry mode (not in CI environment)"
             }
-        }
-        
+        }       
 
-        $latestVersion = Get-CurrentSemanticVersion
+        $latestVersion = Get-CurrentSemanticVersion -branch "main"
+        $latestBranchVersion = Get-CurrentSemanticVersion
 
-        if (-not $latestVersion) {
+        if (-not $latestBranchVersion) {
             Write-Host "No previous release found, retrieving all commits"
         }
         else {
-            Write-Host "Found git tag v$latestVersion on branch $confirmBranch"
+            Write-Host "Found git tag v$latestBranchVersion on branch $branch"
         }
 
         $commits = Get-ConventionalCommits
@@ -51,23 +52,7 @@ function Invoke-SemanticRelease {
         }
 
         $releaseType = Get-ReleaseTypeFromCommits -Commits $commits
-        $nextVersion = Get-NextSemanticVersion -Type $releaseType
-
-        # $next = Get-NextSemanticVersion -CurrentVersion $CurrentVersion
-
-        # if ($next -eq $CurrentVersion) {
-        #     Write-Host "No release needed"
-        #     return
-        # }
-
-        # Write-Host "Releasing v$next"
-
-        # if (-not $DryRun) {
-        #     New-Changelog -Version $next
-        #     git add CHANGELOG.md
-        #     git commit -m "chore(release): v$next"
-        #     New-GitTag -Version $next
-        # }
+        Get-NextSemanticVersion -Type $releaseType -BaseVersion $latestVersion -BranchVersion $latestBranchVersion -Channel $branchConfig.Channel
     }
     catch {
         Write-Error $_

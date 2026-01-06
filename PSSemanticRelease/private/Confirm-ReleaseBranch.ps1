@@ -11,10 +11,24 @@ function Confirm-ReleaseBranch {
     $branches += $config.branches
   }
 
-  if ($branches -notcontains $currentBranch) {
-    Write-Host "Branch $currentBranch is not a release branch"
-    return $false
+  foreach ($b in $branches) {
+    if ($b -is [string] -and $b -eq $currentBranch) {
+      return @{
+        Channel     = 'latest'
+        Prerelease  = $false
+        Branch      = $currentBranch
+      }
+    }
+
+    if ($b.name -eq $currentBranch) {
+      return @{
+        Channel     = $b.prerelease
+        Prerelease  = $true
+        Branch      = $currentBranch
+      }
+    }
   }
 
-  return $currentBranch
+  Write-Host "Branch $currentBranch is not a release branch"
+  return $null
 }
