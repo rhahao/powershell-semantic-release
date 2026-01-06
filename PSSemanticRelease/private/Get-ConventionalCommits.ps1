@@ -1,6 +1,9 @@
 function Get-ConventionalCommits {
-    $lastTag = git describe --tags --abbrev=0 HEAD 2>$null
-    $range = if ($lastTag) { "$lastTag..HEAD" } else { "HEAD" }
+    param ($context)
+
+    $branch = $context.Branch    
+    $lastTag = git describe --tags --abbrev=0 $branch 2>$null
+    $range = if ($lastTag) { "$lastTag..$branch" } else { "HEAD" }
 
     $commits = [System.Collections.Generic.List[object]]::new()
 

@@ -43,7 +43,7 @@ function Invoke-SemanticRelease {
             & $context.Logger "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Branch)"
         }
 
-        $context.Commits.List = Get-ConventionalCommits
+        $context.Commits.List = Get-ConventionalCommits -context $context
         $context.Commits.Formatted = if ($context.Commits.List.Count -eq 1) { "1 commit" } else { "$($context.Commits.List.Count) commits" }
 
         if ($context.Commits.List.Count -eq 0) {
