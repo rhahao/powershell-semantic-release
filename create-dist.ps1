@@ -45,9 +45,6 @@ try {
     Write-Host "$moduleName.psd1 successfully created."   
 
     if ($DryRun -like "false") {   
-        $cert = New-SelfSignedCertificate -DnsName "$moduleName-Signing" -CertStoreLocation "Cert:\CurrentUser\My" -Type CodeSigningCert
-        Write-Host "Created self-signed certificate: $($cert.Thumbprint)"
-
         Set-AuthenticodeSignature -FilePath $psd1Path -Certificate $cert | Out-Null
         Write-Host "$moduleName.psd1 module manifest file signed"
 
