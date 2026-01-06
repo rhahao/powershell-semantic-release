@@ -1,7 +1,6 @@
 function Test-GitPushAccessCI {
     param($context)
     
-    $currentBranch = git rev-parse --abbrev-ref HEAD
     $remoteUrl = $context.Repository
 
     # Detect CI environment and set token
@@ -26,10 +25,10 @@ function Test-GitPushAccessCI {
     }
 
     try {
-        $output = git push --dry-run origin $currentBranch 2>&1
+        $output = git push --dry-run origin $($context.Branch) 2>&1
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
-            & $context.Logger "Allowed to push to the Git repository"
+            & $context.Logger "Allowed to push on branch $($context.Branch) to the Git repository"
             return $true
         }
         else {
