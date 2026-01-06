@@ -4,9 +4,7 @@ function Invoke-SemanticRelease {
     )
 
     try {
-        $context = @{}
-
-        $context = New-ReleaseContext
+        $context = New-ReleaseContext $DryRun
 
         $semanticVersion = Get-PSSemanticReleaseVersion
         & $context.Logger "PSSemanticRelease version $semanticVersion"
@@ -24,11 +22,12 @@ function Invoke-SemanticRelease {
 
         if (-not (Test-GitPushAccessCI -context $context)) { return }
 
-        if ($DryRun) {
+        if ($context.DryRun) {
             & $context.Logger "Running in dry mode"
         }
         else {
             if (-not $context.CI) {
+                $context.DryRun = $true
                 & $context.Logger "Running in dry mode (not in CI environment)"
             }
         }

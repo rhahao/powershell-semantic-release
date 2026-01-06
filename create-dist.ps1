@@ -1,4 +1,5 @@
 param (
+    [string]$DryRun,
     [string]$Version = "0.0.0",
     [string]$Prerelease = $null
 )
@@ -41,7 +42,9 @@ try {
 
     Write-Host "$moduleName.psd1 successfully created."
 
-    Publish-Module -Path $distModuleFolder -NuGetApiKey $env:NUGET_API_KEY
+    if ($DryRun -like "false") {
+        Publish-Module -Path $distModuleFolder -NuGetApiKey $env:NUGET_API_KEY
+    }
 }
 catch {
     throw $_

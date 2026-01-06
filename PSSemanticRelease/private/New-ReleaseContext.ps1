@@ -1,29 +1,33 @@
 function New-ReleaseContext {
+    param ($DryRun)
+
     return [PSCustomObject]@{
-        CI = Test-CIEnvironment
+        CI             = Test-CIEnvironment
 
-        Config = Get-SemanticReleaseConfig
+        DryRun         = if ($DryRun) { $true } else { $false }
 
-        Branch = $null
-        Repository = ""
+        Config         = Get-SemanticReleaseConfig
 
-        Commits = [PSCustomObject]@{
-            List = @()
+        Branch         = $null
+        Repository     = ""
+
+        Commits        = [PSCustomObject]@{
+            List      = @()
             Formatted = $null
         }
 
         CurrentVersion = [PSCustomObject]@{
             Published = $null
-            Branch = $null
+            Branch    = $null
         }
 
-        NextRelease = [PSCustomObject]@{
+        NextRelease    = [PSCustomObject]@{
             Channel = $null
-            Type = $null
+            Type    = $null
             Version = $null
         }
 
-        Logger = {
+        Logger         = {
             param($Message)
             Write-Host "[ps-semantic-release] $Message"
         }

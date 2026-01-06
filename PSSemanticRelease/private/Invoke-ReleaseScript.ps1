@@ -10,5 +10,5 @@ function Invoke-ReleaseScript {
         $psExe = "powershell"
     }
 
-    & $psExe -ExecutionPolicy Bypass -NoProfile -File $context.Config.Script $context.NextRelease.Version $context.NextRelease.Channel
+    & $psExe -ExecutionPolicy Bypass -NoProfile -File $context.Config.Script $context.DryRun $context.NextRelease.Version $context.NextRelease.Channel
 }
