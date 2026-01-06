@@ -3,15 +3,9 @@ function Get-ConventionalCommits {
 
     $Branch = $context.Branch
 
-    if ($Branch -and $Branch -ne 'HEAD') {
-        git fetch origin $Branch --depth=0 --quiet
-    }
+    $lastTag = git describe --tags --abbrev=0 $Branch 2>$null
 
-    $ref = if ($Branch -and $Branch -ne 'HEAD') { "origin/$Branch" } else { 'HEAD' }
-
-    $lastTag = git describe --tags --abbrev=0 $ref 2>$null
-
-    $range = if ($lastTag) { "$lastTag..$ref" } else { $ref }
+    $range = if ($lastTag) { "$lastTag..$Branch" } else { $ref }
 
     $commits = [System.Collections.Generic.List[object]]::new()
     foreach ($line in git log $range --pretty=format:%s --reverse) {
