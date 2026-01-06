@@ -38,4 +38,4 @@ $psd1 = $psd1 -replace "# ReleaseNotes = ''", "ReleaseNotes = '$Prerelease'"
 
 Set-Content $psd1Path -Value $psd1
 
-Write-Host "$psd1Path successfully created."
+Write-Host "[ps-semantic-release] $moduleName.psd1 successfully created."

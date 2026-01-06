@@ -11,10 +11,11 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           persist-credentials: false
-
-      - name: Create dist
+      
+      - name: Run PSSemanticRelease
         run: |
-            pwsh -ExecutionPolicy Bypass -NoProfile -File ./create-dist.ps1
+          Import-Module ./PSSemanticRelease -Force
+          Invoke-SemanticRelease
         env:
           NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
           NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}
