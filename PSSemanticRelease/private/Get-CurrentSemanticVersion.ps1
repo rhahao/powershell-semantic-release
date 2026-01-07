@@ -10,7 +10,7 @@ function Get-CurrentSemanticVersion {
         $lastTag = git tag --list | Sort-Object { [version]($_ -replace '^v', '') } -Descending | Select-Object -First 1
     }
     else {
-        if ($Branch -ne 'HEAD') {
+        if ($Branch -eq 'main' -and $context.Branch -ne "main") {
             $exists = git show-ref --verify --quiet "refs/heads/$Branch"
 
             if (-not $exists) {
