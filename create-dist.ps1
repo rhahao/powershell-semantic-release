@@ -4,60 +4,56 @@ param (
     [string]$Prerelease = $null
 )
 
-try {
-    $moduleName = "PSSemanticRelease"
-    $distFolder = Join-Path $PSScriptRoot "dist"
-    $masterPath = Join-Path $PSScriptRoot $moduleName
+Set-StrictMode -Version Latest
 
-    if (Test-Path $distFolder) {
-        Get-ChildItem -Path $distFolder -Recurse | Remove-Item -Recurse -Force
-    }
-    else {
-        New-Item -Path $distFolder -ItemType Directory | Out-Null
-    }
+$ErrorActionPreference = 'Stop'
 
-    $distModuleFolder = "$distFolder/$moduleName"
+$moduleName = 'PSSemanticRelease'
+$srcPath = Join-Path $PSScriptRoot $moduleName
+$distRoot = Join-Path $PSScriptRoot 'dist'
+$distPath = Join-Path $distRoot $moduleName
 
-    New-Item -Path $distModuleFolder -ItemType Directory | Out-Null
+Write-Host "Building module $moduleName version $Version"
 
-    Get-ChildItem -Path $masterPath | Copy-Item -Destination $distModuleFolder -Recurse
-
-    $psd1Path = "$distModuleFolder/$moduleName.psd1"
-
-    $names = (Get-ChildItem "$PSScriptRoot/$moduleName/public/*.ps1").BaseName
-
-    New-ModuleManifest `
-        -Path $psd1Path `
-        -RootModule "$moduleName.psm1" `
-        -ModuleVersion $Version `
-        -Author $env:NUGET_PUBLISHER `
-        -Description "A PowerShell module for automated release using semantic versioning" `
-        -FunctionsToExport $names `
-        -CmdletsToExport @() `
-        -Guid $env:NUGET_PACKAGE_GUID
-    
-    $psd1 = Get-Content $psd1Path -Raw
-    $psd1 = $psd1 -replace "# ReleaseNotes = ''", "ReleaseNotes = '$Prerelease'"
-
-    Set-Content $psd1Path -Value $psd1
-
-    Write-Host "$moduleName.psd1 successfully created."   
-
-    if ($DryRun -like "false") {   
-        $cert = New-SelfSignedCertificate -DnsName "$moduleName-Signing" -CertStoreLocation "Cert:\CurrentUser\My" -Type CodeSigningCert
-        Write-Host "Created self-signed certificate: $($cert.Thumbprint)"
-
-        $files = Get-ChildItem -Path $distModuleFolder -File -Recurse
-
-        foreach ($file in $files) {
-            Set-AuthenticodeSignature -FilePath $file.FullName -Certificate $cert | Out-Null
-            Write-Host "$($file.Name) module manifest file signed"
-        }
-    
-        Publish-Module -Path $distModuleFolder -NuGetApiKey $env:NUGET_API_KEY
-        Write-Host "$moduleName published successfully"
-    }
+if (Test-Path $distRoot) {
+    Remove-Item $distRoot -Recurse -Force
 }
-catch {
-    throw $_
+
+New-Item $distPath -ItemType Directory -Force | Out-Null
+
+Copy-Item "$srcPath\*" $distPath -Recurse -Force
+
+$publicPath = Join-Path $srcPath 'public'
+
+$functions = if (Test-Path $publicPath) {
+    Get-ChildItem $publicPath -Filter '*.ps1' | Select-Object -ExpandProperty BaseName
 }
+else {
+    @()
+}
+
+$psd1Path = Join-Path $distPath "$moduleName.psd1"
+
+New-ModuleManifest `
+    -Path $psd1Path `
+    -RootModule "$moduleName.psm1" `
+    -ModuleVersion $Version `
+    -Author $env:NUGET_PUBLISHER `
+    -Description 'A PowerShell module for automated release using semantic versioning' `
+    -FunctionsToExport $functions `
+    -CmdletsToExport @() `
+    -VariablesToExport @() `
+    -AliasesToExport @() `
+    -Guid $env:NUGET_PACKAGE_GUID `
+    -ReleaseNotes $Prerelease
+
+Write-Host "Validating module manifest"
+Test-ModuleManifest $psd1Path | Out-Null
+
+if ($DryRun -like "false") {
+    Write-Host "Publishing module to PSGallery"
+
+    Publish-Module  -Path $distPath -NuGetApiKey $env:NUGET_API_KEY -Repository PSGallery
+}
+
+Write-Host "Publish completed successfully"
