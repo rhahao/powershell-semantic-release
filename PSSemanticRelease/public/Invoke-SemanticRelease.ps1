@@ -64,11 +64,15 @@ function Invoke-SemanticRelease {
         
         $context.NextRelease.Version = Get-NextSemanticVersion -context $context
 
+        $context.DryRun = $false
+
         $context.NextRelease.Notes = New-ReleaseNotes -context $context
+
+        Write-ChangeLog -context $context
 
         # Invoke-ReleaseScript -context $context
     }
     catch {
-        Write-Error "[ps-semantic-release] $_"
+        Write-Error $_
     }    
 }

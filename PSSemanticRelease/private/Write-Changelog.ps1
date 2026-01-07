@@ -1,26 +1,19 @@
 function Write-Changelog {
-    param(
-        [string]$Version
-    )
+    param($context)
 
-    $commits = Get-ConventionalCommits
+    $changelogPath = "CHANGELOG.md"
 
-    $lines = @(
-        "## v$Version",
-        ""
-    )
+    $logs = ""
 
-    foreach ($group in $commits | Group-Object Type) {
-        $lines += "### $($group.Name)"
-        foreach ($c in $group.Group) {
-            $lines += "- $($c.Subject)"
-        }
-        $lines += ""
+    if (-not (Test-Path $changelogPath)) {
+        Set-Content -Path $changelogPath -Value $logs
+        Add-ConsoleLog "Created $changelogPath file"
+    } else {
+        $logs = Get-Content -Path $changelogPath -Raw -Encoding UTF8
     }
 
-    $existing = if (Test-Path CHANGELOG.md) {
-        Get-Content CHANGELOG.md -Raw
-    }
 
-    ($lines -join "`n") + "`n" + $existing | Set-Content CHANGELOG.md
+    $logs = "$($context.NextRelease.Notes)`n$logs"
+
+    Set-Content -Path $changelogPath -Value $logs -Encoding UTF8
 }
