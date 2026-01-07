@@ -12,11 +12,12 @@ function Invoke-SemanticRelease {
         $branchConfig = Confirm-ReleaseBranch
         $context.Branch = $branchConfig.Branch
         $context.NextRelease.Channel = $branchConfig.Channel
-        $context.Repository = Get-GitRemoteUrl
+        $context.Repository.RemoteUrl = Get-GitRemoteUrl
+        $context.Repository.Url = Resolve-RepositoryUrl $context.Repository.RemoteUrl
     
         if (-not $context.Branch) { return }
 
-        Add-ConsoleLog "Running automated release from branch $($context.Branch) on repository $($context.Repository)"
+        Add-ConsoleLog "Running automated release from branch $($context.Branch) on repository $($context.Repository.RemoteUrl)"
 
         Confirm-EnvironmentCI
 
@@ -43,7 +44,7 @@ function Invoke-SemanticRelease {
         }
 
         $context.Commits.List = Get-ConventionalCommits -context $context
-        $context.Commits.Formatted = if ($context.Commits.List.Count -eq 1) { "1 commit" } else { "$($context.Commits.List.Count) commits" }
+        $context.Commits.Formatted = if ($context.Commits.List.Count -eq 1) { "1 commit" } else { "$($context.Commits.List.Count) commits" }     
 
         if ($context.Commits.List.Count -eq 0) {
             Add-ConsoleLog "No commits found, no release needed"
@@ -61,7 +62,9 @@ function Invoke-SemanticRelease {
         
         $context.NextRelease.Version = Get-NextSemanticVersion -context $context
 
-        Invoke-ReleaseScript -context $context
+        $context.NextRelease.Notes = New-ReleaseNotes -context $context
+
+        # Invoke-ReleaseScript -context $context
     }
     catch {
         Write-Error $_

@@ -1,15 +1,21 @@
 function ConvertFrom-Commit {
-  param([string]$Message)
+  param([string]$line)
+
+  $parts = $line -split '\|', 2
+
+  $sha = $parts[0]
+  $message = $parts[1]
 
   $regex = '^(?<type>\w+)(\((?<scope>.+?)\))?(?<breaking>!)?: (?<subject>.+)$'
 
-  if ($Message -match $regex) {
+  if ($message -match $regex) {
     return [PSCustomObject]@{
-      Type      = $matches.type
-      Scope     = $matches.scope
-      Breaking  = [bool]$matches.breaking
-      Subject   = $matches.subject
-      Message   = $Message
+      Sha      = $sha
+      Type     = $matches.type
+      Scope    = $matches.scope
+      Breaking = [bool]$matches.breaking
+      Subject  = $matches.subject
+      Message  = $message
     }
   }
 

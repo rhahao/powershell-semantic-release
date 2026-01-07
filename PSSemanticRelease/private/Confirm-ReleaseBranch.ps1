@@ -14,7 +14,7 @@ function Confirm-ReleaseBranch {
   foreach ($b in $branches) {
     if ($b -is [string] -and $b -eq $currentBranch) {
       return @{
-        Channel     = 'latest'
+        Channel     = 'default'
         Prerelease  = $false
         Branch      = $currentBranch
       }

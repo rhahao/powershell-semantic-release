@@ -1,28 +1,12 @@
 function Get-ReleaseTypeFromCommits {
     param($context)
 
-    $rules = @()
-
-    if ($null -eq $context.Config.releaseRules) {
-        $rules = @(
-            @{ type = "fix"; release = "patch"; section = "Bug Fixes" },
-            @{ type = "feat"; release = "minor"; section = "Features" }
-        )
-    }
-    else {
-        # only filter to get patch, minor entries
-        $validRelease = @("patch", "minor")
-
-        $validRules = $context.Config.releaseRules | Where-Object { $validRelease -contains $_.release }
-        $rules += @($validRules)
-    }
-
     $types = @()
 
     foreach ($commit in $context.Commits.List) {
         Add-ConsoleLog "Analyzing commit: $($commit.Message)"
 
-        $commitType = $rules | Where-Object { $_.type -eq $commit.Type }
+        $commitType = $context.Config.releaseRules | Where-Object { $_.type -eq $commit.Type }
 
         if ($null -eq $commitType) {
             Add-ConsoleLog "The commit should not trigger a release"

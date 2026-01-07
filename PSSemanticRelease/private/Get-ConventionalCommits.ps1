@@ -8,7 +8,8 @@ function Get-ConventionalCommits {
     $range = if ($lastTag) { "$lastTag..$Branch" } else { $Branch }
 
     $commits = @()
-    foreach ($line in git log $range --pretty=format:%s --reverse) {
+
+    foreach ($line in git log $range --pretty=format:'%H|%s' --reverse) {
         $commit = ConvertFrom-Commit $line
         if ($commit) { $commits += $commit }
     }

@@ -1,7 +1,7 @@
 function Test-GitPushAccessCI {
     param($context)
     
-    $remoteUrl = $context.Repository
+    $remoteUrl = $context.Repository.RemoteUrl
 
     # Detect CI environment and set token
     $ciToken = $null
@@ -20,7 +20,7 @@ function Test-GitPushAccessCI {
         # Remove existing username if present
         $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
         $remoteUrl = "https://ps-semantic-release-bot:$($ciToken)@$($remoteUrl -replace '^https://','')"
-        $context.Repository = $remoteUrl
+        $context.Repository.RemoteUrl = $remoteUrl
         git remote set-url origin $remoteUrl
     }
 

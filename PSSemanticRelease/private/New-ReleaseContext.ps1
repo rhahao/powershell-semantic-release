@@ -9,7 +9,10 @@ function New-ReleaseContext {
         Config         = Get-SemanticReleaseConfig
 
         Branch         = $null
-        Repository     = ""
+        Repository     = [PSCustomObject]@{
+            RemoteUrl = $null
+            Url       = $null
+        }
 
         Commits        = [PSCustomObject]@{
             List      = @()
@@ -25,6 +28,7 @@ function New-ReleaseContext {
             Channel = $null
             Type    = $null
             Version = $null
+            Notes   = $null
         }
     }
 }
