@@ -54,6 +54,11 @@ function Invoke-SemanticRelease {
         }
 
         $context.NextRelease.Type = Get-ReleaseTypeFromCommits -context $context
+
+        if ($null -eq $context.NextRelease.Type) {
+            return
+        }
+        
         $context.NextRelease.Version = Get-NextSemanticVersion -context $context
 
         Invoke-ReleaseScript -context $context
