@@ -1,7 +1,7 @@
 name: Create dist and publish
 
 on:
-  push
+  workflow_dispatch:
 
 jobs:
   package_publish:
