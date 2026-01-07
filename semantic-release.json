@@ -5,5 +5,9 @@
     { "name": "alpha", "prerelease": "alpha" }
   ],
   "unify_tag": true,
+  "git": {
+    "assets": ["CHANGELOG.md"],
+    "message": "chore(release): {NextRelease.Version} [skip ci]\n\n${NextRelease.Notes}"
+  },
   "script": "create-dist.ps1"
 }
