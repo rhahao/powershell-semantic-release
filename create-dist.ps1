@@ -47,8 +47,8 @@ New-ModuleManifest `
     -Guid $env:NUGET_PACKAGE_GUID `
     -ReleaseNotes $Prerelease
 
-Write-Host "Validating module manifest"
 Test-ModuleManifest $psd1Path | Out-Null
+Write-Host "Module created and manifest validated"
 
 if ($DryRun -like "false") {
     Write-Host "Publishing module to PSGallery"
