@@ -27,12 +27,12 @@ function Push-GitAssets {
     if ($lists.Length -eq 0) { return }
 
     # Stage files
-    git add $lists | Out-Null
+    git add $lists 2>$null
 
     git restore .
     git restore --staged .
 
-    git add $lists | Out-Null
+    git add $lists 2>$null
 
     $commitMessage = Expand-ContextString -context $context -template $messageTemplate
 
