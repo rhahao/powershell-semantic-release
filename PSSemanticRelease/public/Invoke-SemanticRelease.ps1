@@ -68,7 +68,12 @@ function Invoke-SemanticRelease {
 
         $context.NextRelease.Notes = New-ReleaseNotes -context $context
 
-        Write-ChangeLog -context $context
+        if (-not $context.DryRun) {
+            Write-ChangeLog -context $context
+
+            Push-GitAssets -context $context
+        }
+
 
         # Invoke-ReleaseScript -context $context
     }

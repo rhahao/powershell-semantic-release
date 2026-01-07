@@ -7,7 +7,7 @@
   "unify_tag": true,
   "git": {
     "assets": ["CHANGELOG.md"],
-    "message": "chore(release): {NextRelease.Version} [skip ci]\n\n${NextRelease.Notes}"
+    "message": "chore(release): {NextRelease.Version} [skip ci]\n\nNextRelease.Notes}"
   },
   "script": "create-dist.ps1"
 }
