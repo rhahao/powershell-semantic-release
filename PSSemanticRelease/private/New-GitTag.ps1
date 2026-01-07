@@ -1,8 +1,17 @@
 function New-GitTag {
-    param(
-        [string]$Version
-    )
+    param ($version)
 
-    git tag "v$Version"
-    git push origin "v$Version"
+    $tag = "v$Version"
+
+    if (Test-GitTagExists $tag) {
+        throw "tag $tag already exists"
+    }
+
+    if ($Context.DryRun) {
+        Add-ConsoleLog "skip $tag tag creation in DryRun mode"
+        return
+    }
+
+    git tag $tag --quiet
+    git push origin $tag --quiet
 }
