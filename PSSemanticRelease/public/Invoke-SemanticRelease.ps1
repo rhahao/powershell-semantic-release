@@ -64,11 +64,11 @@ function Invoke-SemanticRelease {
         
         $context.NextRelease.Version = Get-NextSemanticVersion -context $context
 
-        $context.NextRelease.Notes = New-ReleaseNotes -context $context
-
-        Set-GitIdentity
+        $context.NextRelease.Notes = New-ReleaseNotes -context $context        
 
         if (-not $context.DryRun) {
+            Set-GitIdentity
+
             Write-ChangeLog -context $context
 
             Push-GitAssets -context $context
