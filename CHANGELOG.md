@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.4.0...v1.4.1) (2026-01-08)
+
+### Bug Fixes
+
+* **private:** suppress output from Invoke-RestMethod in ci releases ([d5a9702](https://github.com/rhahao/powershell-semantic-release/commit/d5a97020d0b62891aa1ac4f4f432edff4c0065a8))
+* **New-ReleaseNotes:** update title styling for minor update ([a6e3683](https://github.com/rhahao/powershell-semantic-release/commit/a6e3683df8fc1be85344ebcf25c2ec7b70b6a820))
+
 ## [1.4.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.3.1...v1.4.0) (2026-01-08)
 
 ### Features
@@ -19,6 +26,7 @@
 ### Features
 
 * **helpers:** add Set-GitIdentity function ([a79a61d](https://github.com/rhahao/powershell-semantic-release/commit/a79a61d8bf335e4b1577716c782ff9fa3715362b))
+
 
 
 
