@@ -34,18 +34,24 @@ else {
 
 $psd1Path = Join-Path $distPath "$moduleName.psd1"
 
-New-ModuleManifest `
-    -Path $psd1Path `
-    -RootModule "$moduleName.psm1" `
-    -ModuleVersion $Version `
-    -Author $env:NUGET_PUBLISHER `
-    -Description 'A PowerShell module for automated release using semantic versioning' `
-    -FunctionsToExport $functions `
-    -CmdletsToExport @() `
-    -VariablesToExport @() `
-    -AliasesToExport @() `
-    -Guid $env:NUGET_PACKAGE_GUID `
-    -ReleaseNotes $Prerelease
+$params = @{
+    Path              = $psd1Path
+    RootModule        = "$moduleName.psm1"
+    ModuleVersion     = $Version
+    Author            = $env:NUGET_PUBLISHER
+    Description       = 'A PowerShell module for automated release using semantic versioning'
+    FunctionsToExport = $functions
+    CmdletsToExport   = @()
+    VariablesToExport = @()
+    AliasesToExport   = @()
+    Guid              = $env:NUGET_PACKAGE_GUID
+    ReleaseNotes      = $Version
+}
+
+# Only add -Prerelease if supported
+if ($PSVersionTable.PSVersion.Major -ge 6 -and $Prerelease) {
+    $params.Prerelease = $Prerelease
+}
 
 Test-ModuleManifest $psd1Path | Out-Null
 Write-Host "Module created and manifest validated"
