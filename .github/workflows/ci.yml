@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  package_publish:
+  script_analyzer:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -14,4 +14,4 @@ jobs:
       - name: Run PSSemanticRelease
         shell: pwsh
         run: |
-          $results = Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse
+          Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse -Severity Error -EnableExit
