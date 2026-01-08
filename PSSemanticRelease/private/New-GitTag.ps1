@@ -12,6 +12,6 @@ function New-GitTag {
         return
     }
 
-    git tag $tag --quiet
+    git tag $tag 2>$null
     git push origin $tag --quiet
 }

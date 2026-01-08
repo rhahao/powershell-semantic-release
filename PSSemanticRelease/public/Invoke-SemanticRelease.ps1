@@ -64,8 +64,6 @@ function Invoke-SemanticRelease {
         
         $context.NextRelease.Version = Get-NextSemanticVersion -context $context
 
-        $context.DryRun = $false
-
         $context.NextRelease.Notes = New-ReleaseNotes -context $context
 
         if (-not $context.DryRun) {
@@ -74,8 +72,9 @@ function Invoke-SemanticRelease {
             Push-GitAssets -context $context
         }
 
-
-        # Invoke-ReleaseScript -context $context
+        New-GitTag -version $context.NextRelease.Version
+        
+        Invoke-ReleaseScript -context $context
     }
     catch {
         Write-Error $_
