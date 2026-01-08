@@ -25,5 +25,5 @@ function New-GitHubRelease {
         -Uri "https://api.github.com/repos/$repo/releases" `
         -Headers $headers `
         -Body $body `
-        -ContentType "application/json"
+        -ContentType "application/json" | Out-Null
 }

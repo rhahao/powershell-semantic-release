@@ -17,5 +17,5 @@ function New-GitLabRelease {
         -Method Post `
         -Uri "https://gitlab.com/api/v4/projects/$projectId/releases" `
         -Headers @{ "PRIVATE-TOKEN" = $env:GITLAB_TOKEN } `
-        -Body $body
+        -Body $body | Out-Null
 }
