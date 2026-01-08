@@ -66,6 +66,8 @@ function Invoke-SemanticRelease {
 
         $context.NextRelease.Notes = New-ReleaseNotes -context $context
 
+        Set-GitIdentity
+
         if (-not $context.DryRun) {
             Write-ChangeLog -context $context
 
@@ -73,7 +75,7 @@ function Invoke-SemanticRelease {
         }
 
         New-GitTag -version $context.NextRelease.Version
-        
+
         Invoke-ReleaseScript -context $context
     }
     catch {
