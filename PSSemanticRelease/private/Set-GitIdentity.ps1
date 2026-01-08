@@ -5,15 +5,15 @@ function Set-GitIdentity {
         $commiterEmail = "253679957+ps-semantic-release-bot@users.noreply.github.com"
     }
 
-    $commiterEmail = $env:GIT_AUTHOR_NAME
+    $commiterName = $env:GIT_AUTHOR_NAME
 
     if ($null -eq $commiterName) {
         $commiterName = "ps-semantic-release-bot"
     }
 
     try {
-        git config user.email $commiterEmail
-        git config user.name $commiterName
+        git config user.email $commiterEmail 2>$null
+        git config user.name $commiterName 2>$null
     }
     catch {
         throw $_
