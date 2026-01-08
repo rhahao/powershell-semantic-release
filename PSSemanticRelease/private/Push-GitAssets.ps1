@@ -37,5 +37,5 @@ function Push-GitAssets {
     $commitMessage = Expand-ContextString -context $context -template $messageTemplate
 
     git commit -m $commitMessage --quiet
-    # git push origin $Context.Branch
+    git push origin $Context.Branch --quiet
 }
