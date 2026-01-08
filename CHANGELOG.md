@@ -1,3 +1,9 @@
+# [1.5.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.4.1...v1.5.0) (2026-01-08)
+
+### Features
+
+* **Push-GitAssets:** show number of files to commit ([3498596](https://github.com/rhahao/powershell-semantic-release/commit/349859624ac7d84cbcf922607ddb27c3b401a5e7))
+
 ## [1.4.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.4.0...v1.4.1) (2026-01-08)
 
 ### Bug Fixes
@@ -26,6 +32,7 @@
 ### Features
 
 * **helpers:** add Set-GitIdentity function ([a79a61d](https://github.com/rhahao/powershell-semantic-release/commit/a79a61d8bf335e4b1577716c782ff9fa3715362b))
+
 
 
 
