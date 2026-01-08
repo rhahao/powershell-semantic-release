@@ -53,6 +53,8 @@ if ($PSVersionTable.PSVersion.Major -ge 6 -and $Prerelease) {
     $params.Prerelease = $Prerelease
 }
 
+New-ModuleManifest @params
+
 Test-ModuleManifest $psd1Path | Out-Null
 Write-Host "Module created and manifest validated"
 
