@@ -5,7 +5,7 @@ function Invoke-SemanticRelease {
 
     try {
         Confirm-GitClean
-        
+
         $context = New-ReleaseContext $DryRun
 
         $semanticVersion = Get-PSSemanticReleaseVersion
