@@ -8,7 +8,7 @@ function Set-GitIdentity {
     $commiterName = $env:GIT_AUTHOR_NAME
 
     if ($null -eq $commiterName) {
-        $commiterName = "ps-semantic-release-bot"
+        $commiterName = "pwsh-semantic-release-bot"
     }
 
     try {

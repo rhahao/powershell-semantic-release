@@ -19,7 +19,7 @@ function Test-GitPushAccessCI {
     if ($ciToken -and $remoteUrl -match '^https://') {
         # Remove existing username if present
         $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
-        $remoteUrl = "https://ps-semantic-release-bot:$($ciToken)@$($remoteUrl -replace '^https://','')"
+        $remoteUrl = "https://pwsh-semantic-release-bot:$($ciToken)@$($remoteUrl -replace '^https://','')"
         $context.Repository.RemoteUrl = $remoteUrl
         git remote set-url origin $remoteUrl
     }
