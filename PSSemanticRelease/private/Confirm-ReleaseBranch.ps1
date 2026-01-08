@@ -3,7 +3,7 @@ function Confirm-ReleaseBranch {
   $currentBranch = git rev-parse --abbrev-ref HEAD
 
   $branches = @()
-  
+
   if ($null -eq $config.branches) {
     $branches += "main"
   }
@@ -29,6 +29,7 @@ function Confirm-ReleaseBranch {
     }
   }
 
-  Write-Host "Branch $currentBranch is not a release branch"
+  Add-ConsoleLog "Branch $currentBranch is not a release branch"
+
   return $null
 }

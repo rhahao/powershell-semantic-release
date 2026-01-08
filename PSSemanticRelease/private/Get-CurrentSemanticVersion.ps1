@@ -22,6 +22,6 @@ function Get-CurrentSemanticVersion {
 
         $lastTag = git describe --tags --abbrev=0 $ref 2>$null
     }
-    
+
     return $lastTag -replace '^v', ''
 }
