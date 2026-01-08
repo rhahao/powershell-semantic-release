@@ -9,7 +9,7 @@ function New-GitTag {
         }
 
         if ($Context.DryRun) {
-            Add-ConsoleLog "skip $tag tag creation in DryRun mode"
+            Add-ConsoleLog "Skip $tag tag creation in DryRun mode"
             return
         }
 

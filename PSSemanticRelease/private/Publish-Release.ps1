@@ -9,7 +9,7 @@ function Publish-Release {
     $provider = Get-ReleaseProvider
 
     if ($null -eq $provider) {
-        Add-ConsoleLog "creating release aborted on unsupported CI provider"
+        Add-ConsoleLog "Creating release aborted on unsupported CI provider"
         return
     }
 

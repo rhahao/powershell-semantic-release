@@ -29,7 +29,7 @@ function New-ReleaseNotes {
     }
 
     if ($sections.Count -eq 0) {
-        Add-ConsoleLog "no user facing changes"
+        Add-ConsoleLog "No user facing changes"
         return
     }
 

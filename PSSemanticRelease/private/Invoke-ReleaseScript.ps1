@@ -3,7 +3,7 @@ function Invoke-ReleaseScript {
 
     if (-not $context.Config.Script) { return }
 
-    Add-ConsoleLog "invoking PS script: $($context.Config.Script)"
+    Add-ConsoleLog "Invoking PS script: $($context.Config.Script)"
 
     if (Get-Command pwsh -ErrorAction SilentlyContinue) {
         pwsh -ExecutionPolicy Bypass -NoProfile -File $context.Config.Script $context.DryRun $context.NextRelease.Version $context.NextRelease.Channel
