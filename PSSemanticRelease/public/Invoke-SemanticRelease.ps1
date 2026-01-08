@@ -77,6 +77,10 @@ function Invoke-SemanticRelease {
         New-GitTag -version $context.NextRelease.Version
 
         Invoke-ReleaseScript -context $context
+
+        if (-not $context.DryRun) {
+            Publish-Release -context $context
+        }
     }
     catch {
         Write-Error $_

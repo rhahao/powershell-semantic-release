@@ -4,7 +4,7 @@ function New-GitTag {
     try {
         $tag = "v$Version"
 
-        if (Test-GitTagExists $tag) {
+        if (Test-GitTagExist $tag) {
             throw "tag $tag already exists"
         }
 
