@@ -26,6 +26,20 @@ function Push-GitAssets {
 
     if ($lists.Length -eq 0) { return }
 
+    $filesCount = 0
+
+    foreach ($asset in $assets) {
+        $path = Get-Item -Path $asset
+
+        if ($path.PSIsContainer) {
+            $filesCount += (Get-ChildItem -Path $asset -File -Recurse).Count
+        } else {
+            $filesCount++
+        }
+    }
+
+    Add-ConsoleLog "Found $filesCount file(s) to commit"
+
     # Stage files
     git add $lists 2>$null
 
