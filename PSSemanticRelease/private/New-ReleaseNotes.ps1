@@ -43,11 +43,11 @@ function New-ReleaseNotes {
     $compareUrl = Get-CompareUrl -RepositoryUrl $repoUrl -FromVersion $versionPrev -ToVersion $versionNext
     $title = ""
 
-    if ($context.NextRelease.Type -eq "major") {
-        $title = "# "
+    if ($context.NextRelease.Type -eq "patch") {
+        $title = "## "
     }
     else {
-        $title = "## "
+        $title = "# "
     }
     
     if ($compareUrl) {
