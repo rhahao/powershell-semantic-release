@@ -68,10 +68,10 @@ class Exec {
             throw "[Exec] Script file `"$file`" not found."
         }
 
-        # if ($this.Context.DryRun) {
-        #     Add-ConsoleLog "[Exec] Would run script `"$file`" with arguments: $($arguments -join " ")"
-        #     return
-        # }
+        if ($this.Context.DryRun) {
+            Add-ConsoleLog "[Exec] Would run script `"$file`" with arguments: $($arguments -join " ")"
+            return
+        }
 
         Add-ConsoleLog "[Exec] Running `"$file`" with arguments: $($arguments -join ' ')"
 
