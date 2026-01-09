@@ -5,12 +5,6 @@ function Invoke-SemanticRelease {
 
     try {
         # Confirm-GitClean
-
-        # $context.NextRelease.Type = Get-ReleaseTypeFromCommits -context $context
-
-        # if ($null -eq $context.NextRelease.Type) {
-        #     return
-        # }
         
         # $context.NextRelease.Version = Get-NextSemanticVersion -context $context
 
@@ -47,6 +41,8 @@ function Invoke-SemanticRelease {
             }
         }
 
+        Confirm-ReleaseBranch -context $context
+
         Update-PluginsList -context $context
 
         $plugins = Get-SemanticReleasePlugins -context $context
@@ -62,32 +58,25 @@ function Invoke-SemanticRelease {
             
                 Add-ConsoleLog "Loaded step $step of plugin $($plugin.GetType().Name)"
             }
-        }    
+        }
 
-        # $branchConfig = Confirm-ReleaseBranch
-        # $context.Branch = $branchConfig.Branch
-        # $context.NextRelease.Channel = $branchConfig.Channel
-
-        Add-ConsoleLog "Running automated release from branch $($context.Branch) on repository $($context.Repository.RemoteUrl)"
+        Add-ConsoleLog "Running automated release from branch $($context.Repository.BranchCurrent) on repository $($context.Repository.RemoteUrl)"
 
         Confirm-EnvironmentCI
 
-        $hasPushAccess = Test-GitPushAccessCI -context $context
+        Test-GitPushAccessCI -context $context
 
-        if (-not $hasPushAccess) { return }
-
-        $context.CurrentVersion.Published = Get-CurrentSemanticVersion -context $context -Branch "main"
-        $context.CurrentVersion.Branch = Get-CurrentSemanticVersion
+        $context.CurrentVersion.Published = Get-CurrentSemanticVersion -context $context -Branch $context.Repository.BranchDefault
+        $context.CurrentVersion.Branch = Get-CurrentSemanticVersion -context $context
 
         if (-not  $context.CurrentVersion.Branch) {
             Add-ConsoleLog "No previous release found, retrieving all commits"
         }
         else {
-            Add-ConsoleLog "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Branch)"
+            Add-ConsoleLog "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Repository.BranchCurrent)"
         }
 
-        $context.Commits.List = Get-ConventionalCommits -context $context
-        $context.Commits.Formatted = if ($context.Commits.List.Count -eq 1) { "1 commit" } else { "$($context.Commits.List.Count) commits" }     
+        Get-ConventionalCommits -context $context    
 
         if ($context.Commits.List.Count -eq 0) {
             Add-ConsoleLog "No commits found, no release needed"
@@ -113,6 +102,8 @@ function Invoke-SemanticRelease {
 
             Add-ConsoleLog "Completed step $step of plugin $pluginName"
         }
+
+        if ($null -eq $context.NextRelease.Type) { return }
     }
     catch {
         Write-Error $_

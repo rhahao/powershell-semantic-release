@@ -1,16 +1,16 @@
 function Update-PluginsList {
     param ([PSCustomObject]$context)
 
-    $default = $context.ConfigDefault.plugins
-    $context.ConfigDefault.plugins = Format-PluginsList $default
+    $default = $context.Config.Default.plugins
+    $context.Config.Default.plugins = Format-PluginsList $default
 
-    $userPlugins = $context.Config.plugins
+    $projectPlugins = $context.Config.Project.plugins
 
-    if ($userPlugins -isnot [array] -or $userPlugins.Count -eq 0) {
+    if ($projectPlugins -isnot [array] -or $projectPlugins.Count -eq 0) {
         throw "No plugins configured. Either remove the plugins section from the config or add at least one plugin."
     }
 
-    $context.Config.plugins = Format-PluginsList $userPlugins
+    $context.Config.Project.plugins = Format-PluginsList $projectPlugins
 }
 
 function Format-PluginsList {
@@ -41,7 +41,7 @@ function Format-PluginsList {
 function Get-SemanticReleasePlugins {
     param([PSCustomObject]$Context)
 
-    $plugins = $context.Config.plugins
+    $plugins = $context.Config.Project.plugins
 
     $finalPlugins = @()
 
@@ -53,7 +53,7 @@ function Get-SemanticReleasePlugins {
         }
 
         $className = $plugin.Name
-        $instance = New-Object -TypeName ([Ref]$className).Value -ArgumentList @($plugin.Config, $Context)
+        $instance = New-Object -TypeName ([Ref]$className).Value -ArgumentList $plugin.Config, $Context
 
         $finalPlugins += $instance
     }

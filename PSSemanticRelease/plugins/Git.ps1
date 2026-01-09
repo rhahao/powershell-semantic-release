@@ -2,6 +2,8 @@ class Git {
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
+    $typeName = $this.GetType().Name
+
     Git([PSCustomObject]$Config, [PSCustomObject]$Context) {
         $this.Config = $Config
         $this.Context = $Context
@@ -12,11 +14,11 @@ class Git {
         $message = $this.Config.message
 
         if (-not $assets -or ($assets -is [array] -and $assets.Count -eq 0)) {
-            throw "Git plugin requires at least one asset to be specified."
+            throw "[Git] At least one asset needs to be specified."
         }
 
         if (-not $message) {
-            throw "Git plugin requires a commit message to be specified."
+            throw "[Git] A commit message needs to be specified."
         }
     }
 }

@@ -11,13 +11,17 @@ function New-ReleaseContext {
 
         DryRun         = if ($DryRun) { $true } else { $false }
 
-        Config         = $config.Config
-        ConfigDefault  = $config.Default
+        Config = [PSCustomObject]@{
+            Default = $config.Default
+            Project = $config.Config
+        }
 
-        Branch         = Get-CurrentBranch
-        Repository     = [PSCustomObject]@{
-            RemoteUrl = $remoteUrl
-            Url       = $repoUrl
+
+        Repository =[PSCustomObject]@{
+            BranchDefault = Get-BranchDefault
+            BranchCurrent = Get-CurrentBranch
+            Url = $remoteUrl
+            RemoteUrl = $repoUrl
         }
 
         Commits        = [PSCustomObject]@{
@@ -32,6 +36,7 @@ function New-ReleaseContext {
 
         NextRelease    = [PSCustomObject]@{
             Channel = $null
+            Prerelease = $false
             Type    = $null
             Version = $null
             Notes   = $null

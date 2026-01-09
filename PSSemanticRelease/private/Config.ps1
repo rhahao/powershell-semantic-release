@@ -24,3 +24,33 @@ function Get-SemanticReleaseConfig {
         Config  = $Config
     }
 }
+
+function Confirm-ReleaseBranch {
+    param ([PSCustomObject]$context)
+
+    $currentBranch = $context.Repository.CurrentBranch
+    $configDefault = $context.Config.Default
+    $config = $context.Config.Project
+
+    if ($null -eq $config.branches) {
+        $context.Config.Project.branches = $configDefault.branches
+    }
+
+    foreach ($b in $context.Config.Project.branches) {
+        if ($b -is [string] -and $b -eq $currentBranch) {
+            $context.NextRelease.Channel = 'default'
+            $context.NextRelease.Prerelease = $false
+
+            return
+        }
+
+        if ($b.name -eq $currentBranch) {
+            $context.NextRelease.Channel = $b.prerelease
+            $context.NextRelease.Prerelease = $true
+
+            return
+        }
+    }
+
+    throw "Branch $currentBranch is not a release branch"
+}

@@ -7,13 +7,15 @@ class Changelog {
         $this.Context = $Context
     }
 
+    $typeName = $this.GetType().Name
+
     [void] EnsureConfig() {
         if (-not $this.Config.file) {
-            $configDefault = $this.Context.ConfigDefault.plugins | Where-Object { $_.Name -eq "Changelog" }
+            $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
             $this.Config = $configDefault.Config
             
-            ($this.Context.Config.plugins | Where-Object { $_.Name -eq "Changelog" }) | ForEach-Object {
+            ($this.Context.Config.Project.plugins | Where-Object { $_.Name -eq $typeName }) | ForEach-Object {
                 $_.Config = $configDefault.Config
             }
         }
@@ -24,11 +26,11 @@ class Changelog {
             [System.IO.Path]::GetFullPath($this.Config.file) | Out-Null
         }
         catch {
-            throw "The file path of the Changelog plugin is invalid"
+            throw "[Changelog] The file path of the Changelog plugin is invalid"
         }
 
         if ($this.Config.file -notlike "*.md") {
-            throw "Only markdown (.md) file is supported for the changelog."
+            throw "[Changelog] Only markdown (.md) file is supported for the changelog."
         }
     }
 }

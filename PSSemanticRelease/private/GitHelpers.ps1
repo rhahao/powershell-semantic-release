@@ -6,45 +6,14 @@ function Confirm-GitClean {
     }
 }
 
+function Get-BranchDefault {
+    $defaultBranch = git remote show origin | Select-String 'HEAD branch' | ForEach-Object { ($_ -split ':')[1].Trim() }
+    
+    return $defaultBranch
+}
 function Get-CurrentBranch {
     $currentBranch = git rev-parse --abbrev-ref HEAD
     return $currentBranch
-}
-
-function Confirm-ReleaseBranch {
-    $config = Get-SemanticReleaseConfig
-    $currentBranch = git rev-parse --abbrev-ref HEAD
-
-    $branches = @()
-
-    if ($null -eq $config.branches) {
-        $branches += "main"
-    }
-    else {
-        $branches += $config.branches
-    }
-
-    foreach ($b in $branches) {
-        if ($b -is [string] -and $b -eq $currentBranch) {
-            return @{
-                Channel    = 'default'
-                Prerelease = $false
-                Branch     = $currentBranch
-            }
-        }
-
-        if ($b.name -eq $currentBranch) {
-            return @{
-                Channel    = $b.prerelease
-                Prerelease = $true
-                Branch     = $currentBranch
-            }
-        }
-    }
-
-    Add-ConsoleLog "Branch $currentBranch is not a release branch"
-
-    return $null
 }
 
 function Get-CommitUrl {
@@ -87,20 +56,23 @@ function Get-CompareUrl {
 function Get-ConventionalCommits {
     param($context)
 
-    $Branch = $context.Branch
+    $Branch = $context.Repository.BranchCurrent
 
     $lastTag = git describe --tags --abbrev=0 $Branch 2>$null
 
     $range = if ($lastTag) { "$lastTag..$Branch" } else { $Branch }
 
-    $commits = @()
+    $results = @()
 
     foreach ($line in git log $range --pretty=format:'%H|%s' --reverse) {
         $commit = ConvertFrom-Commit $line
-        if ($commit) { $commits += $commit }
+        if ($commit) { $results += $commit }
     }
 
-    return , $commits
+    $commits = , $results
+
+    $context.Commits.List = $commits
+    $context.Commits.Formatted = if ($commits.Count -eq 1) { "1 commit" } else { "$($commits.Count) commits" }
 }
 
 function Get-CurrentSemanticVersion {
@@ -115,17 +87,7 @@ function Get-CurrentSemanticVersion {
         $lastTag = git tag --list | Sort-Object { [version]($_ -replace '^v', '') } -Descending | Select-Object -First 1
     }
     else {
-        if ($Branch -eq 'main' -and $context.Branch -ne "main") {
-            $exists = git show-ref --verify --quiet "refs/heads/$Branch"
-
-            if (-not $exists) {
-                git fetch origin "${Branch}:$Branch" --quiet
-            }
-        }
-
-        $ref = if ($Branch) { $Branch } else { 'HEAD' }
-
-        $lastTag = git describe --tags --abbrev=0 $ref 2>$null
+        $lastTag = git describe --tags --abbrev=0 $Branch 2>$null
     }
 
     return $lastTag -replace '^v', ''
@@ -133,54 +95,6 @@ function Get-CurrentSemanticVersion {
 
 function Get-GitRemoteUrl {
     git remote get-url origin
-}
-
-function Get-NextSemanticVersion {
-    param ($context)
-
-    $nextVersion = ""
-
-    if ($null -eq $context.CurrentVersion.Published) {
-        $nextVersion = "1.0.0"
-    }
-    else {
-        $v = [version]$context.CurrentVersion.Published
-        $Type = $context.NextRelease.Type
-
-        if ($Type -eq 'major') {
-            $nextVersion = "{0}.0.0" -f ($v.Major + 1)
-        }
-        elseif ($Type -eq 'minor') {
-            $nextVersion = "{0}.{1}.0" -f $v.Major, ($v.Minor + 1)
-        }
-        elseif ($Type -eq 'patch') {
-            $nextVersion = "{0}.{1}.{2}" -f $v.Major, $v.Minor, ($v.Build + 1)
-        }
-    }    
-
-    if ($context.NextRelease.Channel -ne "default" -and -not $context.Config.unify_tag) {
-        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextRelease.Channel)\.\d+$" }
-
-        if (-not $tags) {
-            $nextVersion = "$nextVersion-$($context.NextRelease.Channel).1"
-        }
-        else {
-            $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($context.NextRelease.Channel)\.", "") } | Sort-Object | Select-Object -Last 1)
-
-            $nextVersion = "$nextVersion-$($context.NextRelease.Channel).$($last + 1)"
-        }
-    }
-
-    $versionChannel = if ($context.NextRelease.Channel -ne "lastest") { "$($context.NextRelease.Channel) " }
-    
-    if ($null -eq $context.CurrentVersion.Published) {
-        Add-ConsoleLog "There is no previous $($versionChannel)release, the next release version is $nextVersion"
-    }
-    else {
-        Add-ConsoleLog "The next $($versionChannel)release version is $nextVersion"
-    }
-
-    return $nextVersion
 }
 
 function Test-GitPushAccessCI {
@@ -210,21 +124,19 @@ function Test-GitPushAccessCI {
     }
 
     try {
-        $output = git push --dry-run origin $($context.Branch) 2>&1
+        $currentBranch = $context.Repository.BranchCurrent
+
+        $output = git push --dry-run origin $currentBranch 2>&1
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
-            Add-ConsoleLog "Allowed to push on branch $($context.Branch) to the Git repository"
-            return $true
+            Add-ConsoleLog "Allowed to push on branch $currentBranch to the Git repository"
         }
         else {
             Add-ConsoleLog "Push failed: permission denied."
-            return $false
         }
     }
     catch {
-        Write-Error $_
-        Add-ConsoleLog "Push check failed: $_"
-        return $false
+        throw "Push check failed: $_"
     }
 }
 
