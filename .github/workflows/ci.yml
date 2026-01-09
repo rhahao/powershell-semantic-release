@@ -14,8 +14,12 @@ jobs:
       - name: Run PowerShell Script Analyzer
         shell: pwsh
         run: |
-          Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse -Severity Error -EnableExit
-      
+          $results = Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse -Severity Error
+          if ($results) {
+              $results | Format-Table
+              throw "ScriptAnalyzer failed"
+          }
+
       - name: Run PSSemanticRelease in DryRun mode
         shell: pwsh
         run: |
