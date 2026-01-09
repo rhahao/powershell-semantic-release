@@ -24,6 +24,8 @@ class ReleaseNotesGenerator {
         $this.EnsureConfig()
 
         $commits = $this.Context.Commits.List
+        $dryRun = $this.Context.DryRun
+
         $releaseRules = [hashtable]@{}
 
         $commitAnalyzerPluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name "CommitAnalyzer"
@@ -60,15 +62,15 @@ class ReleaseNotesGenerator {
 
         $lines = @()
 
-        $repoUrl = $this.Context.Config.Repository.Url
-        $versionPrev = $this.Context.Config.CurrentVersion.Branch
-        $versionNext = $this.Context.Config.NextRelease.Version
+        $repoUrl = $this.Context.Repository.Url
+        $versionPrev = $this.Context.CurrentVersion.Branch
+        $versionNext = $this.Context.NextRelease.Version
         $date = Get-Date -Format "yyyy-MM-dd"
 
         $compareUrl = Get-CompareUrl -RepositoryUrl $repoUrl -FromVersion $versionPrev -ToVersion $versionNext
         $title = ""
 
-        if ($this.Context.Config.NextRelease.Type -eq "patch") {
+        if ($this.Context.NextRelease.Type -ne "major") {
             $title = "## "
         }
         else {
@@ -76,7 +78,7 @@ class ReleaseNotesGenerator {
         }
     
         if ($compareUrl) {
-            if ($this.Context.Config.DryRun) {
+            if ($dryRun) {
                 $title += "$versionNext ($compareUrl) "
             }
             else {
@@ -113,7 +115,7 @@ class ReleaseNotesGenerator {
 
                 $line = ""
 
-                if ($this.Context.Config.DryRun) {
+                if ($dryRun) {
                     $line += "    "
                 }
 
@@ -126,10 +128,6 @@ class ReleaseNotesGenerator {
         }
 
         $notes = $lines -join "`n"
-
-        if ($this.Context.Config.DryRun) {
-            Add-ConsoleLog "Release note for version ${versionNext}:`n$notes"
-        }
 
         $this.Context.NextRelease.Notes = $notes
     }

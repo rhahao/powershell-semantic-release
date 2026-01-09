@@ -34,9 +34,18 @@ class Changelog {
     }
 
     [void] Prepare() {
+        $dryRun = $this.Context.DryRun
+
+        if ($dryRun) { 
+            Add-ConsoleLog 'Skip step "prepare" of plugin "Changelog" in DryRun mode'
+            return
+        }
+
         $changelogFile = $this.Config.file
         $changelogTitle = $this.Config.title
         $notes = $this.Context.NextRelease.Notes
+
+        
 
         $preContents = ""
         $status = ""
@@ -50,7 +59,7 @@ class Changelog {
             $status = "[Changelog] Create $((Get-Item -Path ".").FullName)/$changelogFile"
         }
 
-        $currentContent = if ($null -ne $changelogTitle -and $preContents.StartsWith($changelogTitle)) {
+        $currentContent = if ($changelogTitle -ne "" -and $preContents.StartsWith($changelogTitle)) {
             $preContents.Substring($changelogTitle.Length).Trim()
         }
         else {
@@ -58,12 +67,13 @@ class Changelog {
         }
 
         $postContents = "$($notes.Trim())`n"
+
         $postContents += if ($null -ne $currentContent) { 
             "`n$($currentContent)`n" 
         }
         else { "" }
 
-        $finalContents = if ($null -ne $changelogTitle) {
+        $finalContents = if ($changelogTitle -ne "") {
             "$($changelogTitle)`n`n$($postContents)"
         }
         else {

@@ -54,7 +54,13 @@ function Invoke-SemanticRelease {
             }
         }
 
-        Add-ConsoleLog "Running automated release from branch $($context.Repository.BranchCurrent) on repository $($context.Repository.RemoteUrl)"
+        $logRan = "Running automated release from branch $($context.Repository.BranchCurrent) on repository $($context.Repository.RemoteUrl)"
+
+        if ($context.DryRun) {
+            $logRan += " in DryRun mode"
+        }
+
+        Add-ConsoleLog $logRan
 
         Confirm-EnvironmentCI
 
@@ -117,6 +123,13 @@ function Invoke-SemanticRelease {
 
                 Add-ConsoleLog "Completed step $step of plugin $pluginName"
             }
+        }
+
+        if ($context.DryRun) {
+            $versionNext = $context.NextRelease.Version
+            $notes = $context.NextRelease.Notes
+
+            Add-ConsoleLog "Release note for version ${versionNext}:`n$notes"
         }
     }
     catch {
