@@ -1,4 +1,32 @@
-﻿## [1.5.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.4.1...v1.5.0) (2026-01-08)
+## [1.6.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.5.0...v1.6.0) (2026-01-09)
+
+### Bug Fixes
+
+* **helpers:** update commits sorting ([d23b6f9](https://github.com/rhahao/powershell-semantic-release/commit/d23b6f9eef9b4e9cca0e2da82758b9e3f3f0f58c))
+* **module:** allow DryRun mode without CI_TOKEN ([bc3d8b6](https://github.com/rhahao/powershell-semantic-release/commit/bc3d8b6551097bc5905cc64337c0fcf7a4be6135))
+* **module:** include missing VerifyConditions step ([85ea4a0](https://github.com/rhahao/powershell-semantic-release/commit/85ea4a0bd9860182701d6a66e13c9d666db03eef))
+* **module:** update exit code for Invoke-SemanticRelease ([51a5af7](https://github.com/rhahao/powershell-semantic-release/commit/51a5af7842b3eece00b6ab9c14d8925c3815f7dc))
+* **plugins:** ReleaseNotesGenerator failed to capture DryRun value ([25bd5cd](https://github.com/rhahao/powershell-semantic-release/commit/25bd5cd8c2e5efc5afc22579535d157fe75be7a7))
+* **plugins:** string with double quotes not showing properly ([e5ae22b](https://github.com/rhahao/powershell-semantic-release/commit/e5ae22baf827c64af9cf6d008da8914777cc2327))
+
+### Features
+
+* **helpers:** restructure release context ([b0de024](https://github.com/rhahao/powershell-semantic-release/commit/b0de024d2c58a3a891059d1612e375e66552d3e1))
+* **module:** add placeholder for Publish step ([db1791f](https://github.com/rhahao/powershell-semantic-release/commit/db1791ff0180fccc335b6e0c38127485bcb454e3))
+* **module:** migrate release notes generator to plugin ([9d1a5e1](https://github.com/rhahao/powershell-semantic-release/commit/9d1a5e12516837fa0557d6b40c446e1558f86786))
+* **module:** migrate writing changelog to plugin ([d40d01c](https://github.com/rhahao/powershell-semantic-release/commit/d40d01ce71d41c18370bbe94493ec3075cebdfd6))
+* **module:** restructure module for plugins extensions ([9949d49](https://github.com/rhahao/powershell-semantic-release/commit/9949d49604cf5c9d570dc508349b19b429b72a08))
+* **module:** support commits sorting ([22100af](https://github.com/rhahao/powershell-semantic-release/commit/22100af42425828b32945356ecc57c9de5255afb))
+* **module:** use New-GitTag function ([a2a2172](https://github.com/rhahao/powershell-semantic-release/commit/a2a2172b6188e30f0027c0acbd5599e9b16fad16))
+* **plugins:** add Exec plugin ([f4d93b7](https://github.com/rhahao/powershell-semantic-release/commit/f4d93b769c59dbed228463d936f0738776c02e78))
+* **plugins:** add GitHub plugin ([1105bdf](https://github.com/rhahao/powershell-semantic-release/commit/1105bdfd506d9f10478704d3051be3c03ba6e354))
+* **plugins:** add Prepare step for Git ([8acd240](https://github.com/rhahao/powershell-semantic-release/commit/8acd2402bb9eb99065362499c7c951ec3a040c4c))
+* **plugins:** add Publish step for GitHub ([d6731b9](https://github.com/rhahao/powershell-semantic-release/commit/d6731b983db1e7cf0324691632399b09198e995b))
+* **plugins:** update GitHub and GitLab plugins ([f39a412](https://github.com/rhahao/powershell-semantic-release/commit/f39a4125c71f60892e8e62c65060f6d99a1daed7))
+* **plugins:** update ReleaseNotesGenerator to sort commit section ([e5555bd](https://github.com/rhahao/powershell-semantic-release/commit/e5555bd8efc610056ac2c5ee1a3fb45ac584a7de))
+* **plugins:** update VerifyConditions step for Git ([2cca98f](https://github.com/rhahao/powershell-semantic-release/commit/2cca98f87ee845215541e1f5f1c2ce7e653c17c3))
+
+## [1.5.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.4.1...v1.5.0) (2026-01-08)
 
 ### Features
 
