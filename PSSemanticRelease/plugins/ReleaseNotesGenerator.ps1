@@ -21,6 +21,11 @@ class ReleaseNotesGenerator {
     }
 
     [void] GenerateNotes() {
+        $typeName = $this.GetType().Name
+        $step = "GenerateNotes"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+
         $this.EnsureConfig()
 
         $commits = $this.Context.Commits.List
@@ -138,5 +143,7 @@ class ReleaseNotesGenerator {
         $notes = $lines -join "`n"
 
         $this.Context.NextRelease.Notes = $notes
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }

@@ -116,12 +116,7 @@ function Invoke-SemanticRelease {
                 if (-not $hasStep) { continue }
 
                 $pluginName = $plugin.GetType().Name
-
-                Add-ConsoleLog "Start step $step of plugin $pluginName"
-
                 $plugin.$step()
-
-                Add-ConsoleLog "Completed step $step of plugin $pluginName"
             }
         }
 

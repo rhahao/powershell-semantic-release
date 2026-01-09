@@ -35,11 +35,15 @@ class Changelog {
 
     [void] Prepare() {
         $dryRun = $this.Context.DryRun
+        $typeName = $this.GetType().Name
+        $step = "Prepare"
 
         if ($dryRun) { 
-            Add-ConsoleLog 'Skip step "prepare" of plugin "Changelog" in DryRun mode'
+            Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
             return
         }
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
 
         $changelogFile = $this.Config.file
         $changelogTitle = $this.Config.title
@@ -83,5 +87,7 @@ class Changelog {
         Set-Content -Path $changelogFile -Value $finalContents -Encoding UTF8
 
         Add-ConsoleLog $status
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }
