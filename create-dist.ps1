@@ -1,7 +1,7 @@
 param (
     [string]$DryRun,
     [string]$Version = "0.0.0",
-    [string]$Prerelease = $null
+    [string]$Channel = "default"
 )
 
 Set-StrictMode -Version Latest
@@ -49,8 +49,8 @@ $params = @{
 }
 
 # Only add -Prerelease if supported
-if ($PSVersionTable.PSVersion.Major -ge 6 -and $Prerelease) {
-    $params.Prerelease = $Prerelease
+if ($PSVersionTable.PSVersion.Major -ge 6 -and $Channel -ne "default") {
+    $params.Prerelease = $Channel
 }
 
 New-ModuleManifest @params
