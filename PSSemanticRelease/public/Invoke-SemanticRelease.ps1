@@ -55,9 +55,11 @@ function Invoke-SemanticRelease {
 
         Add-ConsoleLog $logRan
 
-        Confirm-EnvironmentCI
+        if (-not $context.DryRun) {
+            Confirm-EnvironmentCI
 
-        Test-GitPushAccessCI -context $context
+            Test-GitPushAccessCI -context $context
+        }
 
         # RUNNING VERIFYCONDITIONS STEP
         foreach ($plugin in $plugins) {
