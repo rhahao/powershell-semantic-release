@@ -1,4 +1,4 @@
-function Invoke-ReleaseScript {
+function Step-RunScript {
     param($context)
 
     if (-not $context.Config.Script) { return }

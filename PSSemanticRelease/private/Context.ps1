@@ -1,17 +1,23 @@
 function New-ReleaseContext {
     param ($DryRun)
+    
+    $config = Get-SemanticReleaseConfig
+
+    $remoteUrl = Get-GitRemoteUrl
+    $repoUrl = Resolve-RepositoryUrl $remoteUrl
 
     return [PSCustomObject]@{
         CI             = Test-CIEnvironment
 
         DryRun         = if ($DryRun) { $true } else { $false }
 
-        Config         = Get-SemanticReleaseConfig
+        Config         = $config.Config
+        ConfigDefault  = $config.Default
 
-        Branch         = $null
+        Branch         = Get-CurrentBranch
         Repository     = [PSCustomObject]@{
-            RemoteUrl = $null
-            Url       = $null
+            RemoteUrl = $remoteUrl
+            Url       = $repoUrl
         }
 
         Commits        = [PSCustomObject]@{

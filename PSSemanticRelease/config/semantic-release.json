@@ -1,0 +1,28 @@
+{
+  "branches": [
+    "main",
+    { "name": "beta", "prerelease": "beta" },
+    { "name": "alpha", "prerelease": "alpha" }
+  ],
+  "unify_tag": false,
+  "script": "",
+  "plugins": [
+    [
+      "CommitAnalyzer",
+      {
+        "releaseRules": [
+          { "type": "fix", "release": "patch", "section": "Bug Fixes" },
+          { "type": "feat", "release": "minor", "section": "Features" }
+        ]
+      }
+    ],
+    ["Changelog", { "file": "CHANGELOG.md", "title": "" }],
+    [
+      "Git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
+      }
+    ]
+  ]
+}

@@ -8,7 +8,8 @@ function Write-Changelog {
     if (-not (Test-Path $changelogPath)) {
         Set-Content -Path $changelogPath -Value $logs
         Add-ConsoleLog "Created $changelogPath file"
-    } else {
+    }
+    else {
         $logs = Get-Content -Path $changelogPath -Raw -Encoding UTF8
     }
 

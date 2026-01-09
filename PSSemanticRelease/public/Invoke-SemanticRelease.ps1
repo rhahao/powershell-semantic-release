@@ -4,26 +4,38 @@ function Invoke-SemanticRelease {
     )
 
     try {
-        Confirm-GitClean
+        # Confirm-GitClean
 
-        $context = New-ReleaseContext $DryRun
+        # $context.NextRelease.Type = Get-ReleaseTypeFromCommits -context $context
+
+        # if ($null -eq $context.NextRelease.Type) {
+        #     return
+        # }
+        
+        # $context.NextRelease.Version = Get-NextSemanticVersion -context $context
+
+        # $context.NextRelease.Notes = New-ReleaseNotes -context $context        
+
+        # if (-not $context.DryRun) {
+        #     Set-GitIdentity
+
+        #     Write-ChangeLog -context $context
+
+        #     Push-GitAssets -context $context
+        # }
+
+        # New-GitTag -version $context.NextRelease.Version
+
+        # Invoke-ReleaseScript -context $context
+
+        # if (-not $context.DryRun) {
+        #     Publish-Release -context $context
+        # }
 
         $semanticVersion = Get-PSSemanticReleaseVersion
         Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
 
-        $branchConfig = Confirm-ReleaseBranch
-        $context.Branch = $branchConfig.Branch
-        $context.NextRelease.Channel = $branchConfig.Channel
-        $context.Repository.RemoteUrl = Get-GitRemoteUrl
-        $context.Repository.Url = Resolve-RepositoryUrl $context.Repository.RemoteUrl
-    
-        if (-not $context.Branch) { return }
-
-        Add-ConsoleLog "Running automated release from branch $($context.Branch) on repository $($context.Repository.RemoteUrl)"
-
-        Confirm-EnvironmentCI
-
-        if (-not (Test-GitPushAccessCI -context $context)) { return }
+        $context = New-ReleaseContext $DryRun
 
         if ($context.DryRun) {
             Add-ConsoleLog "Running in dry mode"
@@ -34,6 +46,35 @@ function Invoke-SemanticRelease {
                 Add-ConsoleLog "Running in dry mode (not in CI environment)"
             }
         }
+
+        Update-PluginsList -context $context
+
+        $plugins = Get-SemanticReleasePlugins -context $context
+
+        $steps = @("VerifyConditions", "AnalyzeCommits", "VerifyRelease", "GenerateNotes", "Prepare", "Publish")
+
+        # Loading step from plugins
+        foreach ($step in $steps) {
+            foreach ($plugin in $plugins) {
+                $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
+
+                if (-not $hasStep) { continue }
+            
+                Add-ConsoleLog "Loaded step $step of plugin $($plugin.GetType().Name)"
+            }
+        }    
+
+        # $branchConfig = Confirm-ReleaseBranch
+        # $context.Branch = $branchConfig.Branch
+        # $context.NextRelease.Channel = $branchConfig.Channel
+
+        Add-ConsoleLog "Running automated release from branch $($context.Branch) on repository $($context.Repository.RemoteUrl)"
+
+        Confirm-EnvironmentCI
+
+        $hasPushAccess = Test-GitPushAccessCI -context $context
+
+        if (-not $hasPushAccess) { return }
 
         $context.CurrentVersion.Published = Get-CurrentSemanticVersion -context $context -Branch "main"
         $context.CurrentVersion.Branch = Get-CurrentSemanticVersion
@@ -56,30 +97,21 @@ function Invoke-SemanticRelease {
             Add-ConsoleLog "Found $($context.Commits.Formatted) since last release"
         }
 
-        $context.NextRelease.Type = Get-ReleaseTypeFromCommits -context $context
+        # Doing step from plugins
+        foreach ($plugin in $plugins) {
+            $step = "AnalyzeCommits"
+            
+            $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
 
-        if ($null -eq $context.NextRelease.Type) {
-            return
-        }
-        
-        $context.NextRelease.Version = Get-NextSemanticVersion -context $context
+            if (-not $hasStep) { continue }
 
-        $context.NextRelease.Notes = New-ReleaseNotes -context $context        
+            $pluginName = $plugin.GetType().Name
 
-        if (-not $context.DryRun) {
-            Set-GitIdentity
+            Add-ConsoleLog "Start step $step of plugin $pluginName"
 
-            Write-ChangeLog -context $context
+            $plugin.$step()
 
-            Push-GitAssets -context $context
-        }
-
-        New-GitTag -version $context.NextRelease.Version
-
-        Invoke-ReleaseScript -context $context
-
-        if (-not $context.DryRun) {
-            Publish-Release -context $context
+            Add-ConsoleLog "Completed step $step of plugin $pluginName"
         }
     }
     catch {
