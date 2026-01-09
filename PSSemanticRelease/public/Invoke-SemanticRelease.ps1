@@ -136,10 +136,23 @@ function Invoke-SemanticRelease {
                 $pluginName = $plugin.GetType().Name
                 $plugin.$step()
             }
-        }        
+        }
 
         # TAG CREATION
         New-GitTag -context $context
+
+        # RUNNING FINAL STEPS
+        $steps = @("Publish")
+        foreach ($step in $steps) {
+            foreach ($plugin in $plugins) {
+                $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
+
+                if (-not $hasStep) { continue }
+
+                $pluginName = $plugin.GetType().Name
+                $plugin.$step()
+            }
+        }
 
         # SHOW RELEASE NOTES FOR DRY RUN
         if ($context.DryRun) {    
