@@ -70,12 +70,28 @@ class Git {
         git add $lists 2>$null
 
         $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
-        $currentBranch = $this.Context.Repository.BranchCurrent
 
         git commit -m $commitMessage --quiet
-        git push origin $currentBranch --quiet
 
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
+    }
+
+    [void] Publish() {
+        $dryRun = $this.Context.DryRun
+        $typeName = $this.GetType().Name
+        $step = "Publish"
+
+        if ($dryRun) { 
+            Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            return
+        }
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+        
+        $currentBranch = $this.Context.Repository.BranchCurrent
         $nextVersion = $this.Context.NextRelease.Version
+
+        git push origin $currentBranch --quiet
 
         Add-ConsoleLog "[Git] Prepared Git release: v${nextVersion}"
 
