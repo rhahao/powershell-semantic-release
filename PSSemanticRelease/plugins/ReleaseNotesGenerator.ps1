@@ -11,7 +11,7 @@ class ReleaseNotesGenerator {
         $typeName = $this.GetType().Name
         $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
         
-        if (-not $this.Config.file) {
+        if (-not $this.Config.commitsSort) {
             $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
             $this.Config = $configDefault.Config
@@ -106,7 +106,6 @@ class ReleaseNotesGenerator {
             if (-not $sections.Contains($section)) {
                 continue
             }
-
              
             $lines += "### $section"
             $lines += ""

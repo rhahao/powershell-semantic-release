@@ -68,7 +68,6 @@ function Invoke-SemanticRelease {
             Add-ConsoleLog "Completed step $step of plugin $pluginName"
         }
 
-        $context.CurrentVersion.Published = Get-CurrentSemanticVersion -context $context -Branch $context.Repository.BranchDefault
         $context.CurrentVersion.Branch = Get-CurrentSemanticVersion -context $context
 
         if (-not  $context.CurrentVersion.Branch) {

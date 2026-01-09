@@ -2,6 +2,10 @@ function Get-GitStatus {
     return git status --porcelain
 }
 
+function Get-GitModifiedFiles {
+    return git ls-files -m -o
+}
+
 function Get-BranchDefault {
     $defaultBranch = git remote show origin | Select-String 'HEAD branch' | ForEach-Object { ($_ -split ':')[1].Trim() }
     
@@ -68,22 +72,50 @@ function Get-ConventionalCommits {
     return , $commits
 }
 
-function Get-CurrentSemanticVersion {
-    param (
-        $context,
-        $Branch = "HEAD"
-    )
-
+function Get-GitTagHighest {
     git fetch --tags --quiet
 
-    if ($context.Config.Project.unify_tag) {
-        $lastTag = git tag --list | Sort-Object { [version]($_ -replace '^v', '') } -Descending | Select-Object -First 1
-    }
-    else {
-        $lastTag = git describe --tags --abbrev=0 $Branch 2>$null
+    $tags = git tag 2>$null
+
+    if (-not $tags) { return $null }
+
+    $versions = foreach ($tag in $tags) {
+        $clean = $tag -replace '^v', ''
+
+        if ($clean -notmatch '^(\d+)\.(\d+)\.(\d+)$') {
+            continue
+        }
+
+        try {
+            [version]$clean
+        }
+        catch {
+            continue
+        }
     }
 
-    return $lastTag -replace '^v', ''
+    if (-not $versions) { return $null }
+
+    return $versions | Sort-Object | Select-Object -Last 1
+}
+
+function Get-CurrentSemanticVersion {
+    param ($context)
+
+    if (-not $context.Config.Project.unifyTag) {
+        git fetch --tags --quiet
+        $lastTag = git describe --tags --abbrev=0 HEAD 2>$null
+        return $lastTag -replace '^v', ''
+    }
+    else {
+        $version = Get-GitTagHighest
+
+        if ($null -eq $version) {
+            return $version.ToString()
+        }
+
+        return $version
+    }    
 }
 
 function Get-GitRemoteUrl {
@@ -179,42 +211,68 @@ function New-GitTag {
 function Get-NextSemanticVersion {
     param ($context)
 
+    $currentVersion = ""
     $nextVersion = ""
+    $channel = $context.NextRelease.Channel
+    $unifyTag = $context.Config.Project.unifyTag
+    $highestTag = Get-GitTagHighest
 
-    if ($null -eq $context.CurrentVersion.Published) {
-        $nextVersion = "1.0.0"
+    if ($channel -eq "default" -or $unifyTag) {
+        $currentVersion = $highestTag
     }
     else {
-        $v = [version]$context.CurrentVersion.Published
-        $Type = $context.NextRelease.Type
+        $branchVersion = Get-BaseSemanticVersion $context.CurrentVersion.Branch
 
-        if ($Type -eq 'major') {
-            $nextVersion = "{0}.0.0" -f ($v.Major + 1)
+        if (-not $branchVersion) {
+            $currentVersion = $highestTag
         }
-        elseif ($Type -eq 'minor') {
-            $nextVersion = "{0}.{1}.0" -f $v.Major, ($v.Minor + 1)
-        }
-        elseif ($Type -eq 'patch') {
-            $nextVersion = "{0}.{1}.{2}" -f $v.Major, $v.Minor, ($v.Build + 1)
-        }
-    }    
-
-    if ($context.NextRelease.Channel -ne "default" -and -not $context.Config.Project.unify_tag) {
-        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($context.NextRelease.Channel)\.\d+$" }
-
-        if (-not $tags) {
-            $nextVersion = "$nextVersion-$($context.NextRelease.Channel).1"
+        elseif ($branchVersion -lt $highestTag) {
+            $currentVersion = $highestTag
         }
         else {
-            $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($context.NextRelease.Channel)\.", "") } | Sort-Object | Select-Object -Last 1)
-
-            $nextVersion = "$nextVersion-$($context.NextRelease.Channel).$($last + 1)"
+            $currentVersion = $branchVersion
         }
     }
 
-    $versionChannel = if ($context.NextRelease.Channel -ne "default") { "$($context.NextRelease.Channel) " }
+    if (-not $currentVersion) {
+        $nextVersion = "1.0.0"
+    }
+
+    if ($currentVersion) {
+        if ($channel -eq "default" -or $unifyTag) {
+            $Type = $context.NextRelease.Type
+
+            $v = [version]$currentVersion
+
+            if ($Type -eq 'major') {
+                $nextVersion = "{0}.0.0" -f ($v.Major + 1)
+            }
+            elseif ($Type -eq 'minor') {
+                $nextVersion = "{0}.{1}.0" -f $v.Major, ($v.Minor + 1)
+            }
+            elseif ($Type -eq 'patch') {
+                $nextVersion = "{0}.{1}.{2}" -f $v.Major, $v.Minor, ($v.Build + 1)
+            }
+        }
+        else {
+            $nextVersion = $currentVersion
+
+            $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($channel)\.\d+$" }
+
+            if (-not $tags) {
+                $nextVersion = "$nextVersion-$($channel).1"
+            }
+            else {
+                $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($channel)\.", "") } | Sort-Object | Select-Object -Last 1)
+
+                $nextVersion = "$nextVersion-$($channel).$($last + 1)"
+            }
+        }
+    }
+
+    $versionChannel = if ($channel -ne "default") { "$($channel) " }
     
-    if ($null -eq $context.CurrentVersion.Published) {
+    if ($null -eq $context.CurrentVersion.Branch) {
         Add-ConsoleLog "There is no previous $($versionChannel)release, the next release version is $nextVersion"
     }
     else {
@@ -222,8 +280,4 @@ function Get-NextSemanticVersion {
     }
 
     $context.NextRelease.Version = $nextVersion
-}
-
-function Get-GitModifiedFiles {
-    return git ls-files -m -o
 }

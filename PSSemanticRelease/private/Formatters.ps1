@@ -75,12 +75,27 @@ function Format-SortCommits {
         return $Commits
     }
 
-    $sortParams = foreach ($key in $SortKeys) {
+    $properties = foreach ($key in $SortKeys) {
         @{
-            Expression = { $_.$key }
+            Expression = [ScriptBlock]::Create("`$_.$key")
             Ascending  = $true
         }
-    }    
+    }
 
-    return $Commits | Sort-Object -Property $sortParams
+    return $Commits | Sort-Object -Property $properties
+}
+
+function Get-BaseSemanticVersion {
+    param([string]$Version)
+
+    if (-not $Version) { return $null }
+
+    $base = $Version -replace '-.*$', ''
+
+    try {
+        return [version]$base
+    }
+    catch {
+        return $null
+    }
 }

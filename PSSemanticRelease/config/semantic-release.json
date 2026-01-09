@@ -4,7 +4,7 @@
     { "name": "beta", "prerelease": "beta" },
     { "name": "alpha", "prerelease": "alpha" }
   ],
-  "unify_tag": false,
+  "unifyTag": false,
   "plugins": [
     [
       "CommitAnalyzer",
@@ -15,7 +15,7 @@
         ]
       }
     ],
-    ["ReleaseNotesGenerator", { "commitsSort": ["subject", "scope"] }],
+    ["ReleaseNotesGenerator", { "commitsSort": ["scope", "subject"] }],
     ["Changelog", { "file": "CHANGELOG.md", "title": "" }]
   ]
 }
