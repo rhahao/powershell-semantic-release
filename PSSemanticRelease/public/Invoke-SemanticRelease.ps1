@@ -35,6 +35,7 @@ function Invoke-SemanticRelease {
 
         $plugins = Get-SemanticReleasePlugins -context $context
 
+        # LOADING PLUGINS & STEPS
         $steps = @("VerifyConditions", "AnalyzeCommits", "VerifyRelease", "GenerateNotes", "Prepare", "Publish")
         foreach ($step in $steps) {
             foreach ($plugin in $plugins) {
@@ -58,6 +59,7 @@ function Invoke-SemanticRelease {
 
         Test-GitPushAccessCI -context $context
 
+        # RUNNING VERIFYCONDITIONS STEP
         foreach ($plugin in $plugins) {
             $step = "VerifyConditions"
             
@@ -96,6 +98,7 @@ function Invoke-SemanticRelease {
             Add-ConsoleLog "Found $($context.Commits.Formatted) since last release"
         }
 
+        # RUNNING ANALYZECOMMITS STEP
         foreach ($plugin in $plugins) {
             $step = "AnalyzeCommits"
             
@@ -116,13 +119,12 @@ function Invoke-SemanticRelease {
 
         if (-not $context.DryRun) {
             Set-GitIdentity
-
-            # Push-GitAssets -context $context
         }
 
         Get-NextSemanticVersion -context $context
 
-        $steps = @("VerifyRelease", "GenerateNotes", "Prepare", "Publish")
+        # RUNNING FEW STEPS
+        $steps = @("VerifyRelease", "GenerateNotes", "Prepare")
         foreach ($step in $steps) {
             foreach ($plugin in $plugins) {
                 $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
@@ -134,8 +136,13 @@ function Invoke-SemanticRelease {
             }
         }
 
-        if ($context.DryRun) {
-            $versionNext = $context.NextRelease.Version
+        $versionNext = $context.NextRelease.Version
+
+        # TAG CREATION
+        New-GitTag -version $versionNext
+
+        # SHOW RELEASE NOTES FOR DRY RUN
+        if ($context.DryRun) {            
             $notes = $context.NextRelease.Notes
 
             Add-ConsoleLog "Release note for version ${versionNext}:`n$notes"
