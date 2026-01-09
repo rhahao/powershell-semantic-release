@@ -1,3 +1,15 @@
+function Test-CIEnvironment {
+    if ($env:GITHUB_ACTIONS -eq "true") {
+        return $true
+    }
+
+    if ($env:GITLAB_CI -eq "true") {
+        return $true
+    }
+  
+    return $false
+}
+
 function Get-PSSemanticReleaseVersion {
     $version = Get-Module -Name PSSemanticRelease | Select-Object -First 1 -ExpandProperty Version
     return $version.ToString()

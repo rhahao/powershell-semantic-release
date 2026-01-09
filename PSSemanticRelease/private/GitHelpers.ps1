@@ -95,27 +95,15 @@ function Get-GitRemoteUrl {
 }
 
 function Test-GitPushAccessCI {
-    param($context)
+    param($context, $token)
     
     $remoteUrl = $context.Repository.RemoteUrl
 
-    # Detect CI environment and set token
-    $ciToken = $null
-
-    if ($env:GITLAB_CI -eq "true") {
-        if ($env:GITLAB_TOKEN) { $ciToken = $env:GITLAB_TOKEN }
-        if ($env:GL_TOKEN) { $ciToken = $env:GL_TOKEN }
-    }
-    elseif ($env:GITHUB_ACTIONS -eq "true") {
-        if ($env:GITHUB_TOKEN) { $ciToken = $env:GITHUB_TOKEN }
-        if ($env:GH_TOKEN) { $ciToken = $env:GH_TOKEN }
-    }
-
     # Rewrite HTTPS remote URL for CI using bot username
-    if ($ciToken -and $remoteUrl -match '^https://') {
+    if ($token -and $remoteUrl -match '^https://') {
         # Remove existing username if present
         $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
-        $remoteUrl = "https://pwsh-semantic-release-bot:$($ciToken)@$($remoteUrl -replace '^https://','')"
+        $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https://','')"
         $context.Repository.RemoteUrl = $remoteUrl
         git remote set-url origin $remoteUrl
     }
