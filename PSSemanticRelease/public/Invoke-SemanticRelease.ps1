@@ -4,10 +4,6 @@ function Invoke-SemanticRelease {
     )
 
     try {
-        # Confirm-GitClean
-        
-        # New-GitTag -version $context.NextRelease.Version
-
         # Invoke-ReleaseScript -context $context
 
         # if (-not $context.DryRun) {

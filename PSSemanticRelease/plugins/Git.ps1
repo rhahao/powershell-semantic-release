@@ -8,6 +8,12 @@ class Git {
     }
 
     [void] VerifyConditions() {
+        $gitStatus = Get-GitStatus
+
+        if ($gitStatus) {
+            throw "[Git] Working tree is not clean. Commit or stash changes before releasing."
+        }
+
         $assets = $this.Config.assets
         $message = $this.Config.message
 
