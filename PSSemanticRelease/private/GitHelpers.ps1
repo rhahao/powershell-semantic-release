@@ -167,21 +167,29 @@ function Set-GitIdentity {
 }
 
 function New-GitTag {
-    param ($version)
+    param ($context)
 
-    $tag = "v$Version"
+    try {
+        $version = $context.NextRelease.Version
 
-    if (Test-GitTagExist $tag) {
-        throw "Tag $tag already exists"
+        $tag = "v$Version"
+
+        if (Test-GitTagExist $tag) {
+            throw "Tag $tag already exists"
+        }
+
+        if ($context.DryRun) {
+            Add-ConsoleLog "Skip $tag tag creation in DryRun mode"
+            $global:LASTEXITCODE = 0
+        }
+        else {
+            git tag $tag 2>$null
+            git push origin $tag --quiet
+        }
     }
-
-    if ($Context.DryRun) {
-        Add-ConsoleLog "Skip $tag tag creation in DryRun mode"
-        return
-    }
-
-    git tag $tag 2>$null
-    git push origin $tag --quiet
+    catch {
+        throw $_
+    }    
 }
 
 function Get-NextSemanticVersion {

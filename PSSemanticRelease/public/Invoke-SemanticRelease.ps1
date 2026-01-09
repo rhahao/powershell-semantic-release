@@ -136,15 +136,14 @@ function Invoke-SemanticRelease {
                 $pluginName = $plugin.GetType().Name
                 $plugin.$step()
             }
-        }
-
-        $versionNext = $context.NextRelease.Version
+        }        
 
         # TAG CREATION
-        New-GitTag -version $versionNext
+        New-GitTag -context $context
 
         # SHOW RELEASE NOTES FOR DRY RUN
-        if ($context.DryRun) {            
+        if ($context.DryRun) {    
+            $versionNext = $context.NextRelease.Version        
             $notes = $context.NextRelease.Notes
 
             Add-ConsoleLog "Release note for version ${versionNext}:`n$notes"
