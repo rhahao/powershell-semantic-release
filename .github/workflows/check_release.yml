@@ -23,3 +23,5 @@ jobs:
           Invoke-SemanticRelease -DryRun
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
+          NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}
