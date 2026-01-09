@@ -13,8 +13,8 @@
     [
       "Exec",
       {
-        "preparePsScript": "create-dist.ps1 -ExecutionPolicy Bypass -NoProfile {DryRun} {NextRelease.Version} {NextRelease.Prerelease}",
-        "publishPsScript": "publish-dist.ps1"
+        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {DryRun} {NextRelease.Version} {NextRelease.Prerelease}",
+        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass {DryRun}"
       }
     ],
     "GitHub"
