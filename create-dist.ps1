@@ -57,9 +57,3 @@ New-ModuleManifest @params
 
 Test-ModuleManifest $psd1Path | Out-Null
 Write-Host "Module created and manifest validated"
-
-if ($DryRun -like "false") {
-    Write-Host "Publishing module to PSGallery"
-    Publish-Module  -Path $distPath -NuGetApiKey $env:NUGET_API_KEY -Repository PSGallery
-    Write-Host "Publish completed successfully"
-}
