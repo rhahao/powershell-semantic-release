@@ -1,0 +1,20 @@
+name: Check Release Note
+
+on:
+  push:
+
+jobs:
+  script_analyzer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Run PSSemanticRelease in DryRun mode
+        shell: pwsh
+        run: |
+          Import-Module ./PSSemanticRelease -Force
+          Invoke-SemanticRelease -DryRun

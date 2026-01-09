@@ -19,9 +19,3 @@ jobs:
               $results | Format-Table
               throw "ScriptAnalyzer failed"
           }
-
-      - name: Run PSSemanticRelease in DryRun mode
-        shell: pwsh
-        run: |
-          Import-Module ./PSSemanticRelease -Force
-          Invoke-SemanticRelease -DryRun
