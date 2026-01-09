@@ -32,6 +32,8 @@ class Git {
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
 
+        
+
         Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }

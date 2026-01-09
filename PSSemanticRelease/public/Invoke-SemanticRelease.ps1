@@ -6,14 +6,6 @@ function Invoke-SemanticRelease {
     try {
         # Confirm-GitClean
         
-        # if (-not $context.DryRun) {
-        #     Set-GitIdentity
-
-        #     Write-ChangeLog -context $context
-
-        #     Push-GitAssets -context $context
-        # }
-
         # New-GitTag -version $context.NextRelease.Version
 
         # Invoke-ReleaseScript -context $context
@@ -66,6 +58,22 @@ function Invoke-SemanticRelease {
 
         Test-GitPushAccessCI -context $context
 
+        foreach ($plugin in $plugins) {
+            $step = "VerifyConditions"
+            
+            $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
+
+            if (-not $hasStep) { continue }
+
+            $pluginName = $plugin.GetType().Name
+
+            Add-ConsoleLog "Start step $step of plugin $pluginName"
+
+            $plugin.$step()
+
+            Add-ConsoleLog "Completed step $step of plugin $pluginName"
+        }
+
         $context.CurrentVersion.Published = Get-CurrentSemanticVersion -context $context -Branch $context.Repository.BranchDefault
         $context.CurrentVersion.Branch = Get-CurrentSemanticVersion -context $context
 
@@ -105,6 +113,12 @@ function Invoke-SemanticRelease {
         }
 
         if ($null -eq $context.NextRelease.Type) { return }
+
+        if (-not $context.DryRun) {
+            Set-GitIdentity
+
+            # Push-GitAssets -context $context
+        }
 
         Get-NextSemanticVersion -context $context
 
