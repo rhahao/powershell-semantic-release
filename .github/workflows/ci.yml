@@ -15,3 +15,9 @@ jobs:
         shell: pwsh
         run: |
           Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse -Severity Error -EnableExit
+      
+      - name: Run PSSemanticRelease in DryRun mode
+        shell: pwsh
+        run: |
+          Import-Module ./PSSemanticRelease -Force
+          Invoke-SemanticRelease -DryRun
