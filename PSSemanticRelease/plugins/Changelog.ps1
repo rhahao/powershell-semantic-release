@@ -21,6 +21,8 @@ class Changelog {
     }
 
     [void] VerifyConditions() {
+        $this.EnsureConfig()
+        
         try {
             [System.IO.Path]::GetFullPath($this.Config.file) | Out-Null
         }

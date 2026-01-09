@@ -5,7 +5,6 @@
     { "name": "alpha", "prerelease": "alpha" }
   ],
   "unify_tag": false,
-  "script": "",
   "plugins": [
     [
       "CommitAnalyzer",
@@ -17,13 +16,6 @@
       }
     ],
     ["ReleaseNotesGenerator", { "commitsSort": ["subject", "scope"] }],
-    ["Changelog", { "file": "CHANGELOG.md", "title": "" }],
-    [
-      "Git",
-      {
-        "assets": ["CHANGELOG.md"],
-        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
-      }
-    ]
+    ["Changelog", { "file": "CHANGELOG.md", "title": "" }]
   ]
 }

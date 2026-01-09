@@ -1,4 +1,15 @@
 {
-  "unify_tag": true,
-  "script": "create-dist.ps1"
+  "plugins": [
+    "CommitAnalyzer",
+    "ReleaseNotesGenerator",
+    "Changelog",
+    [
+      "Git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
+      }
+    ],
+    "GitHub"
+  ]
 }
