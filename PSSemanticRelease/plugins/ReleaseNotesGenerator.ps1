@@ -2,22 +2,21 @@ class ReleaseNotesGenerator {
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    $typeName = $this.GetType().Name
-
     ReleaseNotesGenerator([PSCustomObject]$Config, [PSCustomObject]$Context) {
         $this.Config = $Config
         $this.Context = $Context
     }
 
     [void] EnsureConfig() {
+        $typeName = $this.GetType().Name
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+        
         if (-not $this.Config.file) {
             $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
             $this.Config = $configDefault.Config
-            
-            ($this.Context.Config.Project.plugins | Where-Object { $_.Name -eq $typeName }) | ForEach-Object {
-                $_.Config = $configDefault.Config
-            }
+
+            $this.Context.Config.Project.plugins[$pluginIndex].Config = $configDefault.Config
         }
     }
 
@@ -27,7 +26,10 @@ class ReleaseNotesGenerator {
         $commits = $this.Context.Commits.List
         $releaseRules = [hashtable]@{}
 
-        foreach ($rule in $this.Context.Config.Project.releaseRules) {
+        $commitAnalyzerPluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name "CommitAnalyzer"
+        $commitAnalyzerPlugin = $this.Context.Config.Project.plugins[$commitAnalyzerPluginIndex]
+
+        foreach ($rule in $commitAnalyzerPlugin.Config.releaseRules) {
             $releaseRules[$rule.type] = @{
                 Release = $rule.release
                 Section = $rule.section
@@ -95,7 +97,9 @@ class ReleaseNotesGenerator {
             $lines += "### $section"
             $lines += ""
 
-            $sortedCommits = Format-SortCommits -Commits $sections[$section] -SortKeys $this.Config.commitsSort
+            $sectionCommits = $sections[$section]
+            $sectionSortKeys = $this.Config.commitsSort
+            $sortedCommits = Format-SortCommits -Commits $sectionCommits -SortKeys $sectionSortKeys
 
             foreach ($commit in $sortedCommits) {
                 $commitLink = ""

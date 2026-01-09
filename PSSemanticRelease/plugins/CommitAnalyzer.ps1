@@ -7,17 +7,16 @@ class CommitAnalyzer {
         $this.Context = $Context
     }
 
-    $typeName = $this.GetType().Name
-
     [void] EnsureConfig() {
+        $typeName = $this.GetType().Name
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+
         if (-not $this.Config.releaseRules -or $this.Config.releaseRules -isnot [array] -or $this.Config.releaseRules.Count -eq 0) {
             $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
             $this.Config = $configDefault.Config
 
-            ($this.Context.Config.Project.plugins | Where-Object { $_.Name -eq $typeName }) | ForEach-Object {
-                $_.Config = $configDefault.Config
-            }
+            $this.Context.Config.Project.plugins[$pluginIndex].Config = $configDefault.Config
         }
 
         $releaseRules = @()
@@ -26,10 +25,9 @@ class CommitAnalyzer {
         $validRules = $this.Config.releaseRules | Where-Object { $validRelease -contains $_.release }
         $releaseRules += @($validRules)
 
-        $this.Config.releaseRules = $releaseRules
-        ($this.Context.Config.Project.plugins | Where-Object { $_.Name -eq $typeName }) | ForEach-Object {
-            $_.Config.ReleaseRules = $releaseRules
-        }
+        $this.Config.releaseRules = $releaseRules      
+
+        $this.Context.Config.Project.plugins[$pluginIndex].Config.releaseRules = $releaseRules
     }
 
     [void] AnalyzeCommits() {

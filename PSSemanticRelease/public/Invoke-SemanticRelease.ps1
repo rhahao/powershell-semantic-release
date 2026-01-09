@@ -6,8 +6,6 @@ function Invoke-SemanticRelease {
     try {
         # Confirm-GitClean
         
-        # $context.NextRelease.Notes = New-ReleaseNotes -context $context        
-
         # if (-not $context.DryRun) {
         #     Set-GitIdentity
 

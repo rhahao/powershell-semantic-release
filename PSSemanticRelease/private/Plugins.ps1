@@ -70,3 +70,20 @@ function Test-PluginStepExist {
     $method = $Plugin | Get-Member -Name $Step -MemberType Method -ErrorAction SilentlyContinue
     return $null -ne $method
 }
+
+function Get-PluginIndex {
+    param(
+        [array]$Plugins,
+        [string]$Name
+    )
+
+    $index = -1
+    for ($i = 0; $i -lt $Plugins.Count; $i++) {
+        if ($Plugins[$i].Name -eq $Name) {
+            $index = $i
+            break
+        }
+    }
+
+    return $index
+}

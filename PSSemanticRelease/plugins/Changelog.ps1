@@ -7,17 +7,16 @@ class Changelog {
         $this.Context = $Context
     }
 
-    $typeName = $this.GetType().Name
-
     [void] EnsureConfig() {
+        $typeName = $this.GetType().Name
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+        
         if (-not $this.Config.file) {
             $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
             $this.Config = $configDefault.Config
-            
-            ($this.Context.Config.Project.plugins | Where-Object { $_.Name -eq $typeName }) | ForEach-Object {
-                $_.Config = $configDefault.Config
-            }
+
+            $this.Context.Config.Project.plugins[$pluginIndex].Config = $configDefault.Config
         }
     }
 

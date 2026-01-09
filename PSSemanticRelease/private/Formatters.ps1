@@ -80,7 +80,7 @@ function Format-SortCommits {
             Expression = { $_.$key }
             Ascending  = $true
         }
-    }
+    }    
 
-    return $Commits | Sort-Object @sortParams
+    return $Commits | Sort-Object -Property $sortParams
 }
