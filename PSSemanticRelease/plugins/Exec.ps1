@@ -10,41 +10,45 @@ class Exec {
     [void] VerifyConditions() {
         if (-not $this.Config.verifyConditionsPsScript) { return }
 
-        $this.RunScript($this.Config.verifyConditionsPsScript)
+        $this.RunScript("VerifyConditions", $this.Config.verifyConditionsPsScript)
     }
 
     [void] AnalyzeCommits() {
         if (-not $this.Config.analyzeCommitsPsScript) { return }
 
-        $this.RunScript($this.Config.analyzeCommitsPsScript)
+        $this.RunScript("AnalyzeCommits", $this.Config.analyzeCommitsPsScript)
     }
 
     [void] VerifyRelease() {
         if (-not $this.Config.verifyReleasePsScript) { return }
 
-        $this.RunScript($this.Config.verifyReleasePsScript)
+        $this.RunScript("VerifyRelease", $this.Config.verifyReleasePsScript)
     }
 
     [void] GenerateNotes() {
         if (-not $this.Config.generateNotesPsScript) { return }
 
-        $this.RunScript($this.Config.generateNotesPsScript)
+        $this.RunScript("GenerateNotesf", $this.Config.generateNotesPsScript)
     }
 
     [void] Prepare() {
         if (-not $this.Config.preparePsScript) { return }
 
-        $this.RunScript($this.Config.preparePsScript)
+        $this.RunScript("Prepare", $this.Config.preparePsScript)
     }
 
     [void] Publish() {
         if (-not $this.Config.publishPsScript) { return }
 
-        $this.RunScript($this.Config.publishPsScript)
+        $this.RunScript("Publish", $this.Config.publishPsScript)
     }
 
-    [void] RunScript([string]$scriptProp) {
+    [void] RunScript([string]$step, [string]$scriptProp) {
         if (-not $scriptProp) { return }
+
+        $typeName = $this.GetType().Name
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
 
         # Split into tokens
         $tokens = $scriptProp -split " "
@@ -88,6 +92,8 @@ class Exec {
             if ($process.ExitCode -ne 0) {
                 throw "[Exec] Script  `"$file`" failed with exit code $($process.ExitCode)"
             }
+
+            Add-ConsoleLog "Completed step $step of plugin $typeName"
         }
         catch {
             throw "[Exec] failed executing `"$file`": $_"
