@@ -1,3 +1,9 @@
+## [1.7.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.7.0...v1.7.1) (2026-01-09)
+
+### Bug Fixes
+
+* **plugins:** add missing logging for Exec ([2a6cc34](https://github.com/rhahao/powershell-semantic-release/commit/2a6cc3483df6171c19a9ba48a12d74292f526bb5))
+
 ## [1.7.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.6.0...v1.7.0) (2026-01-09)
 
 ### Bug Fixes
