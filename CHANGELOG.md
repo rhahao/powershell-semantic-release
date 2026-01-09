@@ -1,3 +1,13 @@
+## [1.7.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.6.0...v1.7.0) (2026-01-09)
+
+### Bug Fixes
+
+* **scripts:** use channel for params in create-dist.ps1 ([15bc93c](https://github.com/rhahao/powershell-semantic-release/commit/15bc93c8b4c48f8041c7a66bf76e6c7e9670c237))
+
+### Features
+
+* **plugins:** add Publish step for Git ([1bfdffd](https://github.com/rhahao/powershell-semantic-release/commit/1bfdffd6a7cfcaa15eab03fd8697d75a238f87d3))
+
 ## [1.6.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.5.0...v1.6.0) (2026-01-09)
 
 ### Bug Fixes
