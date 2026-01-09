@@ -10,6 +10,13 @@
         "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
       }
     ],
+    [
+      "Exec",
+      {
+        "preparePsScript": "create-dist.ps1 -ExecutionPolicy Bypass -NoProfile {DryRun} {NextRelease.Version} {NextRelease.Prerelease}",
+        "publishPsScript": "publish-dist.ps1"
+      }
+    ],
     "GitHub"
   ],
   "unifyTag": true
