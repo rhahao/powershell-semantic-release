@@ -151,6 +151,6 @@ function Invoke-SemanticRelease {
         }
     }
     catch {
-        Write-Error $_
+        throw $_
     }    
 }

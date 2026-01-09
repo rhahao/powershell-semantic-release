@@ -1,4 +1,4 @@
-name: Check Release Note
+name: Check Release Notes
 
 on:
   push:
