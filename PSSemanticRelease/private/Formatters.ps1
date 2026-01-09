@@ -64,3 +64,23 @@ function Resolve-RepositoryUrl {
 
     return $null
 }
+
+function Format-SortCommits {
+    param(
+        [object[]]$Commits,
+        [string[]]$SortKeys
+    )
+
+    if (-not $SortKeys -or $SortKeys.Count -eq 0) {
+        return $Commits
+    }
+
+    $sortParams = foreach ($key in $SortKeys) {
+        @{
+            Expression = { $_.$key }
+            Ascending  = $true
+        }
+    }
+
+    return $Commits | Sort-Object @sortParams
+}

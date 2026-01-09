@@ -16,6 +16,7 @@
         ]
       }
     ],
+    ["ReleaseNotesGenerator", { "commitsSort": ["subject", "scope"] }],
     ["Changelog", { "file": "CHANGELOG.md", "title": "" }],
     [
       "Git",

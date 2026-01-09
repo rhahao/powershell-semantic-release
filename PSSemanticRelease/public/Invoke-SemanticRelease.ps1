@@ -6,8 +6,6 @@ function Invoke-SemanticRelease {
     try {
         # Confirm-GitClean
         
-        # $context.NextRelease.Version = Get-NextSemanticVersion -context $context
-
         # $context.NextRelease.Notes = New-ReleaseNotes -context $context        
 
         # if (-not $context.DryRun) {
@@ -48,8 +46,6 @@ function Invoke-SemanticRelease {
         $plugins = Get-SemanticReleasePlugins -context $context
 
         $steps = @("VerifyConditions", "AnalyzeCommits", "VerifyRelease", "GenerateNotes", "Prepare", "Publish")
-
-        # Loading step from plugins
         foreach ($step in $steps) {
             foreach ($plugin in $plugins) {
                 $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
@@ -74,11 +70,13 @@ function Invoke-SemanticRelease {
         }
         else {
             Add-ConsoleLog "Found git tag v$($context.CurrentVersion.Branch) on branch $($context.Repository.BranchCurrent)"
-        }
+        }        
+        
+        $commitsList = Get-ConventionalCommits -context $context
+        $context.Commits.List = $commitsList
+        $context.Commits.Formatted = if ($commitsList.Count -eq 1) { "1 commit" } else { "$($commitsList.Count) commits" }
 
-        Get-ConventionalCommits -context $context    
-
-        if ($context.Commits.List.Count -eq 0) {
+        if ($commitsList.Count -eq 0) {
             Add-ConsoleLog "No commits found, no release needed"
             return
         }
@@ -86,7 +84,6 @@ function Invoke-SemanticRelease {
             Add-ConsoleLog "Found $($context.Commits.Formatted) since last release"
         }
 
-        # Doing step from plugins
         foreach ($plugin in $plugins) {
             $step = "AnalyzeCommits"
             
@@ -104,6 +101,25 @@ function Invoke-SemanticRelease {
         }
 
         if ($null -eq $context.NextRelease.Type) { return }
+
+        Get-NextSemanticVersion -context $context
+
+        $steps = @("VerifyRelease", "GenerateNotes", "Prepare", "Publish")
+        foreach ($step in $steps) {
+            foreach ($plugin in $plugins) {
+                $hasStep = Test-PluginStepExist -Plugin $plugin -Step $step
+
+                if (-not $hasStep) { continue }
+
+                $pluginName = $plugin.GetType().Name
+
+                Add-ConsoleLog "Start step $step of plugin $pluginName"
+
+                $plugin.$step()
+
+                Add-ConsoleLog "Completed step $step of plugin $pluginName"
+            }
+        }
     }
     catch {
         Write-Error $_

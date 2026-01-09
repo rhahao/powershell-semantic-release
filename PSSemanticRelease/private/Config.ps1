@@ -28,7 +28,7 @@ function Get-SemanticReleaseConfig {
 function Confirm-ReleaseBranch {
     param ([PSCustomObject]$context)
 
-    $currentBranch = $context.Repository.CurrentBranch
+    $currentBranch = $context.Repository.BranchCurrent
     $configDefault = $context.Config.Default
     $config = $context.Config.Project
 
