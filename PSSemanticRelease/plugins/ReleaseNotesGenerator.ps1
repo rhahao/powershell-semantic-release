@@ -95,12 +95,20 @@ class ReleaseNotesGenerator {
         $lines += $title
         $lines += ""
 
-        foreach ($section in $sections.Keys) {
+        $orderedSections = ($commitAnalyzerPlugin.Config.releaseRules | ForEach-Object { $_.section }) | Select-Object -Unique
+
+        foreach ($section in $orderedSections) {
+            if (-not $sections.Contains($section)) {
+                continue
+            }
+
+             
             $lines += "### $section"
             $lines += ""
 
             $sectionCommits = $sections[$section]
             $sectionSortKeys = $this.Config.commitsSort
+            
             $sortedCommits = Format-SortCommits -Commits $sectionCommits -SortKeys $sectionSortKeys
 
             foreach ($commit in $sortedCommits) {
