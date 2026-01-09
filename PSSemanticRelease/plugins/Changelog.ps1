@@ -32,4 +32,46 @@ class Changelog {
             throw "[Changelog] Only markdown (.md) file is supported for the changelog."
         }
     }
+
+    [void] Prepare() {
+        $changelogFile = $this.Config.file
+        $changelogTitle = $this.Config.title
+        $notes = $this.Context.NextRelease.Notes
+
+        $preContents = ""
+        $status = ""
+
+        if (Test-Path $changelogFile) {
+            $status = "[Changelog] Update $((Get-Item -Path $changelogFile).FullName)"
+
+            $preContents = (Get-Content -Path $changelogFile -Raw -Encoding UTF8).Trim()
+        }
+        else {
+            $status = "[Changelog] Create $((Get-Item -Path ".").FullName)/$changelogFile"
+        }
+
+        $currentContent = if ($null -ne $changelogTitle -and $preContents.StartsWith($changelogTitle)) {
+            $preContents.Substring($changelogTitle.Length).Trim()
+        }
+        else {
+            $preContents
+        }
+
+        $postContents = "$($notes.Trim())`n"
+        $postContents += if ($null -ne $currentContent) { 
+            "`n$($currentContent)`n" 
+        }
+        else { "" }
+
+        $finalContents = if ($null -ne $changelogTitle) {
+            "$($changelogTitle)`n`n$($postContents)"
+        }
+        else {
+            $postContents
+        }
+
+        Set-Content -Path $changelogFile -Value $finalContents -Encoding UTF8
+
+        Add-ConsoleLog $status
+    }
 }
