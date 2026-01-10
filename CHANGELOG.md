@@ -1,3 +1,9 @@
+## [1.9.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.8.2...v1.9.0) (2026-01-10)
+
+### Features
+
+* **plugins:** organize by folders ([5a983af](https://github.com/rhahao/powershell-semantic-release/commit/5a983af15df4469b4d7ad03905a11c373a57d2a3))
+
 ## [1.8.2](https://github.com/rhahao/powershell-semantic-release/compare/v1.8.1...v1.8.2) (2026-01-10)
 
 ### Bug Fixes
