@@ -55,12 +55,12 @@ function Invoke-SemanticRelease {
 
                 if (-not $hasStep) { continue }
 
-                if ($context.Aborted) { return }
+                if ($context.Abort) { return }
             
                 $plugin.$step()
             }            
         }
-        
+
         # SHOW RELEASE NOTES FOR DRY RUN
         if ($context.DryRun) {    
             $versionNext = $context.NextRelease.Version        
