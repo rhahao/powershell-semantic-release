@@ -1,3 +1,9 @@
+## [1.10.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.9.0...v1.10.0) (2026-01-10)
+
+### Features
+
+* **plugins:** use correct folder structure for log ([09202e0](https://github.com/rhahao/powershell-semantic-release/commit/09202e0d51fba4b1f37ce431af24e1c0093b2dc8))
+
 ## [1.9.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.8.2...v1.9.0) (2026-01-10)
 
 ### Features
