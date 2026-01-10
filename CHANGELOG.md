@@ -1,3 +1,9 @@
+## [1.8.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.8.0...v1.8.1) (2026-01-10)
+
+### Bug Fixes
+
+* **plugins:** remove null cast in GitHub Publish step ([fc3aa90](https://github.com/rhahao/powershell-semantic-release/commit/fc3aa903283fe602eeeaa5244809cf17a6550158))
+
 ## [1.8.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.7.1...v1.8.0) (2026-01-10)
 
 ### Bug Fixes
