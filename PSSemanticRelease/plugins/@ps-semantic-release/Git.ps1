@@ -1,14 +1,16 @@
 class Git {
+    [string]$PluginName
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    Git([PSCustomObject]$Config, [PSCustomObject]$Context) {
+    Git([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+        $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
     }
 
     [void] VerifyConditions() {
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -48,8 +50,8 @@ class Git {
     }
 
     [void] Prepare() {
+        $typeName = $this.PluginName
         $dryRun = $this.Context.DryRun
-        $typeName = $this.GetType().Name
         $step = "Prepare"
 
         if ($dryRun) { 
@@ -113,8 +115,8 @@ class Git {
     }
 
     [void] Publish() {
+        $typeName = $this.PluginName
         $dryRun = $this.Context.DryRun
-        $typeName = $this.GetType().Name
         $step = "Publish"
 
         if ($dryRun) { 

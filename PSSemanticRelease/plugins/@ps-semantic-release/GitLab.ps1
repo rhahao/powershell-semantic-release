@@ -1,14 +1,16 @@
 class GitLab {
+    [string]$PluginName
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    GitLab([PSCustomObject]$Config, [PSCustomObject]$Context) {
+    GitLab([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+        $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
     }
 
     [void] VerifyConditions() {
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"

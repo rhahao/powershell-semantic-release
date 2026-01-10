@@ -1,8 +1,10 @@
 class CommitAnalyzer {
+    [string]$PluginName
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    CommitAnalyzer([PSCustomObject]$Config, [PSCustomObject]$Context) {
+    CommitAnalyzer([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+        $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
 
@@ -10,11 +12,11 @@ class CommitAnalyzer {
     }
 
     [void] EnsureConfig() {
-        $typeName = $this.GetType().Name
-        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+        $namePlugin = $this.PluginName
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $namePlugin
 
         if (-not $this.Config.releaseRules -or $this.Config.releaseRules -isnot [array] -or $this.Config.releaseRules.Count -eq 0) {
-            $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
+            $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $namePlugin }
 
             $this.Config = $configDefault.Config
 
@@ -33,10 +35,10 @@ class CommitAnalyzer {
     }
 
     [void] VerifyConditions() {
-        $typeName = $this.GetType().Name
+        $namePlugin = $this.PluginName
         $step = "VerifyConditions"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-ConsoleLog "Start step $step of plugin $namePlugin"
 
         $commitsList = Get-ConventionalCommits -context $this.Context
         $this.Context.Commits.List = $commitsList
@@ -51,14 +53,14 @@ class CommitAnalyzer {
             Add-ConsoleLog "[CommitAnalyzer] Found $($this.Context.Commits.Formatted) since last release"
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-ConsoleLog "Completed step $step of plugin $namePlugin"
     }
 
     [void] AnalyzeCommits() {
-        $typeName = $this.GetType().Name
+        $namePlugin = $this.PluginName
         $step = "AnalyzeCommits"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-ConsoleLog "Start step $step of plugin $namePlugin"
         
         $types = @()
 
@@ -109,6 +111,6 @@ class CommitAnalyzer {
             $this.Context.NextRelease.Version = Get-NextSemanticVersion -context $this.Context
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-ConsoleLog "Completed step $step of plugin $namePlugin"
     }
 }

@@ -1,8 +1,10 @@
 class ReleaseNotesGenerator {
+    [string]$PluginName
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    ReleaseNotesGenerator([PSCustomObject]$Config, [PSCustomObject]$Context) {
+    ReleaseNotesGenerator([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+        $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
 
@@ -10,7 +12,7 @@ class ReleaseNotesGenerator {
     }
 
     [void] EnsureConfig() {
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
         $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
         
         if (-not $this.Config.commitsSort) {
@@ -23,7 +25,7 @@ class ReleaseNotesGenerator {
     }
 
     [void] GenerateNotes() {
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
         $step = "GenerateNotes"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -32,7 +34,7 @@ class ReleaseNotesGenerator {
 
         $releaseRules = [hashtable]@{}
 
-        $commitAnalyzerPluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name "CommitAnalyzer"
+        $commitAnalyzerPluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name "@ps-semantic-release/CommitAnalyzer"
         $commitAnalyzerPlugin = $this.Context.Config.Project.plugins[$commitAnalyzerPluginIndex]
 
         foreach ($rule in $commitAnalyzerPlugin.Config.releaseRules) {

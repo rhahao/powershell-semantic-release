@@ -1,8 +1,10 @@
 class Changelog {
+    [string]$PluginName
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    Changelog([PSCustomObject]$Config, [PSCustomObject]$Context) {
+    Changelog([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+        $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
 
@@ -10,7 +12,7 @@ class Changelog {
     }
 
     [void] EnsureConfig() {
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
         $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
         
         if (-not $this.Config.file) {
@@ -23,7 +25,7 @@ class Changelog {
     }
 
     [void] VerifyConditions() {   
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -43,8 +45,8 @@ class Changelog {
     }
 
     [void] Prepare() {
+        $typeName = $this.PluginName
         $dryRun = $this.Context.DryRun
-        $typeName = $this.GetType().Name
         $step = "Prepare"
 
         if ($dryRun) { 

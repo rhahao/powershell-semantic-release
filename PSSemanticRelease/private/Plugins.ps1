@@ -45,15 +45,34 @@ function Get-SemanticReleasePlugins {
 
     $finalPlugins = @()
 
-    foreach ($plugin in $plugins) {
+    $loaded = @()
+
+    foreach ($plugin in $plugins) {   
+        $pluginName = $plugin.Name
+
+        $baseName = if ($pluginName -like "*/*") {
+            $($pluginName -split "/")[1]
+        }
+        else {
+            $pluginName
+        }
+
+        $findPlugin = $loaded | Where-Object { $_ -eq $baseNames }
+
+        if ($findPlugin) {
+            throw "Plugin $baseName already loaded. Use a different name."
+        }
+
+        $loaded += $baseName
+
         $findPlugin = Get-Item -Path "$PSScriptRoot/../plugins/$($plugin.Name).ps1" -ErrorAction SilentlyContinue
 
         if (-not $findPlugin) {
             throw "Plugin $($plugin.Name) not found."
         }
 
-        $className = $plugin.Name
-        $instance = New-Object -TypeName ([Ref]$className).Value -ArgumentList $plugin.Config, $Context
+        $className = $baseName
+        $instance = New-Object -TypeName ([Ref]$className).Value -ArgumentList $plugin.Name, $plugin.Config, $Context
 
         $finalPlugins += $instance
     }

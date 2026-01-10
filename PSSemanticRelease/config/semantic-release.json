@@ -7,7 +7,7 @@
   "unifyTag": false,
   "plugins": [
     [
-      "CommitAnalyzer",
+      "@ps-semantic-release/CommitAnalyzer",
       {
         "releaseRules": [
           { "type": "fix", "release": "patch", "section": "Bug Fixes" },
@@ -15,7 +15,10 @@
         ]
       }
     ],
-    ["ReleaseNotesGenerator", { "commitsSort": ["scope", "subject"] }],
-    ["Changelog", { "file": "CHANGELOG.md", "title": "" }]
+    [
+      "@ps-semantic-release/ReleaseNotesGenerator",
+      { "commitsSort": ["scope", "subject"] }
+    ],
+    ["@ps-semantic-release/Changelog", { "file": "CHANGELOG.md", "title": "" }]
   ]
 }

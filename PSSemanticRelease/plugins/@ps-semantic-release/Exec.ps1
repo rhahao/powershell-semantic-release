@@ -1,8 +1,10 @@
 class Exec {
+    [string]$PluginName
     [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    Exec([PSCustomObject]$Config, [PSCustomObject]$Context) {
+    Exec([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+        $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
     }
@@ -46,7 +48,7 @@ class Exec {
     [void] RunScript([string]$step, [bool]$haltDryRun, [string]$scriptProp) {
         if (-not $scriptProp) { return }
 
-        $typeName = $this.GetType().Name
+        $typeName = $this.PluginName
 
         if ($haltDryRun -and $this.Context.DryRun) {
             Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"

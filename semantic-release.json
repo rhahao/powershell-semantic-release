@@ -1,23 +1,23 @@
 {
   "plugins": [
-    "CommitAnalyzer",
-    "ReleaseNotesGenerator",
-    "Changelog",
+    "@ps-semantic-release/CommitAnalyzer",
+    "@ps-semantic-release/ReleaseNotesGenerator",
+    "@ps-semantic-release/Changelog",
     [
-      "Git",
+      "@ps-semantic-release/Git",
       {
         "assets": ["CHANGELOG.md"],
         "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
       }
     ],
     [
-      "Exec",
+      "@ps-semantic-release/Exec",
       {
         "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version} {NextRelease.Channel}",
         "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass"
       }
     ],
-    "GitHub"
+    "@ps-semantic-release/GitHub"
   ],
   "unifyTag": true
 }
