@@ -14,7 +14,7 @@
       "Exec",
       {
         "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version} {NextRelease.Channel}",
-        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass {DryRun}"
+        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass"
       }
     ],
     "GitHub"
