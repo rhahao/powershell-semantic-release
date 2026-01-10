@@ -48,7 +48,7 @@ class Exec {
     [void] RunScript([string]$step, [bool]$haltDryRun, [string]$scriptProp) {
         if (-not $scriptProp) { return }
 
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
 
         if ($haltDryRun -and $this.Context.DryRun) {
             Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
@@ -63,7 +63,7 @@ class Exec {
         # First token ending with .ps1 is the script file
         $file = $tokens | Where-Object { $_ -match '\.ps1$' } | Select-Object -First 1
         if (-not $file) {
-            throw "[Exec] Could not find the file `"$scriptProp`""
+            throw "[$($this.PluginName)] Could not find the file `"$scriptProp`""
         }
 
         # Everything else is arguments
@@ -76,10 +76,10 @@ class Exec {
 
         # Resolve path
         if (-not (Test-Path $file)) {
-            throw "[Exec] Script file `"$file`" not found."
+            throw "[$($this.PluginName)] Script file `"$file`" not found."
         }
 
-        Add-ConsoleLog "[Exec] Running `"$file`" with arguments: $($arguments -join ' ')"
+        Add-ConsoleLog "[$($this.PluginName)] Running `"$file`" with arguments: $($arguments -join ' ')"
 
         try {
             $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
@@ -88,13 +88,13 @@ class Exec {
             $process = Start-Process -FilePath $processName -ArgumentList $argsArray -NoNewWindow -Wait -PassThru
 
             if ($process.ExitCode -ne 0) {
-                throw "[Exec] Script  `"$file`" failed with exit code $($process.ExitCode)"
+                throw "[$($this.PluginName)] Script  `"$file`" failed with exit code $($process.ExitCode)"
             }
 
             Add-ConsoleLog "Completed step $step of plugin $typeName"
         }
         catch {
-            throw "[Exec] failed executing `"$file`": $_"
+            throw "Exec failed executing `"$file`": $_"
         }
     }
 }

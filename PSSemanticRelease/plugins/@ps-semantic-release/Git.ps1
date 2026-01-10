@@ -10,7 +10,7 @@ class Git {
     }
 
     [void] VerifyConditions() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -25,11 +25,11 @@ class Git {
         $message = $this.Config.message
 
         if (-not $assets -or ($assets -is [array] -and $assets.Count -eq 0)) {
-            throw "[Git] At least one asset needs to be specified."
+            throw "[$($this.PluginName)] At least one asset needs to be specified."
         }
 
         if (-not $message) {
-            throw "[Git] A commit message needs to be specified."
+            throw "[$($this.PluginName)] A commit message needs to be specified."
         }
 
         if (-not $this.Context.DryRun) {
@@ -40,17 +40,17 @@ class Git {
         $this.Context.CurrentVersion.Branch = $currentVersion
 
         if (-not $currentVersion) {
-            Add-ConsoleLog "[Git] No previous release found, retrieving all commits"
+            Add-ConsoleLog "[$($this.PluginName)] No previous release found, retrieving all commits"
         }
         else {
-            Add-ConsoleLog "[Git] Found git tag v$currentVersion on branch $($this.Context.Repository.BranchCurrent)"
+            Add-ConsoleLog "[$($this.PluginName)] Found git tag v$currentVersion on branch $($this.Context.Repository.BranchCurrent)"
         }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] Prepare() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Prepare"
 
@@ -78,11 +78,11 @@ class Git {
         }
 
         if ($lists.Count -eq 0) { 
-            Add-ConsoleLog "[Git] Cannot find files listed in assets config"
+            Add-ConsoleLog "[$($this.PluginName)] Cannot find files listed in assets config"
             return
         }
 
-        Add-ConsoleLog "[Git] Found $($lists.Count) file(s) to commit"
+        Add-ConsoleLog "[$($this.PluginName)] Found $($lists.Count) file(s) to commit"
 
         # Stage files
         git add $lists 2>$null
@@ -105,7 +105,7 @@ class Git {
         }
 
         if ($dryRun) {
-            Add-ConsoleLog "[Git] Skip $tag tag creation in DryRun mode"
+            Add-ConsoleLog "[$($this.PluginName)] Skip $tag tag creation in DryRun mode"
         }
         else {
             git tag $tag 2>$null
@@ -115,7 +115,7 @@ class Git {
     }
 
     [void] Publish() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Publish"
 
@@ -133,7 +133,7 @@ class Git {
 
         git push origin $currentBranch $tag 2>$null
 
-        Add-ConsoleLog "[Git] Prepared Git release: v${nextVersion}"
+        Add-ConsoleLog "[$($this.PluginName)] Prepared Git release: v${nextVersion}"
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
     }

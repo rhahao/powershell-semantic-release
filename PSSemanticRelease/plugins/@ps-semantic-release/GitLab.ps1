@@ -10,7 +10,7 @@ class GitLab {
     }
 
     [void] VerifyConditions() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -23,11 +23,11 @@ class GitLab {
 
         if ($this.Context.CI) {
             if ($env:GITLAB_CI -eq "false") {
-                throw "[GitLab] You are not running PSSemanticRelease using GitLab Pipeline"
+                throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitLab Pipeline"
             }
 
             if (-not $env:GITLAB_TOKEN -and -not $env:GL_TOKEN) {
-                throw "[GitLab] No GitLab token (GITLAB_TOKEN or GL_TOKEN) found in CI environment."
+                throw "[$($this.PluginName)] No GitLab token (GITLAB_TOKEN or GL_TOKEN) found in CI environment."
             }
         }
 

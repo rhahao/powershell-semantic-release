@@ -10,7 +10,7 @@ class GitHub {
     }
 
     [void] VerifyConditions() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -18,16 +18,16 @@ class GitHub {
         $assets = $this.Config.assets
 
         if ($assets -and $assets -isnot [array]) {
-            throw "[GitHub] Specify the array of files to upload for a release."
+            throw "[$($this.PluginName)] Specify the array of files to upload for a release."
         }
 
         if ($this.Context.CI) {
             if ($env:GITHUB_ACTIONS -eq "false") {
-                throw "[GitHub] You are not running PSSemanticRelease using GitHub Action"
+                throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitHub Action"
             }
 
             if (-not $env:GITHUB_TOKEN -and -not $env:GH_TOKEN) {
-                throw "[GitHub] No GitHub token (GITHUB_TOKEN or GH_TOKEN) found in CI environment."
+                throw "[$($this.PluginName)] No GitHub token (GITHUB_TOKEN or GH_TOKEN) found in CI environment."
             }
         }
 
@@ -42,7 +42,7 @@ class GitHub {
     }
 
     [void] Publish() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Publish"
 
@@ -82,6 +82,6 @@ class GitHub {
 
         $releaseUrl = $response.html_url
 
-        Add-ConsoleLog "[GitHub] Published GitHub release: $releaseUrl"
+        Add-ConsoleLog "[$($this.PluginName)] Published GitHub release: $releaseUrl"
     }
 }

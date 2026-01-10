@@ -25,7 +25,7 @@ class Changelog {
     }
 
     [void] VerifyConditions() {   
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -34,18 +34,18 @@ class Changelog {
             [System.IO.Path]::GetFullPath($this.Config.file) | Out-Null
         }
         catch {
-            throw "[Changelog] The file path of the Changelog plugin is invalid"
+            throw "[$($this.PluginName)] The file path of the Changelog plugin is invalid"
         }
 
         if ($this.Config.file -notlike "*.md") {
-            throw "[Changelog] Only markdown (.md) file is supported for the changelog."
+            throw "[$($this.PluginName)] Only markdown (.md) file is supported for the changelog."
         }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] Prepare() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Prepare"
 
@@ -66,12 +66,12 @@ class Changelog {
         $status = ""
 
         if (Test-Path $changelogFile) {
-            $status = "[Changelog] Update $((Get-Item -Path $changelogFile).FullName)"
+            $status = "[$($this.PluginName)] Update $((Get-Item -Path $changelogFile).FullName)"
 
             $preContents = (Get-Content -Path $changelogFile -Raw -Encoding UTF8).Trim()
         }
         else {
-            $status = "[Changelog] Create $((Get-Item -Path ".").FullName)/$changelogFile"
+            $status = "[$($this.PluginName)] Create $((Get-Item -Path ".").FullName)/$changelogFile"
         }
 
         $currentContent = if ($changelogTitle -ne "" -and $preContents.StartsWith($changelogTitle)) {

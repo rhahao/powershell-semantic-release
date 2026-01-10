@@ -35,50 +35,50 @@ class CommitAnalyzer {
     }
 
     [void] VerifyConditions() {
-        $namePlugin = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
-        Add-ConsoleLog "Start step $step of plugin $namePlugin"
+        Add-ConsoleLog "Start step $step of plugin $typeName"
 
         $commitsList = Get-ConventionalCommits -context $this.Context
         $this.Context.Commits.List = $commitsList
         $this.Context.Commits.Formatted = if ($commitsList.Count -eq 1) { "1 commit" } else { "$($commitsList.Count) commits" }
 
         if ($commitsList.Count -eq 0) {
-            Add-ConsoleLog "[CommitAnalyzer] No commits found, no release needed"
+            Add-ConsoleLog "[$($this.PluginName)] No commits found, no release needed"
 
             $this.Context.Abort = $true
         }
         else {
-            Add-ConsoleLog "[CommitAnalyzer] Found $($this.Context.Commits.Formatted) since last release"
+            Add-ConsoleLog "[$($this.PluginName)] Found $($this.Context.Commits.Formatted) since last release"
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $namePlugin"
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] AnalyzeCommits() {
-        $namePlugin = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "AnalyzeCommits"
 
-        Add-ConsoleLog "Start step $step of plugin $namePlugin"
+        Add-ConsoleLog "Start step $step of plugin $typeName"
         
         $types = @()
 
         foreach ($commit in $this.Context.Commits.List) {
-            Add-ConsoleLog "[CommitAnalyzer] Analyzing commit: $($commit.Message)"
+            Add-ConsoleLog "[$($this.PluginName)] Analyzing commit: $($commit.Message)"
 
             $commitType = $this.Config.releaseRules | Where-Object { $_.type -eq $commit.Type }
 
             if ($null -eq $commitType) {
-                Add-ConsoleLog "[CommitAnalyzer] The commit should not trigger a release"
+                Add-ConsoleLog "[$($this.PluginName)] The commit should not trigger a release"
             }
             else {
                 if ($commit.Breaking -eq $true) {
-                    Add-ConsoleLog "[CommitAnalyzer] The release type for the commit is major"
+                    Add-ConsoleLog "[$($this.PluginName)] The release type for the commit is major"
                     $types += "major"
                 }
                 else {
-                    Add-ConsoleLog "[CommitAnalyzer] The release type for the commit is $($commitType.release)"
+                    Add-ConsoleLog "[$($this.PluginName)] The release type for the commit is $($commitType.release)"
                     $types += $commitType.release
                 }            
             }
@@ -100,7 +100,7 @@ class CommitAnalyzer {
 
         $releaseType = if ($null -eq $type) { "no release needed" } else { "$type release" }
 
-        Add-ConsoleLog "[CommitAnalyzer] Analysis of $($this.Context.Commits.Formatted) completed: $releaseType"
+        Add-ConsoleLog "[$($this.PluginName)] Analysis of $($this.Context.Commits.Formatted) completed: $releaseType"
 
         $this.Context.NextRelease.Type = $type
 
@@ -111,6 +111,6 @@ class CommitAnalyzer {
             $this.Context.NextRelease.Version = Get-NextSemanticVersion -context $this.Context
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $namePlugin"
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }

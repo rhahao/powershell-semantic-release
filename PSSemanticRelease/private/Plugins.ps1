@@ -65,10 +65,10 @@ function Get-SemanticReleasePlugins {
 
         $loaded += $baseName
 
-        $findPlugin = Get-Item -Path "$PSScriptRoot/../plugins/$($plugin.Name).ps1" -ErrorAction SilentlyContinue
+        $findPlugin = Get-Item -Path "$PSScriptRoot/../plugins/$pluginName.ps1" -ErrorAction SilentlyContinue
 
         if (-not $findPlugin) {
-            throw "Plugin $($plugin.Name) not found."
+            throw "Plugin $pluginName not found."
         }
 
         $className = $baseName

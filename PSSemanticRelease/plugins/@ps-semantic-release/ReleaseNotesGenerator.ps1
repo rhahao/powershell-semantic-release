@@ -25,7 +25,7 @@ class ReleaseNotesGenerator {
     }
 
     [void] GenerateNotes() {
-        $typeName = $this.PluginName
+        $typeName = "`"$($this.PluginName)`""
         $step = "GenerateNotes"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
@@ -62,7 +62,7 @@ class ReleaseNotesGenerator {
         }
 
         if ($sections.Count -eq 0) {
-            Add-ConsoleLog "No user facing changes"
+            Add-ConsoleLog "[$($this.PluginName)] No user facing changes"
             return
         }
 
