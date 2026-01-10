@@ -55,7 +55,10 @@ function Invoke-SemanticRelease {
 
                 if (-not $hasStep) { continue }
 
-                if ($context.Abort) { return }
+                if ($context.Abort) {
+                    $global:LASTEXITCODE = 0
+                    return 
+                }
             
                 $plugin.$step()
             }            
