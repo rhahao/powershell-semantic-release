@@ -76,7 +76,7 @@ class ReleaseNotesGenerator {
         $compareUrl = Get-CompareUrl -RepositoryUrl $repoUrl -FromVersion $versionPrev -ToVersion $versionNext
         $title = ""
 
-        if ($this.Context.NextRelease.Type -ne "major") {
+        if ($this.Context.NextRelease.Type -eq "patch") {
             $title = "## "
         }
         else {
