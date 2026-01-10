@@ -9,9 +9,6 @@ permissions:
 jobs:
   package_publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
 
     steps:
       - name: Checkout code
@@ -30,4 +27,4 @@ jobs:
           NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
           NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
