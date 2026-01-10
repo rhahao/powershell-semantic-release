@@ -83,11 +83,7 @@ class Exec {
             $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
             $argsArray = @("-File", $file) + $arguments
 
-            $process = Start-Process -FilePath $processName `
-                -ArgumentList $argsArray `
-                -NoNewWindow `
-                -Wait `
-                -PassThru
+            $process = Start-Process -FilePath $processName -ArgumentList $argsArray -NoNewWindow -Wait -PassThru
 
             if ($process.ExitCode -ne 0) {
                 throw "[Exec] Script  `"$file`" failed with exit code $($process.ExitCode)"
