@@ -1,3 +1,16 @@
+## [1.8.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.7.1...v1.8.0) (2026-01-10)
+
+### Bug Fixes
+
+* **plugins:** call EnsureConfig on plugin load ([d8673b5](https://github.com/rhahao/powershell-semantic-release/commit/d8673b56e890fa5be8b2eb519635d3202ddb562e))
+* **plugins:** move release notes formatter for DryRun ([461ca21](https://github.com/rhahao/powershell-semantic-release/commit/461ca21b8dc93cde31104cf6d205744fa23938b1))
+
+### Features
+
+* **module:** rewrite plugins steps call ([bf3d278](https://github.com/rhahao/powershell-semantic-release/commit/bf3d2780ccbd2d3a502aa956bb2c397077c7e602))
+* **plugins:** set condition for DryRun in Exec ([a355a5c](https://github.com/rhahao/powershell-semantic-release/commit/a355a5c58af2fbf6ec52700006c49cea713b128f))
+* **plugins:** update log prefix ([f905826](https://github.com/rhahao/powershell-semantic-release/commit/f905826d21e57a23a218cb8faedbcd23a2660154))
+
 ## [1.7.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.7.0...v1.7.1) (2026-01-09)
 
 ### Bug Fixes
