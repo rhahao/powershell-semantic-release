@@ -1,3 +1,9 @@
+## [1.8.2](https://github.com/rhahao/powershell-semantic-release/compare/v1.8.1...v1.8.2) (2026-01-10)
+
+### Bug Fixes
+
+* **plugins:** push tag during Git Publish step ([a2cc829](https://github.com/rhahao/powershell-semantic-release/commit/a2cc829205a4540e6e12f75f9b0a75141ac28275))
+
 ## [1.8.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.8.0...v1.8.1) (2026-01-10)
 
 ### Bug Fixes
