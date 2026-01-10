@@ -1,3 +1,9 @@
+## [1.10.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.10.0...v1.10.1) (2026-01-10)
+
+### Bug Fixes
+
+* **plugins:** add missing logger for GitHub Publish ([009638d](https://github.com/rhahao/powershell-semantic-release/commit/009638dc466cd7bcd732c073def1e161336158f4))
+
 ## [1.10.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.9.0...v1.10.0) (2026-01-10)
 
 ### Features
