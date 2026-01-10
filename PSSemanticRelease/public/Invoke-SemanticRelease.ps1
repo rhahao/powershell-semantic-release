@@ -4,12 +4,6 @@ function Invoke-SemanticRelease {
     )
 
     try {
-        # Invoke-ReleaseScript -context $context
-
-        # if (-not $context.DryRun) {
-        #     Publish-Release -context $context
-        # }
-
         $semanticVersion = Get-PSSemanticReleaseVersion
         Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
 
