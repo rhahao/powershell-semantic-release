@@ -10,12 +10,12 @@ function Invoke-SemanticRelease {
         $context = New-ReleaseContext $DryRun
 
         if ($context.DryRun) {
-            Add-ConsoleLog "Running in dry mode"
+            Add-ConsoleLog "Running in DryRun mode"
         }
         else {
             if (-not $context.CI) {
                 $context.DryRun = $true
-                Add-ConsoleLog "Running in dry mode (not in CI environment)"
+                Add-ConsoleLog "Running in DryRun mode (not in CI environment)"
             }
         }
 
