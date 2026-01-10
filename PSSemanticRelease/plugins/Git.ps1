@@ -8,6 +8,11 @@ class Git {
     }
 
     [void] VerifyConditions() {
+        $typeName = $this.GetType().Name
+        $step = "VerifyConditions"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+
         $gitStatus = Get-GitStatus
 
         if ($gitStatus) {
@@ -24,6 +29,22 @@ class Git {
         if (-not $message) {
             throw "[Git] A commit message needs to be specified."
         }
+
+        if (-not $this.Context.DryRun) {
+            Set-GitIdentity
+        }
+
+        $currentVersion = Get-CurrentSemanticVersion -context $this.Context.Config.Project.unifyTag
+        $this.Context.CurrentVersion.Branch = $currentVersion
+
+        if (-not $currentVersion) {
+            Add-ConsoleLog "No previous release found, retrieving all commits"
+        }
+        else {
+            Add-ConsoleLog "Found git tag v$currentVersion on branch $($this.Context.Repository.BranchCurrent)"
+        }
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] Prepare() {
@@ -72,6 +93,22 @@ class Git {
         $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
 
         git commit -m $commitMessage --quiet
+
+        $version = $this.Context.NextRelease.Version
+
+        $tag = "v$Version"
+
+        if (Test-GitTagExist $tag) {
+            throw "Tag $tag already exists"
+        }
+
+        if ($dryRun) {
+            Add-ConsoleLog "Skip $tag tag creation in DryRun mode"
+        }
+        else {
+            git tag $tag 2>$null
+            git push origin $tag --quiet
+        }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
     }

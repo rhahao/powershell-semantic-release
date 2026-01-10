@@ -8,6 +8,11 @@ class GitLab {
     }
 
     [void] VerifyConditions() {
+        $typeName = $this.GetType().Name
+        $step = "VerifyConditions"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+        
         $assets = $this.Config.assets
 
         if ($assets -and $assets -isnot [array]) {
@@ -30,5 +35,7 @@ class GitLab {
         if ($env:GL_TOKEN) { $token = $env:GL_TOKEN }
 
         Test-GitPushAccessCI -context $this.Context -token $token
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }

@@ -8,6 +8,11 @@ class GitHub {
     }
 
     [void] VerifyConditions() {
+        $typeName = $this.GetType().Name
+        $step = "VerifyConditions"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+        
         $assets = $this.Config.assets
 
         if ($assets -and $assets -isnot [array]) {
@@ -30,6 +35,8 @@ class GitHub {
         if ($env:GH_TOKEN) { $token = $env:GH_TOKEN }
 
         Test-GitPushAccessCI -context $this.Context -token $token
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] Publish() {

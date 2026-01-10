@@ -22,7 +22,12 @@ class Changelog {
         }
     }
 
-    [void] VerifyConditions() {      
+    [void] VerifyConditions() {   
+        $typeName = $this.GetType().Name
+        $step = "VerifyConditions"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+           
         try {
             [System.IO.Path]::GetFullPath($this.Config.file) | Out-Null
         }
@@ -33,6 +38,8 @@ class Changelog {
         if ($this.Config.file -notlike "*.md") {
             throw "[Changelog] Only markdown (.md) file is supported for the changelog."
         }
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] Prepare() {

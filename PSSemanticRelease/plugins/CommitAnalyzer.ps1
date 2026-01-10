@@ -32,7 +32,34 @@ class CommitAnalyzer {
         $this.Context.Config.Project.plugins[$pluginIndex].Config.releaseRules = $releaseRules
     }
 
+    [void] VerifyConditions() {
+        $typeName = $this.GetType().Name
+        $step = "VerifyConditions"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+
+        $commitsList = Get-ConventionalCommits -context $this.Context
+        $this.Context.Commits.List = $commitsList
+        $this.Context.Commits.Formatted = if ($commitsList.Count -eq 1) { "1 commit" } else { "$($commitsList.Count) commits" }
+
+        if ($commitsList.Count -eq 0) {
+            Add-ConsoleLog "No commits found, no release needed"
+
+            $this.Context.Abort = $true
+        }
+        else {
+            Add-ConsoleLog "Found $($this.Context.Commits.Formatted) since last release"
+        }
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
+    }
+
     [void] AnalyzeCommits() {
+        $typeName = $this.GetType().Name
+        $step = "AnalyzeCommits"
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
+        
         $types = @()
 
         foreach ($commit in $this.Context.Commits.List) {
@@ -74,5 +101,14 @@ class CommitAnalyzer {
         Add-ConsoleLog "[CommitAnalyzer] Analysis of $($this.Context.Commits.Formatted) completed: $releaseType"
 
         $this.Context.NextRelease.Type = $type
+
+        if ($null -eq $type) { 
+            $this.Context.Abort = $true
+        }
+        else {
+            $this.Context.NextRelease.Version = Get-NextSemanticVersion -context $this.Context
+        }
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }

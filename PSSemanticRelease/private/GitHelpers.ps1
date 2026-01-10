@@ -100,9 +100,9 @@ function Get-GitTagHighest {
 }
 
 function Get-CurrentSemanticVersion {
-    param ($context)
+    param ($UnifyTag)
 
-    if (-not $context.Config.Project.unifyTag) {
+    if (-not $UnifyTag) {
         git fetch --tags --quiet
         $lastTag = git describe --tags --abbrev=0 HEAD 2>$null
         return $lastTag -replace '^v', ''
@@ -182,32 +182,6 @@ function Set-GitIdentity {
     }
 }
 
-function New-GitTag {
-    param ($context)
-
-    try {
-        $version = $context.NextRelease.Version
-
-        $tag = "v$Version"
-
-        if (Test-GitTagExist $tag) {
-            throw "Tag $tag already exists"
-        }
-
-        if ($context.DryRun) {
-            Add-ConsoleLog "Skip $tag tag creation in DryRun mode"
-            $global:LASTEXITCODE = 0
-        }
-        else {
-            git tag $tag 2>$null
-            git push origin $tag --quiet
-        }
-    }
-    catch {
-        throw $_
-    }    
-}
-
 function Get-NextSemanticVersion {
     param ($context)
 
@@ -279,5 +253,5 @@ function Get-NextSemanticVersion {
         Add-ConsoleLog "The next $($versionChannel)release version is $nextVersion"
     }
 
-    $context.NextRelease.Version = $nextVersion
+    return $nextVersion
 }

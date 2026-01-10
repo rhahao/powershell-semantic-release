@@ -7,21 +7,23 @@ function New-ReleaseContext {
     $repoUrl = Resolve-RepositoryUrl $remoteUrl
 
     return [PSCustomObject]@{
+        Abort          = $false
+        
         CI             = Test-CIEnvironment
 
         DryRun         = if ($DryRun) { $true } else { $false }
 
-        Config = [PSCustomObject]@{
+        Config         = [PSCustomObject]@{
             Default = $config.Default
             Project = $config.Config
         }
 
 
-        Repository =[PSCustomObject]@{
+        Repository     = [PSCustomObject]@{
             BranchDefault = Get-BranchDefault
             BranchCurrent = Get-CurrentBranch
-            Url = $remoteUrl
-            RemoteUrl = $repoUrl
+            Url           = $remoteUrl
+            RemoteUrl     = $repoUrl
         }
 
         Commits        = [PSCustomObject]@{
@@ -35,11 +37,11 @@ function New-ReleaseContext {
         }
 
         NextRelease    = [PSCustomObject]@{
-            Channel = $null
+            Channel    = $null
             Prerelease = $false
-            Type    = $null
-            Version = $null
-            Notes   = $null
+            Type       = $null
+            Version    = $null
+            Notes      = $null
         }
     }
 }
