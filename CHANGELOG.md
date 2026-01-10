@@ -1,3 +1,9 @@
+# [1.11.0](https://github.com/rhahao/powershell-semantic-release/compare/v1.10.1...v1.11.0) (2026-01-10)
+
+### Features
+
+* **plugins:** update heading style for major and patch release ([938715f](https://github.com/rhahao/powershell-semantic-release/commit/938715f044c55ba2a04c6f0f4314f7c426a9e365))
+
 ## [1.10.1](https://github.com/rhahao/powershell-semantic-release/compare/v1.10.0...v1.10.1) (2026-01-10)
 
 ### Bug Fixes
