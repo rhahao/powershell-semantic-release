@@ -10,43 +10,48 @@ class Exec {
     [void] VerifyConditions() {
         if (-not $this.Config.verifyConditionsPsScript) { return }
 
-        $this.RunScript("VerifyConditions", $this.Config.verifyConditionsPsScript)
+        $this.RunScript("VerifyConditions", $false, $this.Config.verifyConditionsPsScript)
     }
 
     [void] AnalyzeCommits() {
         if (-not $this.Config.analyzeCommitsPsScript) { return }
 
-        $this.RunScript("AnalyzeCommits", $this.Config.analyzeCommitsPsScript)
+        $this.RunScript("AnalyzeCommits", $false, $this.Config.analyzeCommitsPsScript)
     }
 
     [void] VerifyRelease() {
         if (-not $this.Config.verifyReleasePsScript) { return }
 
-        $this.RunScript("VerifyRelease", $this.Config.verifyReleasePsScript)
+        $this.RunScript("VerifyRelease", $false, $this.Config.verifyReleasePsScript)
     }
 
     [void] GenerateNotes() {
         if (-not $this.Config.generateNotesPsScript) { return }
 
-        $this.RunScript("GenerateNotesf", $this.Config.generateNotesPsScript)
+        $this.RunScript("GenerateNotes", $false, $this.Config.generateNotesPsScript)
     }
 
     [void] Prepare() {
         if (-not $this.Config.preparePsScript) { return }
 
-        $this.RunScript("Prepare", $this.Config.preparePsScript)
+        $this.RunScript("Prepare", $true, $this.Config.preparePsScript)
     }
 
     [void] Publish() {
         if (-not $this.Config.publishPsScript) { return }
 
-        $this.RunScript("Publish", $this.Config.publishPsScript)
+        $this.RunScript("Publish", $true, $this.Config.publishPsScript)
     }
 
-    [void] RunScript([string]$step, [string]$scriptProp) {
+    [void] RunScript([string]$step, [bool]$haltDryRun, [string]$scriptProp) {
         if (-not $scriptProp) { return }
 
         $typeName = $this.GetType().Name
+
+        if ($haltDryRun -and $this.Context.DryRun) {
+            Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            return
+        }
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
 
@@ -70,11 +75,6 @@ class Exec {
         # Resolve path
         if (-not (Test-Path $file)) {
             throw "[Exec] Script file `"$file`" not found."
-        }
-
-        if ($this.Context.DryRun) {
-            Add-ConsoleLog "[Exec] Would run script `"$file`" with arguments: $($arguments -join " ")"
-            return
         }
 
         Add-ConsoleLog "[Exec] Running `"$file`" with arguments: $($arguments -join ' ')"
