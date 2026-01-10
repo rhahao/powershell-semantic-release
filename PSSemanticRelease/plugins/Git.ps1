@@ -107,7 +107,6 @@ class Git {
         }
         else {
             git tag $tag 2>$null
-            git push origin $tag --quiet
         }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
@@ -128,7 +127,9 @@ class Git {
         $currentBranch = $this.Context.Repository.BranchCurrent
         $nextVersion = $this.Context.NextRelease.Version
 
-        git push origin $currentBranch --quiet
+        $tag = "v$nextVersion"
+
+        git push origin $currentBranch $tag --quiet
 
         Add-ConsoleLog "[Git] Prepared Git release: v${nextVersion}"
 
