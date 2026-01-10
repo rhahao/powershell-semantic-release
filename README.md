@@ -10,11 +10,10 @@ Automated semantic versioning and release for PowerShell modules, inspired by th
 
 ## Features
 
-* Automated versioning using commit messages.
-* Generate changelogs and release notes automatically.
-* Git tagging and optional GitHub/GitLab integration.
-* Dry-run mode for safe testing.
-* Extensible via plugins: `CommitAnalyzer`, `ReleaseNotesGenerator`, `Changelog`, `Git`, `Exec`, `GitHub`.
+- Automated versioning using commit messages.
+- Generate changelogs and release notes automatically.
+- Git tagging and optional GitHub/GitLab integration.
+- DryRun mode for safe testing.
 
 ---
 
@@ -48,7 +47,7 @@ Located at `PSSemanticRelease/config/semantic-release.json`:
   "unifyTag": false,
   "plugins": [
     [
-      "CommitAnalyzer",
+      "@ps-semantic-release/CommitAnalyzer",
       {
         "releaseRules": [
           { "type": "fix", "release": "patch", "section": "Bug Fixes" },
@@ -57,17 +56,10 @@ Located at `PSSemanticRelease/config/semantic-release.json`:
       }
     ],
     [
-      "ReleaseNotesGenerator",
-      { 
-        "commitsSort": ["scope", "subject"]
-      }
+      "@ps-semantic-release/ReleaseNotesGenerator",
+      { "commitsSort": ["scope", "subject"] }
     ],
-    [
-      "Changelog",
-      { 
-        "file": "CHANGELOG.md", "title": "" 
-      }
-    ]
+    ["@ps-semantic-release/Changelog", { "file": "CHANGELOG.md", "title": "" }]
   ]
 }
 ```
@@ -75,23 +67,30 @@ Located at `PSSemanticRelease/config/semantic-release.json`:
 ### Sample Repository Configuration
 
 ```json
-{
+{{
   "plugins": [
-    "CommitAnalyzer",
-    "ReleaseNotesGenerator",
-    "Changelog",
-    "Git",
+    "@ps-semantic-release/CommitAnalyzer",
+    "@ps-semantic-release/ReleaseNotesGenerator",
+    "@ps-semantic-release/Changelog",
     [
-      "Exec",
+      "@ps-semantic-release/Git",
       {
-        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {DryRun} {NextRelease.Version} {NextRelease.Channel}",
-        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass {DryRun}"
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
       }
     ],
-    "GitHub"
+    [
+      "@ps-semantic-release/Exec",
+      {
+        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version} {NextRelease.Channel}",
+        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass"
+      }
+    ],
+    "@ps-semantic-release/GitHub"
   ],
   "unifyTag": true
 }
+
 ```
 
 ---
@@ -156,7 +155,7 @@ flowchart TD
 | ----------------- | ------------ | ------------- | ----------- |
 | `fix: bug fix`    | patch        | 1.6.0 → 1.6.1 | v1.6.1      |
 | `feat: new feat`  | minor        | 1.6.1 → 1.7.0 | v1.7.0      |
-| `feat!: CHANGE`   | major        | 1.7.0 → 2.0.0 | v2.0.0      |
+| `feat!: new feat` | major        | 1.7.0 → 2.0.0 | v2.0.0      |
 
 #### Semantic Release Flow (Mermaid Diagram)
 
@@ -165,7 +164,7 @@ flowchart TD
     A[Commits in Branch] --> B{Commit Type}
     B -->|fix| C[Patch Release]
     B -->|feat| D[Minor Release]
-    B -->|BREAKING CHANGE| E[Major Release]
+    B -->|feat!| E[Major Release]
 
     C --> F[Update Changelog]
     D --> F
@@ -180,7 +179,7 @@ flowchart TD
 
 ## Notes
 
-* Semantic versioning is based on commit messages (`fix`, `feat`).
-* Plugins are loaded dynamically, allowing easy extension for custom steps.
-* Dry-run mode is highly recommended for testing before real releases.
-* Inspired by the [semantic-release](https://github.com/semantic-release/semantic-release) project.
+- Semantic versioning is based on commit messages (`fix`, `feat`,`feat!`).
+- Plugins are loaded dynamically, allowing easy extension for custom steps.
+- DryRun mode is highly recommended for testing before real releases.
+- Inspired by the [semantic-release](https://github.com/semantic-release/semantic-release) project.
