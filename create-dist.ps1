@@ -1,5 +1,4 @@
 param (
-    [string]$DryRun,
     [string]$Version = "0.0.0",
     [string]$Channel = "default"
 )
