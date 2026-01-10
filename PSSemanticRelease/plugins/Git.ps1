@@ -129,7 +129,7 @@ class Git {
 
         $tag = "v$nextVersion"
 
-        git push origin $currentBranch $tag --quiet
+        git push origin $currentBranch $tag 2>$null
 
         Add-ConsoleLog "[Git] Prepared Git release: v${nextVersion}"
 
