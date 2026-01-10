@@ -34,7 +34,7 @@ class Exec {
     [void] Prepare() {
         if (-not $this.Config.preparePsScript) { return }
 
-        $this.RunScript("Prepare", $true, $this.Config.preparePsScript)
+        $this.RunScript("Prepare", $false, $this.Config.preparePsScript)
     }
 
     [void] Publish() {

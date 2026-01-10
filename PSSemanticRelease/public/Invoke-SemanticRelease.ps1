@@ -4,6 +4,8 @@ function Invoke-SemanticRelease {
     )
 
     try {
+        Get-EnvFromFile
+
         $semanticVersion = Get-PSSemanticReleaseVersion
         Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
 
