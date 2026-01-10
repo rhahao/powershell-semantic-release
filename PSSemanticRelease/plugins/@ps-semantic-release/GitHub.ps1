@@ -50,6 +50,8 @@ class GitHub {
             Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
             return
         }
+
+        Add-ConsoleLog "Start step $step of plugin $typeName"
         
         $repoUrl = $this.Context.Repository.Url
         $version = $this.Context.NextRelease.Version
@@ -83,5 +85,7 @@ class GitHub {
         $releaseUrl = $response.html_url
 
         Add-ConsoleLog "[$($this.PluginName)] Published GitHub release: $releaseUrl"
+
+        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 }
