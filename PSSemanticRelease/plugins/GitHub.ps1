@@ -76,7 +76,7 @@ class GitHub {
             -Uri "https://api.github.com/repos/$repo/releases" `
             -Headers $headers `
             -Body $body `
-            -ContentType "application/json" | Out-Null
+            -ContentType "application/json"
 
         $releaseUrl = $response.html_url
 
