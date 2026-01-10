@@ -5,6 +5,8 @@ class Changelog {
     Changelog([PSCustomObject]$Config, [PSCustomObject]$Context) {
         $this.Config = $Config
         $this.Context = $Context
+
+        $this.EnsureConfig()
     }
 
     [void] EnsureConfig() {
@@ -20,9 +22,7 @@ class Changelog {
         }
     }
 
-    [void] VerifyConditions() {
-        $this.EnsureConfig()
-        
+    [void] VerifyConditions() {      
         try {
             [System.IO.Path]::GetFullPath($this.Config.file) | Out-Null
         }

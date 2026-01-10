@@ -5,6 +5,8 @@ class CommitAnalyzer {
     CommitAnalyzer([PSCustomObject]$Config, [PSCustomObject]$Context) {
         $this.Config = $Config
         $this.Context = $Context
+
+        $this.EnsureConfig()
     }
 
     [void] EnsureConfig() {
@@ -31,8 +33,6 @@ class CommitAnalyzer {
     }
 
     [void] AnalyzeCommits() {
-        $this.EnsureConfig()
-
         $types = @()
 
         foreach ($commit in $this.Context.Commits.List) {

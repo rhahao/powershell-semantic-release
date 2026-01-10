@@ -5,6 +5,8 @@ class ReleaseNotesGenerator {
     ReleaseNotesGenerator([PSCustomObject]$Config, [PSCustomObject]$Context) {
         $this.Config = $Config
         $this.Context = $Context
+
+        $this.EnsureConfig()
     }
 
     [void] EnsureConfig() {
@@ -25,8 +27,6 @@ class ReleaseNotesGenerator {
         $step = "GenerateNotes"
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
-
-        $this.EnsureConfig()
 
         $commits = $this.Context.Commits.List
         $dryRun = $this.Context.DryRun
