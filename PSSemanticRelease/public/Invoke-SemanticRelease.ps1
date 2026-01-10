@@ -140,8 +140,7 @@ function Invoke-SemanticRelease {
         # SHOW RELEASE NOTES FOR DRY RUN
         if ($context.DryRun) {    
             $versionNext = $context.NextRelease.Version        
-            $notes = $context.NextRelease.Notes
-
+            $notes = Format-ReleaseNotesDryRun $context.NextRelease.Notes
             Add-ConsoleLog "Release note for version ${versionNext}:`n$notes"
         }
     }

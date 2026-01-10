@@ -29,7 +29,6 @@ class ReleaseNotesGenerator {
         Add-ConsoleLog "Start step $step of plugin $typeName"
 
         $commits = $this.Context.Commits.List
-        $dryRun = $this.Context.DryRun
 
         $releaseRules = [hashtable]@{}
 
@@ -83,13 +82,7 @@ class ReleaseNotesGenerator {
         }
     
         if ($compareUrl) {
-            if ($dryRun) {
-                $title += "$versionNext ($compareUrl) "
-            }
-            else {
-
-                $title += "[$versionNext]($compareUrl) "
-            }
+            $title += "[$versionNext]($compareUrl) "
         }
         else {
             $title += "$versionNext "
@@ -125,13 +118,7 @@ class ReleaseNotesGenerator {
                     $commitLink = " ([$shortSha]($link))"
                 }
 
-                $line = ""
-
-                if ($dryRun) {
-                    $line += "    "
-                }
-
-                $line += "* **$($commit.Scope):** $($commit.Subject)$commitLink"
+                $line = "* **$($commit.Scope):** $($commit.Subject)$commitLink"
 
                 $lines += $line
             }

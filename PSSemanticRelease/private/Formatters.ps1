@@ -99,3 +99,26 @@ function Get-BaseSemanticVersion {
         return $null
     }
 }
+
+function Format-ReleaseNotesDryRun {
+    param ($notes)
+
+    $draftNotes = @()
+
+    foreach ($note in $notes -split "`n") {
+        $line = $note
+
+        if ($note -match '^## \[([^\]]+)\]\([^)]+\)(.*)') {
+            $version = $Matches[1]
+            $suffix = $Matches[2]
+            $line = "## $version$suffix"
+        }
+        elseif ($note.StartsWith("* **")) {
+            $line = "    $note"
+        }
+
+        $draftNotes += $line
+    }
+
+    return $draftNotes -join "`n"
+}
