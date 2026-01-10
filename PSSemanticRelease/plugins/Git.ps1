@@ -38,10 +38,10 @@ class Git {
         $this.Context.CurrentVersion.Branch = $currentVersion
 
         if (-not $currentVersion) {
-            Add-ConsoleLog "No previous release found, retrieving all commits"
+            Add-ConsoleLog "[Git] No previous release found, retrieving all commits"
         }
         else {
-            Add-ConsoleLog "Found git tag v$currentVersion on branch $($this.Context.Repository.BranchCurrent)"
+            Add-ConsoleLog "[Git] Found git tag v$currentVersion on branch $($this.Context.Repository.BranchCurrent)"
         }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
@@ -103,7 +103,7 @@ class Git {
         }
 
         if ($dryRun) {
-            Add-ConsoleLog "Skip $tag tag creation in DryRun mode"
+            Add-ConsoleLog "[Git] Skip $tag tag creation in DryRun mode"
         }
         else {
             git tag $tag 2>$null

@@ -71,11 +71,15 @@ class GitHub {
             "User-Agent"  = "PSSemanticRelease"
         }
 
-        Invoke-RestMethod `
+        $response = Invoke-RestMethod `
             -Method Post `
             -Uri "https://api.github.com/repos/$repo/releases" `
             -Headers $headers `
             -Body $body `
             -ContentType "application/json" | Out-Null
+
+        $releaseUrl = $response.html_url
+
+        Add-ConsoleLog "[GitHub] Published GitHub release: $releaseUrl"
     }
 }

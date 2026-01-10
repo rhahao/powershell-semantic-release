@@ -43,12 +43,12 @@ class CommitAnalyzer {
         $this.Context.Commits.Formatted = if ($commitsList.Count -eq 1) { "1 commit" } else { "$($commitsList.Count) commits" }
 
         if ($commitsList.Count -eq 0) {
-            Add-ConsoleLog "No commits found, no release needed"
+            Add-ConsoleLog "[CommitAnalyzer] No commits found, no release needed"
 
             $this.Context.Abort = $true
         }
         else {
-            Add-ConsoleLog "Found $($this.Context.Commits.Formatted) since last release"
+            Add-ConsoleLog "[CommitAnalyzer] Found $($this.Context.Commits.Formatted) since last release"
         }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
