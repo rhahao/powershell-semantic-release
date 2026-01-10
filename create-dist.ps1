@@ -45,6 +45,7 @@ $params = @{
     AliasesToExport   = @()
     Guid              = $env:NUGET_PACKAGE_GUID
     ReleaseNotes      = $Version
+    ProjectUri        = "https://github.com/rhahao/powershell-semantic-release"
 }
 
 # Only add -Prerelease if supported
