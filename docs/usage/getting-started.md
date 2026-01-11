@@ -1,6 +1,6 @@
 # Getting Started
 
-This section helps you quickly set up and run a semantic release for your PowerShell project using `PSSemanticRelease`.
+This section helps you quickly set up and run a semantic release for your PowerShell project using **PSSemanticRelease**.
 
 - Install **PSSemanticRelease** in your project
 - Configure your Continuous Integration service to run **PSSemanticRelease**
