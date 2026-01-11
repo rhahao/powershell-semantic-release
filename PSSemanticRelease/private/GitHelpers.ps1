@@ -142,7 +142,7 @@ function Test-GitPushAccessCI {
         $output = git push --dry-run origin $currentBranch 2>&1
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
-            return "Allowed to push on branch $currentBranch to the GitHub repository"
+            return "Allowed to push on branch $currentBranch"
         } else {
             throw "Push failed: permission denied."
         }

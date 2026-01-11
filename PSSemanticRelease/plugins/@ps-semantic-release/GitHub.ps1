@@ -39,7 +39,7 @@ class GitHub {
 
             $message = Test-GitPushAccessCI -context $this.Context -token $token
 
-            Add-SuccessLog -Message $message -Plugin $this.PluginName
+            Add-SuccessLog -Message "$message to the GitHub repository" -Plugin $this.PluginName
 
             Add-SuccessLog "Completed step $step of plugin $typeName"
         }
