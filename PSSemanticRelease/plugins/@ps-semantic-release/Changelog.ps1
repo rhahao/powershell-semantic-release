@@ -50,7 +50,7 @@ class Changelog {
         $step = "Prepare"
 
         if ($dryRun) { 
-            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
             return
         }
 

@@ -51,7 +51,7 @@ class Exec {
         $typeName = "`"$($this.PluginName)`""
 
         if ($haltDryRun -and $this.Context.DryRun) {
-            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
             return
         }
 

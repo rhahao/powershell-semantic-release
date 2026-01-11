@@ -37,7 +37,7 @@ class Git {
         $gitStatus = Get-GitStatus
 
         if ($gitStatus) {
-            throw "[Git] Working tree is not clean. Commit or stash changes before releasing."
+            throw "[$($this.PluginName)] Working tree is not clean. Commit or stash changes before releasing."
         }
 
         $assets = $this.Config.assets
@@ -70,7 +70,7 @@ class Git {
         $step = "Prepare"
 
         if ($dryRun) { 
-            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
             return
         }
 
@@ -134,7 +134,7 @@ class Git {
         $step = "Publish"
 
         if ($dryRun) { 
-            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
             return
         }
 
