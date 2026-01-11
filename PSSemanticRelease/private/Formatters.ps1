@@ -108,10 +108,11 @@ function Format-ReleaseNotesDryRun {
     foreach ($note in $notes -split "`n") {
         $line = $note
 
-        if ($note -match '^## \[([^\]]+)\]\([^)]+\)(.*)') {
-            $version = $Matches[1]
-            $suffix = $Matches[2]
-            $line = "## $version$suffix"
+        if ($note -match '^(#{1,2}) \[(.+)\]\([^)]+\)(.*)') {
+            $hashes = $Matches[1]
+            $version = $Matches[2]
+            $suffix = $Matches[3]
+            $line = "$hashes $version$suffix"
         }
         elseif ($note.StartsWith("* **")) {
             $line = "    $note"
