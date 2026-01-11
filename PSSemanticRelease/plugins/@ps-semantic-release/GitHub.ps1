@@ -64,7 +64,30 @@ class GitHub {
         $repoUrl = $this.Context.Repository.Url
         $version = $this.Context.NextRelease.Version
 
-        $repo = $repoUrl -replace '^https://github.com/', ''
+        $githubUrl = if ($env:GITHUB_SERVER_URL) {
+            $env:GITHUB_SERVER_URL.TrimEnd('/')
+        }
+        elseif ($env:GITHUB_URL) {
+            $env:GITHUB_URL.TrimEnd('/')
+        }
+        elseif ($env:GH_URL) {
+            $env:GH_URL.TrimEnd('/')
+        }
+        else {
+            "https://github.com"
+        }
+        
+        $githubApiUrl = if ($env:GITHUB_API_URL) {
+            $env:GITHUB_API_URL.TrimEnd('/')
+        }
+        elseif ($env:GH_API_URL) {
+            $env:GH_API_URL.TrimEnd('/')
+        }
+        else {
+            "https://api.github.com"
+        }        
+
+        $repo = $repoUrl.Substring($githubUrl.Length).TrimStart('/')
         $tag = "v$($version)"
 
         $body = @{
@@ -85,7 +108,7 @@ class GitHub {
 
         $response = Invoke-RestMethod `
             -Method Post `
-            -Uri "https://api.github.com/repos/$repo/releases" `
+            -Uri "$githubApiUrl/repos/$repo/releases" `
             -Headers $headers `
             -Body $body `
             -ContentType "application/json"
