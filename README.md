@@ -67,30 +67,28 @@ Located at `PSSemanticRelease/config/semantic-release.json`:
 ### Sample Repository Configuration
 
 ```json
-{{
+{
   "plugins": [
     "@ps-semantic-release/CommitAnalyzer",
     "@ps-semantic-release/ReleaseNotesGenerator",
     "@ps-semantic-release/Changelog",
-    [
-      "@ps-semantic-release/Git",
-      {
-        "assets": ["CHANGELOG.md"],
-        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
-      }
-    ],
+    "@ps-semantic-release/Git",
     [
       "@ps-semantic-release/Exec",
       {
-        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version} {NextRelease.Channel}",
-        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass"
+        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version}"
+      }
+    ],
+    [
+      "@ps-semantic-release/NuGet",
+      {
+        "path": "dist/PSSemanticRelease"
       }
     ],
     "@ps-semantic-release/GitHub"
   ],
   "unifyTag": true
 }
-
 ```
 
 ---
