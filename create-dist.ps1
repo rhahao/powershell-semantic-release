@@ -6,6 +6,7 @@ param (
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 
 $moduleName = 'PSSemanticRelease'
 $srcPath = Join-Path $PSScriptRoot $moduleName

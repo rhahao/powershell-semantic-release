@@ -13,7 +13,7 @@ class GitLab {
         $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
         
         $assets = $this.Config.assets
 
@@ -38,6 +38,6 @@ class GitLab {
 
         Test-GitPushAccessCI -context $this.Context -token $token
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 }

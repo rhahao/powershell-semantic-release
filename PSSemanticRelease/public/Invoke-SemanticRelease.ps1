@@ -7,17 +7,17 @@ function Invoke-SemanticRelease {
         Get-EnvFromFile
 
         $semanticVersion = Get-PSSemanticReleaseVersion
-        Add-ConsoleLog "PSSemanticRelease version $semanticVersion"
+        Add-InformationLog "PSSemanticRelease version $semanticVersion"
 
         $context = New-ReleaseContext $DryRun
 
         if ($context.DryRun) {
-            Add-ConsoleLog "Running in DryRun mode"
+            Add-InformationLog "Running in DryRun mode"
         }
         else {
             if (-not $context.CI) {
                 $context.DryRun = $true
-                Add-ConsoleLog "Running in DryRun mode (not in CI environment)"
+                Add-InformationLog "Running in DryRun mode (not in CI environment)"
             }
         }
 
@@ -35,7 +35,7 @@ function Invoke-SemanticRelease {
 
                 if (-not $hasStep) { continue }
             
-                Add-ConsoleLog "Loaded step $step of plugin `"$($plugin.PluginName)`""
+                Add-SuccessLog "Loaded step $step of plugin `"$($plugin.PluginName)`""
             }
         }
 
@@ -45,7 +45,7 @@ function Invoke-SemanticRelease {
             $logRan += " in DryRun mode"
         }
 
-        Add-ConsoleLog $logRan
+        Add-SuccessLog $logRan
 
         # RUNNING PLUGINS STEPS
         $steps = @("VerifyConditions", "AnalyzeCommits", "VerifyRelease", "GenerateNotes", "Prepare", "Publish")
@@ -68,7 +68,7 @@ function Invoke-SemanticRelease {
         if ($context.DryRun) {    
             $versionNext = $context.NextRelease.Version        
             $notes = Format-ReleaseNotesDryRun $context.NextRelease.Notes
-            Add-ConsoleLog "Release note for version ${versionNext}:`n$notes"
+            Add-InformationLog "Release note for version ${versionNext}:`n$notes"
         }
     }
     catch {

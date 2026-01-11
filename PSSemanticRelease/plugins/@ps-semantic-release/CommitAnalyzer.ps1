@@ -38,47 +38,47 @@ class CommitAnalyzer {
         $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
 
         $commitsList = Get-ConventionalCommits -context $this.Context
         $this.Context.Commits.List = $commitsList
         $this.Context.Commits.Formatted = if ($commitsList.Count -eq 1) { "1 commit" } else { "$($commitsList.Count) commits" }
 
         if ($commitsList.Count -eq 0) {
-            Add-ConsoleLog "[$($this.PluginName)] No commits found, no release needed"
+            Add-InformationLog -Message "No commits found, no release needed" -Plugin $this.PluginName
 
             $this.Context.Abort = $true
         }
         else {
-            Add-ConsoleLog "[$($this.PluginName)] Found $($this.Context.Commits.Formatted) since last release"
+            Add-InformationLog -Message "Found $($this.Context.Commits.Formatted) since last release" -Plugin $this.PluginName
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 
     [void] AnalyzeCommits() {
         $typeName = "`"$($this.PluginName)`""
         $step = "AnalyzeCommits"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
         
         $types = @()
 
         foreach ($commit in $this.Context.Commits.List) {
-            Add-ConsoleLog "[$($this.PluginName)] Analyzing commit: $($commit.Message)"
+            Add-InformationLog -Message "Analyzing commit: $($commit.Message)" -Plugin $this.PluginName
 
             $commitType = $this.Config.releaseRules | Where-Object { $_.type -eq $commit.Type }
 
             if ($null -eq $commitType) {
-                Add-ConsoleLog "[$($this.PluginName)] The commit should not trigger a release"
+                Add-InformationLog -Message "The commit should not trigger a release" -Plugin $this.PluginName
             }
             else {
                 if ($commit.Breaking -eq $true) {
-                    Add-ConsoleLog "[$($this.PluginName)] The release type for the commit is major"
+                    Add-InformationLog -Message "The release type for the commit is major" -Plugin $this.PluginName
                     $types += "major"
                 }
                 else {
-                    Add-ConsoleLog "[$($this.PluginName)] The release type for the commit is $($commitType.release)"
+                    Add-InformationLog -Message "The release type for the commit is $($commitType.release)" -Plugin $this.PluginName
                     $types += $commitType.release
                 }            
             }
@@ -100,7 +100,7 @@ class CommitAnalyzer {
 
         $releaseType = if ($null -eq $type) { "no release needed" } else { "$type release" }
 
-        Add-ConsoleLog "[$($this.PluginName)] Analysis of $($this.Context.Commits.Formatted) completed: $releaseType"
+        Add-InformationLog -Message "Analysis of $($this.Context.Commits.Formatted) completed: $releaseType" -Plugin $this.PluginName
 
         $this.Context.NextRelease.Type = $type
 
@@ -108,9 +108,21 @@ class CommitAnalyzer {
             $this.Context.Abort = $true
         }
         else {
-            $this.Context.NextRelease.Version = Get-NextSemanticVersion -context $this.Context
+            $nextVersion = Get-NextSemanticVersion -context $this.Context
+
+            $this.Context.NextRelease.Version = $nextVersion
+            $channel = $this.Context.NextRelease.Channel
+            
+            $versionChannel = if ($channel -ne "default") { "$($channel) " }
+    
+            if ($null -eq $this.Context.CurrentVersion.Branch) {
+                Add-InformationLog -Message "There is no previous $($versionChannel)release, the next release version is $nextVersion" -Plugin $this.PluginName
+            }
+            else {
+                Add-InformationLog -Message "The next $($versionChannel)release version is $nextVersion" -Plugin $this.PluginName
+            }
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 }

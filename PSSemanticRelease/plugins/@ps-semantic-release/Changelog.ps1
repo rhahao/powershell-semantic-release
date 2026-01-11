@@ -28,7 +28,7 @@ class Changelog {
         $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
            
         try {
             [System.IO.Path]::GetFullPath($this.Config.file) | Out-Null
@@ -41,7 +41,7 @@ class Changelog {
             throw "[$($this.PluginName)] Only markdown (.md) file is supported for the changelog."
         }
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 
     [void] Prepare() {
@@ -50,11 +50,11 @@ class Changelog {
         $step = "Prepare"
 
         if ($dryRun) { 
-            Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
             return
         }
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
 
         $changelogFile = $this.Config.file
         $changelogTitle = $this.Config.title
@@ -66,12 +66,12 @@ class Changelog {
         $status = ""
 
         if (Test-Path $changelogFile) {
-            $status = "[$($this.PluginName)] Update $((Get-Item -Path $changelogFile).FullName)"
+            $status = "Update $((Get-Item -Path $changelogFile).FullName)"
 
             $preContents = (Get-Content -Path $changelogFile -Raw -Encoding UTF8).Trim()
         }
         else {
-            $status = "[$($this.PluginName)] Create $((Get-Item -Path ".").FullName)/$changelogFile"
+            $status = "Create $((Get-Item -Path ".").FullName)/$changelogFile"
         }
 
         $currentContent = if ($changelogTitle -ne "" -and $preContents.StartsWith($changelogTitle)) {
@@ -97,8 +97,8 @@ class Changelog {
 
         Set-Content -Path $changelogFile -Value $finalContents -Encoding UTF8
 
-        Add-ConsoleLog $status
+        Add-InformationLog -Message $status -Plugin $this.PluginName
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 }

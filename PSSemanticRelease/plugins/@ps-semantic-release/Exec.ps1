@@ -51,11 +51,11 @@ class Exec {
         $typeName = "`"$($this.PluginName)`""
 
         if ($haltDryRun -and $this.Context.DryRun) {
-            Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
             return
         }
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
 
         # Split into tokens
         $tokens = $scriptProp -split " "
@@ -79,7 +79,7 @@ class Exec {
             throw "[$($this.PluginName)] Script file `"$file`" not found."
         }
 
-        Add-ConsoleLog "[$($this.PluginName)] Running `"$file`" with arguments: $($arguments -join ' ')"
+        Add-ConsoleLog -Message "Running `"$file`" with arguments: $($arguments -join ' ')" -Plugin $this.PluginName
 
         try {
             $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
@@ -91,7 +91,7 @@ class Exec {
                 throw "[$($this.PluginName)] Script  `"$file`" failed with exit code $($process.ExitCode)"
             }
 
-            Add-ConsoleLog "Completed step $step of plugin $typeName"
+            Add-SuccessLog "Completed step $step of plugin $typeName"
         }
         catch {
             throw "Exec failed executing `"$file`": $_"

@@ -14,7 +14,7 @@ class GitHub {
             $typeName = "`"$($this.PluginName)`""
             $step = "VerifyConditions"
 
-            Add-ConsoleLog "Start step $step of plugin $typeName"
+            Add-InformationLog "Start step $step of plugin $typeName"
             
             $assets = $this.Config.assets
 
@@ -39,9 +39,9 @@ class GitHub {
 
             $message = Test-GitPushAccessCI -context $this.Context -token $token
 
-            Add-ConsoleLog "[$($this.PluginName)] $message"
+            Add-SuccessLog -Message $message -Plugin $this.PluginName
 
-            Add-ConsoleLog "Completed step $step of plugin $typeName"
+            Add-SuccessLog "Completed step $step of plugin $typeName"
         }
         catch {
             throw $_
@@ -55,11 +55,11 @@ class GitHub {
         $step = "Publish"
 
         if ($dryRun) { 
-            Add-ConsoleLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
+            Add-WarningLog "Skip step `"$step`" of plugin `"$typeName`" in DryRun mode"
             return
         }
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
         
         $repoUrl = $this.Context.Repository.Url
         $version = $this.Context.NextRelease.Version
@@ -92,8 +92,8 @@ class GitHub {
 
         $releaseUrl = $response.html_url
 
-        Add-ConsoleLog "[$($this.PluginName)] Published GitHub release: $releaseUrl"
+        Add-InformationLog -Message "Published GitHub release: $releaseUrl" -Plugin $this.PluginName
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 }

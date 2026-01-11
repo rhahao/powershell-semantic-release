@@ -242,15 +242,6 @@ function Get-NextSemanticVersion {
             }
         }
     }
-
-    $versionChannel = if ($channel -ne "default") { "$($channel) " }
     
-    if ($null -eq $context.CurrentVersion.Branch) {
-        Add-ConsoleLog "There is no previous $($versionChannel)release, the next release version is $nextVersion"
-    }
-    else {
-        Add-ConsoleLog "The next $($versionChannel)release version is $nextVersion"
-    }
-
     return $nextVersion
 }

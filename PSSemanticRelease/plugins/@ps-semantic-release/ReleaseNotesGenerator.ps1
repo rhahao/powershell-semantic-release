@@ -28,7 +28,7 @@ class ReleaseNotesGenerator {
         $typeName = "`"$($this.PluginName)`""
         $step = "GenerateNotes"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+        Add-InformationLog "Start step $step of plugin $typeName"
 
         $commits = $this.Context.Commits.List
 
@@ -62,7 +62,7 @@ class ReleaseNotesGenerator {
         }
 
         if ($sections.Count -eq 0) {
-            Add-ConsoleLog "[$($this.PluginName)] No user facing changes"
+            Add-InformationLog -Message "No user facing changes" -Plugin $this.PluginName
             return
         }
 
@@ -132,6 +132,6 @@ class ReleaseNotesGenerator {
 
         $this.Context.NextRelease.Notes = $notes
 
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 }
