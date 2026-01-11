@@ -125,27 +125,26 @@ function Get-GitRemoteUrl {
 function Test-GitPushAccessCI {
     param($context, $token)
     
-    $remoteUrl = $context.Repository.RemoteUrl
-
-    # Rewrite HTTPS remote URL for CI using bot username
-    if ($token -and $remoteUrl -match '^https://') {
-        # Remove existing username if present
-        $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
-        $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https://','')"
-        $context.Repository.RemoteUrl = $remoteUrl
-        git remote set-url origin $remoteUrl
-    }
-
     try {
+        $remoteUrl = $context.Repository.RemoteUrl
+
+        # Rewrite HTTPS remote URL for CI using bot username
+        if ($token -and $remoteUrl -match '^https://') {
+            # Remove existing username if present
+            $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
+            $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https://','')"
+            $context.Repository.RemoteUrl = $remoteUrl
+            git remote set-url origin $remoteUrl
+        }
+    
         $currentBranch = $context.Repository.BranchCurrent
 
         $output = git push --dry-run origin $currentBranch 2>&1
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
-            Add-ConsoleLog "Allowed to push on branch $currentBranch to the Git repository"
-        }
-        else {
-            Add-ConsoleLog "Push failed: permission denied."
+            return "Allowed to push on branch $currentBranch to the GitHub repository"
+        } else {
+            throw "Push failed: permission denied."
         }
     }
     catch {

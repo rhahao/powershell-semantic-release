@@ -10,35 +10,43 @@ class GitHub {
     }
 
     [void] VerifyConditions() {
-        $typeName = "`"$($this.PluginName)`""
-        $step = "VerifyConditions"
+        try {
+            $typeName = "`"$($this.PluginName)`""
+            $step = "VerifyConditions"
 
-        Add-ConsoleLog "Start step $step of plugin $typeName"
+            Add-ConsoleLog "Start step $step of plugin $typeName"
+            
+            $assets = $this.Config.assets
+
+            if ($assets -and $assets -isnot [array]) {
+                throw "[$($this.PluginName)] Specify the array of files to upload for a release."
+            }
+
+            if ($this.Context.CI) {
+                if ($env:GITHUB_ACTIONS -eq "false") {
+                    throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitHub Action"
+                }
+
+                if (-not $env:GITHUB_TOKEN -and -not $env:GH_TOKEN) {
+                    throw "[$($this.PluginName)] No GitHub token (GITHUB_TOKEN or GH_TOKEN) found in CI environment."
+                }
+            }
+
+            $token = $null
+
+            if ($env:GITHUB_TOKEN) { $token = $env:GITHUB_TOKEN }
+            if ($env:GH_TOKEN) { $token = $env:GH_TOKEN }
+
+            $message = Test-GitPushAccessCI -context $this.Context -token $token
+
+            Add-ConsoleLog "[$($this.PluginName)] $message"
+
+            Add-ConsoleLog "Completed step $step of plugin $typeName"
+        }
+        catch {
+            throw $_
+        }
         
-        $assets = $this.Config.assets
-
-        if ($assets -and $assets -isnot [array]) {
-            throw "[$($this.PluginName)] Specify the array of files to upload for a release."
-        }
-
-        if ($this.Context.CI) {
-            if ($env:GITHUB_ACTIONS -eq "false") {
-                throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitHub Action"
-            }
-
-            if (-not $env:GITHUB_TOKEN -and -not $env:GH_TOKEN) {
-                throw "[$($this.PluginName)] No GitHub token (GITHUB_TOKEN or GH_TOKEN) found in CI environment."
-            }
-        }
-
-        $token = $null
-
-        if ($env:GITHUB_TOKEN) { $token = $env:GITHUB_TOKEN }
-        if ($env:GH_TOKEN) { $token = $env:GH_TOKEN }
-
-        Test-GitPushAccessCI -context $this.Context -token $token
-
-        Add-ConsoleLog "Completed step $step of plugin $typeName"
     }
 
     [void] Publish() {
