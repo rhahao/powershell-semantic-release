@@ -6,3 +6,4 @@
 
 - [Getting started](docs/usage/getting-started.md)
 - [Installation](docs/usage/installation.md)
+- [CI Configuration](docs/usage/ci-configuration.md)
