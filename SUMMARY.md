@@ -13,3 +13,7 @@
 ## Extending
 
 - [Plugins](docs/extending/plugins-list.md)
+
+## Recipes
+
+- [CI configurations](docs/recipes/ci-configurations/README.md)
