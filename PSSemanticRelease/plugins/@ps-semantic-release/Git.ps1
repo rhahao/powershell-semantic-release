@@ -122,17 +122,7 @@ class Git {
             Add-InformationLog -Message "Skip $tag tag creation in DryRun mode" -Plugin $this.PluginName
         }
         else {
-            $commitMessages = $commitMessage -split "`n" | ForEach-Object {
-                if ($_ -like "#*") {
-                    `"$($_)`"
-                }
-                else {
-                    $_
-                }
-            }
-
-            $tagAnnotation = $commitMessages -join "`n"
-
+            $tagAnnotation = $commitMessage -replace '(?m)^#', ' #'
             git tag -a $tag -m $tagAnnotation 
         }
 
