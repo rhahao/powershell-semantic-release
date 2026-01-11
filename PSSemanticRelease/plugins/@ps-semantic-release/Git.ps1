@@ -122,7 +122,7 @@ class Git {
             Add-InformationLog -Message "Skip $tag tag creation in DryRun mode" -Plugin $this.PluginName
         }
         else {
-            git tag -a $tag $commitMessage 
+            git tag -a $tag -m $commitMessage 
         }
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
