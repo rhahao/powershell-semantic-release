@@ -1,183 +1,56 @@
 # PSSemanticRelease (Powershell Semantic Release)
 
-Automated semantic versioning and release for PowerShell modules, inspired by the [semantic-release](https://github.com/semantic-release/semantic-release) project.
+Fully automated version management and release workflow for PowerShell modules. Inspired by the popular [semantic-release](https://github.com/semantic-release/semantic-release) project, PSSemanticRelease automates version determination, changelog generation, tagging, and optional publishing.
 
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/PSSemanticRelease?label=version)](https://www.powershellgallery.com/packages/PSSemanticRelease)
 
-> **Warning:** This module is still a work in progress. APIs and features may change.
+---
+
+## Highlights
+
+- Automated semantic versioning from commit messages
+- Generate release notes and changelogs automatically
+- Git tagging and optional GitHub / GitLab release support
+- Publish PowerShell modules to PSGallery / NuGet
+- DryRun mode for safe testing before real release
+- Extensible via plugins and custom scripts
 
 ---
 
-## Features
+## How It Works
 
-- Automated versioning using commit messages.
-- Generate changelogs and release notes automatically.
-- Git tagging and optional GitHub/GitLab integration.
-- DryRun mode for safe testing.
+PSSemanticRelease uses your commit messages to determine how the version should be bumped — major, minor, or patch — following semantic versioning rules. It analyzes commits, generates release notes, updates changelogs, creates Git tags, and can publish to GitHub/GitLab and module registries.
 
----
+By default, it relies on conventional commit formats like:
 
-## Installation
-
-```powershell
-Install-Module PSSemanticRelease -Scope CurrentUser
-```
-
-> Note: Use `-AllowPrerelease` to get the latest prerelease builds.
-
-Or clone from GitHub and import manually:
-
-```powershell
-Import-Module ./PSSemanticRelease -Force
-```
+- fix: → Patch release
+- feat: → Minor release
+- feat!: or fix!: → Major release
 
 ---
 
-## Default Configuration
+## Release steps
 
-Located at `PSSemanticRelease/config/semantic-release.json`:
+A `PSSemanticRelease` run includes the following phases:
 
-```json
-{
-  "branches": [
-    "main",
-    { "name": "beta", "prerelease": "beta" },
-    { "name": "alpha", "prerelease": "alpha" }
-  ],
-  "unifyTag": false,
-  "plugins": [
-    [
-      "@ps-semantic-release/CommitAnalyzer",
-      {
-        "releaseRules": [
-          { "type": "fix", "release": "patch", "section": "Bug Fixes" },
-          { "type": "feat", "release": "minor", "section": "Features" }
-        ]
-      }
-    ],
-    [
-      "@ps-semantic-release/ReleaseNotesGenerator",
-      { "commitsSort": ["scope", "subject"] }
-    ],
-    ["@ps-semantic-release/Changelog", { "file": "CHANGELOG.md", "title": "" }]
-  ]
-}
-```
+| Step             | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| VerifyConditions | Ensure the environment and configuration are correct |
+| AnalyzeCommits   | Determine next release type from commits             |
+| VerifyRelease    | Optional additional checks                           |
+| GenerateNotes    | Create release notes from commit history             |
+| Prepare          | Update changelogs, manifests, and run custom scripts |
+| Publish          | Commit & tag in Git and publish artifacts            |
 
-### Sample Repository Configuration
-
-```json
-{
-  "plugins": [
-    "@ps-semantic-release/CommitAnalyzer",
-    "@ps-semantic-release/ReleaseNotesGenerator",
-    "@ps-semantic-release/Changelog",
-    "@ps-semantic-release/Git",
-    [
-      "@ps-semantic-release/Exec",
-      {
-        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version}"
-      }
-    ],
-    [
-      "@ps-semantic-release/NuGet",
-      {
-        "path": "dist/PSSemanticRelease"
-      }
-    ],
-    "@ps-semantic-release/GitHub"
-  ],
-  "unifyTag": true
-}
-```
+This flow mirrors the official [semantic‑release](https://semantic-release.gitbook.io/semantic-release/#release-steps) pipeline.
 
 ---
 
-## Usage
+## Prerequisites
 
-Run a dry release:
+To use `PSSemanticRelease` effectively:
 
-```powershell
-Invoke-SemanticRelease -DryRun
-```
-
-Run a real release (requires CI environment or Git credentials):
-
-```powershell
-Invoke-SemanticRelease
-```
-
----
-
-## Recommended Branch Workflow
-
-```
-          +-------------------+
-          |       main        |
-          +-------------------+
-                   |
-                   | Full release (vX.Y.Z)
-                   v
-          +-------------------+
-          |       beta        |
-          +-------------------+
-                   |
-                   | Pre-release (vX.Y.Z-beta.N)
-                   v
-          +-------------------+
-          |       alpha       |
-          +-------------------+
-                   |
-                   | Pre-release (vX.Y.Z-alpha.N)
-                   v
-               Feature/Dev branches
-```
-
-Or with Mermaid diagram (renders in GitHub):
-
-```mermaid
-flowchart TD
-    feature[Feature/Dev branches] --> alpha[alpha branch]
-    alpha --> beta[beta branch]
-    beta --> main[main branch]
-    main --> |Full release vX.Y.Z| main
-    alpha --> |Pre-release vX.Y.Z-alpha.N| alpha
-    beta --> |Pre-release vX.Y.Z-beta.N| beta
-```
-
----
-
-## Release Flow Example
-
-| Commit Type       | Release Type | Version Bump  | Tag Example |
-| ----------------- | ------------ | ------------- | ----------- |
-| `fix: bug fix`    | patch        | 1.6.0 → 1.6.1 | v1.6.1      |
-| `feat: new feat`  | minor        | 1.6.1 → 1.7.0 | v1.7.0      |
-| `feat!: new feat` | major        | 1.7.0 → 2.0.0 | v2.0.0      |
-
-#### Semantic Release Flow (Mermaid Diagram)
-
-```mermaid
-flowchart TD
-    A[Commits in Branch] --> B{Commit Type}
-    B -->|fix| C[Patch Release]
-    B -->|feat| D[Minor Release]
-    B -->|feat!| E[Major Release]
-
-    C --> F[Update Changelog]
-    D --> F
-    E --> F
-
-    F --> G[Generate Release Notes]
-    G --> H[Create Git Tag]
-    H --> I[Push Tag & Notes to Repository]
-```
-
----
-
-## Notes
-
-- Semantic versioning is based on commit messages (`fix`, `feat`,`feat!`).
-- Plugins are loaded dynamically, allowing easy extension for custom steps.
-- DryRun mode is highly recommended for testing before real releases.
-- Inspired by the [semantic-release](https://github.com/semantic-release/semantic-release) project.
+- A Git repository hosting your code
+- A CI service such as GitHub Actions, GitLab CI, or others
+- Proper credentials/tokens in environment variables for publishing (e.g., GITHUB_TOKEN, NUGET_API_KEY)
+- Conventional commit discipline in your team
