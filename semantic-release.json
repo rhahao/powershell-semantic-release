@@ -7,8 +7,13 @@
     [
       "@ps-semantic-release/Exec",
       {
-        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version} {NextRelease.Channel}",
-        "publishPsScript": "publish-dist.ps1 -NoProfile -ExecutionPolicy Bypass"
+        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version}"
+      }
+    ],
+    [
+      "@ps-semantic-release/NuGet",
+      {
+        "path": "dist/PSSemanticRelease"
       }
     ],
     "@ps-semantic-release/GitHub"

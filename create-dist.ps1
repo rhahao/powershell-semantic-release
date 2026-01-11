@@ -1,6 +1,5 @@
 param (
-    [string]$Version = "0.0.0",
-    [string]$Channel = "default"
+    [string]$Version = "0.0.0"
 )
 
 Set-StrictMode -Version Latest
@@ -45,13 +44,7 @@ $params = @{
     VariablesToExport = @()
     AliasesToExport   = @()
     Guid              = $env:NUGET_PACKAGE_GUID
-    ReleaseNotes      = $Version
     ProjectUri        = "https://github.com/rhahao/powershell-semantic-release"
-}
-
-# Only add -Prerelease if supported
-if ($PSVersionTable.PSVersion.Major -ge 6 -and $Channel -ne "default") {
-    $params.Prerelease = $Channel
 }
 
 New-ModuleManifest @params
