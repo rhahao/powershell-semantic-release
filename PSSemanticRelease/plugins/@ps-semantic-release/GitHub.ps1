@@ -16,19 +16,26 @@ class GitHub {
             "User-Agent"  = "PSSemanticRelease"
         }
     
-        $body = @{
-            tag_name = ""
-            name     = "permission-check"
-            draft    = $true
-        } | ConvertTo-Json
-    
         try {
-            Invoke-RestMethod `
+            $body = @{
+                tag_name = "prerelease-check"
+                name     = "permission-check"
+                draft    = $true
+            } | ConvertTo-Json
+    
+            $response = Invoke-RestMethod `
                 -Method Post `
                 -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases" `
                 -Headers $headers `
                 -Body $body `
                 -ContentType "application/json"
+
+            $releaseId = $response.id
+
+            Invoke-RestMethod `
+                -Method Delete `
+                -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases/$releaseId" `
+                -Headers $headers
     
             Add-SuccessLog -Message "Allowed to create release to the GitHub repository" -Plugin $this.PluginName
         }
