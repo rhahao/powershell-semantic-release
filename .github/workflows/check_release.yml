@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  script_analyzer:
+  package_dryRun:
     runs-on: ubuntu-latest
     permissions:
       contents: write
