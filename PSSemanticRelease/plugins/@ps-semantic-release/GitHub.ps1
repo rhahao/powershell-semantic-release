@@ -9,7 +9,7 @@ class GitHub {
         $this.Context = $Context
     }
 
-    [void] TestReleaseAccess() {
+    [void] TestReleasePermission() {
         $headers = @{
             Authorization = "Bearer $($this.Config.token)"
             Accept        = "application/vnd.github+json"
@@ -103,7 +103,7 @@ class GitHub {
             Add-SuccessLog -Message "$message to the GitHub repository" -Plugin $this.PluginName
 
             if ($this.Context.CI) {
-                $this.TestReleaseAccess()
+                $this.TestReleasePermission()
             }
 
             Add-SuccessLog "Completed step $step of plugin $typeName"

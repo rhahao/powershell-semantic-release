@@ -9,6 +9,32 @@ class GitLab {
         $this.Context = $Context
     }
 
+    [void] TestReleasePermission() {
+        try {
+            $headers = @{
+                "PRIVATE-TOKEN" = $($this.Config.token)
+                "User-Agent"    = "PSSemanticRelease"
+            }
+    
+            $project = Invoke-RestMethod `
+                -Method Get `
+                -Uri "$(this.Config.gitlabUrl)/api/v4/projects/$(this.Config.projectId)" `
+                -Headers $headers
+
+            $access = $project.permissions.project_access.access_level
+
+            if ($access -ge 30) {
+                Add-SuccessLog -Message "Allowed to create release to the GitLab repository" -Plugin $this.PluginName
+                return
+            }
+
+            throw "[$($this.PluginName)]  Token does not have sufficient permissions to create GitLab releases."
+        }
+        catch {
+            throw "[$($this.PluginName)] Cannot access project or lacks permission: $($_.Exception.Message)"
+        }
+    }
+
     [void] VerifyConditions() {
         try {
             $typeName = "`"$($this.PluginName)`""
@@ -37,9 +63,29 @@ class GitLab {
             if ($env:GITLAB_TOKEN) { $token = $env:GITLAB_TOKEN }
             if ($env:GL_TOKEN) { $token = $env:GL_TOKEN }
 
+            $this.Config.token = $token
+
+            $this.Config.gitlabUrl = if ($env:GITLAB_URL) {
+                $env:GITLAB_URL.TrimEnd('/')
+            }
+            elseif ($env:GL_URL) {
+                $env:GL_URL.TrimEnd('/')
+            }
+            else {
+                "https://gitlab.com"
+            }
+
+            $repoUrl = $this.Context.Repository.Url
+            $repo = $repoUrl.Substring($this.Config.gitlabUrl.Length).TrimStart('/')
+            $this.Config.projectId = [uri]::EscapeDataString($repo)
+
             $message = Test-GitPushAccessCI -context $this.Context -token $token
 
             Add-SuccessLog -Message "$message to the GitLab repository" -Plugin $this.PluginName
+
+            if ($this.Context.CI) {
+                $this.TestReleasePermission()
+            }
 
             Add-SuccessLog "Completed step $step of plugin $typeName"
         }
@@ -60,22 +106,7 @@ class GitLab {
 
         Add-InformationLog "Start step $step of plugin $typeName"
         
-        $repoUrl = $this.Context.Repository.Url
         $version = $this.Context.NextRelease.Version
-
-        $gitlabUrl = if ($env:GITLAB_URL) {
-            $env:GITLAB_URL.TrimEnd('/')
-        }
-        elseif ($env:GL_URL) {
-            $env:GL_URL.TrimEnd('/')
-        }
-        else {
-            "https://gitlab.com"
-        }
-
-        $repo = $repoUrl.Substring($gitlabUrl.Length).TrimStart('/')
-        $projectId = [uri]::EscapeDataString($repo)
-
         $tag = "v$($version)"
 
         $body = @{
@@ -84,16 +115,14 @@ class GitLab {
             description = $this.Context.NextRelease.Notes
         } | ConvertTo-Json -Depth 5
 
-        $token = if ($env:GL_TOKEN) { $env:GL_TOKEN } else { $env:GITLAB_TOKEN }
-
         $headers = @{
-            "PRIVATE-TOKEN" = $token
-            "User-Agent"  = "PSSemanticRelease"
+            "PRIVATE-TOKEN" = $($this.Config.token)
+            "User-Agent"    = "PSSemanticRelease"
         }        
 
         $response = Invoke-RestMethod `
             -Method Post `
-            -Uri "$gitlabUrl/api/v4/projects/$projectId/releases"
+            -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)/releases" `
             -Headers $headers `
             -Body $body `
             -ContentType "application/json"
