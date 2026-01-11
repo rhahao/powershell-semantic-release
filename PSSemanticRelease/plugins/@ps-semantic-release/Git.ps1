@@ -125,7 +125,8 @@ class Git {
             $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
             $tempFile = [System.IO.Path]::GetTempFileName()
 
-            $commitMessage -split "`n" | Set-Content -Path $tempFile -Encoding UTF8
+            ":" | Out-File -FilePath $tempFile -Encoding UTF8
+            $commitMessage -split "`n" | Add-Content -Path $tempFile -Encoding UTF8
 
             git tag -a $tag -F $tempFile
 
