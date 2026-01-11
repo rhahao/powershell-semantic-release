@@ -114,8 +114,10 @@ function Format-ReleaseNotesDryRun {
             $suffix = $Matches[3]
             $line = "$hashes $version$suffix"
         }
-        elseif ($note.StartsWith("* **")) {
-            $line = "    $note"
+        elseif ($note -match '^\* ') {
+            $line = $note -replace '\*\*', ''
+            $line = $line -replace '\(\[[^\]]+\]\((https?://[^)]+)\)\)', '($1)'
+            $line = "    $line"
         }
 
         $draftNotes += $line
