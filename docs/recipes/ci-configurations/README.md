@@ -1,3 +1,3 @@
 # CI configurations
 
-- [GitLab CI](gitlab-ci.md)
+- [GitHuh Actions](github-actions.md)

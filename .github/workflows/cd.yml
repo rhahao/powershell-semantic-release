@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           ref: ${{ github.head_ref }}
-          persist-credentials: false
+          persist-credentials: true
           fetch-depth: 0
 
       - name: Run PSSemanticRelease

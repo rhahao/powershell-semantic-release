@@ -17,3 +17,4 @@
 ## Recipes
 
 - [CI configurations](docs/recipes/ci-configurations/README.md)
+  - [GitHub Actions](docs/recipes/ci-configurations/github-actions.md)
