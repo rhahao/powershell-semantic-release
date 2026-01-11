@@ -9,6 +9,39 @@ class GitHub {
         $this.Context = $Context
     }
 
+    [void] TestReleaseAccess() {
+        $headers = @{
+            Authorization = "Bearer $($this.Config.token)"
+            Accept        = "application/vnd.github+json"
+            "User-Agent"  = "PSSemanticRelease"
+        }
+    
+        $body = @{
+            tag_name = ""
+            name     = "permission-check"
+            draft    = $true
+        } | ConvertTo-Json
+    
+        try {
+            Invoke-RestMethod `
+                -Method Post `
+                -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases" `
+                -Headers $headers `
+                -Body $body `
+                -ContentType "application/json"
+    
+            Add-SuccessLog -Message "Allowed to create release to the GitHub repository" -Plugin $this.PluginName
+        }
+        catch {
+            if ($_.Exception.Response.StatusCode -eq 422) {
+                Add-SuccessLog -Message "Allowed to create release to the GitHub repository" -Plugin $this.PluginName
+                return
+            }
+    
+            throw $_
+        }
+    }
+
     [void] VerifyConditions() {
         try {
             $typeName = "`"$($this.PluginName)`""
@@ -32,14 +65,46 @@ class GitHub {
                 }
             }
 
+            $this.Config.githubUrl = if ($env:GITHUB_SERVER_URL) {
+                $env:GITHUB_SERVER_URL.TrimEnd('/')
+            }
+            elseif ($env:GITHUB_URL) {
+                $env:GITHUB_URL.TrimEnd('/')
+            }
+            elseif ($env:GH_URL) {
+                $env:GH_URL.TrimEnd('/')
+            }
+            else {
+                "https://github.com"
+            }
+            
+            $this.Config.githubApiUrl = if ($env:GITHUB_API_URL) {
+                $env:GITHUB_API_URL.TrimEnd('/')
+            }
+            elseif ($env:GH_API_URL) {
+                $env:GH_API_URL.TrimEnd('/')
+            }
+            else {
+                "https://api.github.com"
+            }
+
+            $repoUrl = $this.Context.Repository.Url
+            $this.Config.repo = $repoUrl.Substring($this.Config.githubUrl.Length).TrimStart('/')
+
             $token = $null
 
             if ($env:GITHUB_TOKEN) { $token = $env:GITHUB_TOKEN }
             if ($env:GH_TOKEN) { $token = $env:GH_TOKEN }
 
+            $this.Config.token = $token
+
             $message = Test-GitPushAccessCI -context $this.Context -token $token
 
             Add-SuccessLog -Message "$message to the GitHub repository" -Plugin $this.PluginName
+
+            if ($this.Context.CI) {
+                $this.TestReleaseAccess()
+            }
 
             Add-SuccessLog "Completed step $step of plugin $typeName"
         }
@@ -61,54 +126,26 @@ class GitHub {
 
         Add-InformationLog "Start step $step of plugin $typeName"
         
-        $repoUrl = $this.Context.Repository.Url
         $version = $this.Context.NextRelease.Version
-
-        $githubUrl = if ($env:GITHUB_SERVER_URL) {
-            $env:GITHUB_SERVER_URL.TrimEnd('/')
-        }
-        elseif ($env:GITHUB_URL) {
-            $env:GITHUB_URL.TrimEnd('/')
-        }
-        elseif ($env:GH_URL) {
-            $env:GH_URL.TrimEnd('/')
-        }
-        else {
-            "https://github.com"
-        }
-        
-        $githubApiUrl = if ($env:GITHUB_API_URL) {
-            $env:GITHUB_API_URL.TrimEnd('/')
-        }
-        elseif ($env:GH_API_URL) {
-            $env:GH_API_URL.TrimEnd('/')
-        }
-        else {
-            "https://api.github.com"
-        }        
-
-        $repo = $repoUrl.Substring($githubUrl.Length).TrimStart('/')
         $tag = "v$($version)"
 
         $body = @{
             tag_name   = $tag
             name       = $tag
             body       = $this.Context.NextRelease.Notes
-            prerelease = [bool]$this.Context.NextRelease.Channel
+            prerelease = $this.Context.NextRelease.Prerelease
             draft      = $false
         } | ConvertTo-Json -Depth 5
 
-        $token = if ($env:GH_TOKEN) { $env:GH_TOKEN } else { $env:GITHUB_TOKEN }
-
         $headers = @{
-            Authorization = "Bearer $token"
+            Authorization = "Bearer $($this.Config.token)"
             Accept        = "application/vnd.github+json"
             "User-Agent"  = "PSSemanticRelease"
         }
 
         $response = Invoke-RestMethod `
             -Method Post `
-            -Uri "$githubApiUrl/repos/$repo/releases" `
+            -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases" `
             -Headers $headers `
             -Body $body `
             -ContentType "application/json"
