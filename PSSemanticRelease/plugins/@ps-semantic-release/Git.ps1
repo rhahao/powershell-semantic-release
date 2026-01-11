@@ -23,12 +23,13 @@ class Git {
 
         $assets = $this.Config.assets
         $message = $this.Config.message
+        $hasAssets = $assets -is [array] -and $assets.Count -gt 0
 
-        if (-not $assets -or ($assets -is [array] -and $assets.Count -eq 0)) {
+        if (-not $hasAssets) {
             throw "[$($this.PluginName)] At least one asset needs to be specified."
         }
 
-        if (-not $message) {
+        if ($hasAssets -and -not $message) {
             throw "[$($this.PluginName)] A commit message needs to be specified."
         }
 
@@ -79,22 +80,22 @@ class Git {
 
         if ($lists.Count -eq 0) { 
             Add-ConsoleLog "[$($this.PluginName)] Cannot find files listed in assets config"
-            return
         }
+        else {
+            Add-ConsoleLog "[$($this.PluginName)] Found $($lists.Count) file(s) to commit"
 
-        Add-ConsoleLog "[$($this.PluginName)] Found $($lists.Count) file(s) to commit"
+            # Stage files
+            git add $lists 2>$null
 
-        # Stage files
-        git add $lists 2>$null
+            git restore .
+            git restore --staged .
 
-        git restore .
-        git restore --staged .
+            git add $lists 2>$null
 
-        git add $lists 2>$null
+            $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
 
-        $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
-
-        git commit -m $commitMessage --quiet
+            git commit -m $commitMessage --quiet
+        }
 
         $version = $this.Context.NextRelease.Version
 
@@ -128,10 +129,18 @@ class Git {
         
         $currentBranch = $this.Context.Repository.BranchCurrent
         $nextVersion = $this.Context.NextRelease.Version
+        $assets = $this.Config.assets
+        $message = $this.Config.message
+        $hasAssets = $assets -is [array] -and $assets.Count -gt 0
 
         $tag = "v$nextVersion"
+        $itemsToPush = $tag
 
-        git push origin $currentBranch $tag 2>$null
+        if ($message -and $hasAssets) {
+            $itemsToPush = "$currentBranch $itemsToPush"
+        }
+
+        git push origin $itemsToPush 2>$null
 
         Add-ConsoleLog "[$($this.PluginName)] Prepared Git release: v${nextVersion}"
 

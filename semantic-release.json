@@ -3,13 +3,7 @@
     "@ps-semantic-release/CommitAnalyzer",
     "@ps-semantic-release/ReleaseNotesGenerator",
     "@ps-semantic-release/Changelog",
-    [
-      "@ps-semantic-release/Git",
-      {
-        "assets": ["CHANGELOG.md"],
-        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
-      }
-    ],
+    "@ps-semantic-release/Git",
     [
       "@ps-semantic-release/Exec",
       {
