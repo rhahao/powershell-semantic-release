@@ -122,15 +122,7 @@ class Git {
             Add-InformationLog -Message "Skip $tag tag creation in DryRun mode" -Plugin $this.PluginName
         }
         else {
-            $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
-            $tempFile = [System.IO.Path]::GetTempFileName()
-
-            ":" | Out-File -FilePath $tempFile -Encoding UTF8
-            $commitMessage -split "`n" | Add-Content -Path $tempFile -Encoding UTF8
-
-            git tag -a $tag -F $tempFile
-
-            Remove-Item $tempFile -Force
+            git tag -a $tag $commitMessage 
         }
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
