@@ -1,8 +1,14 @@
 {
   "branches": [
     "main",
-    { "name": "beta", "prerelease": "beta" },
-    { "name": "alpha", "prerelease": "alpha" }
+    {
+      "name": "beta",
+      "prerelease": "beta"
+    },
+    {
+      "name": "alpha",
+      "prerelease": "alpha"
+    }
   ],
   "unifyTag": false,
   "plugins": [
@@ -10,16 +16,40 @@
       "@ps-semantic-release/CommitAnalyzer",
       {
         "releaseRules": [
-          { "type": "fix", "release": "patch", "section": "Bug Fixes" },
-          { "type": "feat", "release": "minor", "section": "Features" }
+          {
+            "type": "fix",
+            "release": "patch",
+            "section": "Bug Fixes"
+          },
+          {
+            "type": "feat",
+            "release": "minor",
+            "section": "Features"
+          }
         ]
       }
     ],
-    "@ps-semantic-release/Git",
+    [
+      "@ps-semantic-release/Git",
+      {
+        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
+      }
+    ],
     [
       "@ps-semantic-release/ReleaseNotesGenerator",
-      { "commitsSort": ["scope", "subject"] }
+      {
+        "commitsSort": [
+          "scope",
+          "subject"
+        ]
+      }
     ],
-    ["@ps-semantic-release/Changelog", { "file": "CHANGELOG.md", "title": "" }]
+    [
+      "@ps-semantic-release/Changelog",
+      {
+        "file": "CHANGELOG.md",
+        "title": ""
+      }
+    ]
   ]
 }

@@ -7,6 +7,25 @@ class Git {
         $this.PluginName = $PluginName
         $this.Config = $Config
         $this.Context = $Context
+
+        $this.EnsureConfig()
+    }
+
+    [void] EnsureConfig() {
+        $typeName = $this.PluginName
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+        
+        if (-not $this.Config.message) {
+            $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
+
+            $this.Config.message = $configDefault.Config.message
+
+            $this.Context.Config.Project.plugins[$pluginIndex].Config.message = $configDefault.Config.message
+        }
+
+        if ($this.Config.assets) {
+            $this.Config.assets = , $this.Config.assets
+        }
     }
 
     [void] VerifyConditions() {
@@ -22,15 +41,10 @@ class Git {
         }
 
         $assets = $this.Config.assets
-        $message = $this.Config.message
         $hasAssets = $assets -is [array]
 
         if ($hasAssets -and $assets.Count -gt 0) {
             throw "[$($this.PluginName)] At least one asset needs to be specified."
-        }
-
-        if ($hasAssets -and -not $message) {
-            throw "[$($this.PluginName)] A commit message needs to be specified."
         }
 
         if (-not $this.Context.DryRun) {
@@ -62,8 +76,9 @@ class Git {
 
         Add-ConsoleLog "Start step $step of plugin $typeName"
 
-        $assets = , $this.Config.assets
+        $assets = $this.Config.assets
         $messageTemplate = $this.Config.message
+        $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
 
         $lists = @()
         $modifiedFiles = Get-GitModifiedFiles
@@ -92,8 +107,6 @@ class Git {
 
             git add $lists 2>$null
 
-            $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
-
             git commit -m $commitMessage --quiet
         }
 
@@ -109,7 +122,7 @@ class Git {
             Add-ConsoleLog "[$($this.PluginName)] Skip $tag tag creation in DryRun mode"
         }
         else {
-            git tag $tag 2>$null
+            git tag -a $tag -m $commitMessage 2>$null
         }
 
         Add-ConsoleLog "Completed step $step of plugin $typeName"
