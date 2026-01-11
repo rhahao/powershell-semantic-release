@@ -16,5 +16,9 @@
 
 ## Recipes
 
-- [CI configurations](docs/recipes/ci-configurations/README.md)
+- CI configurations
   - [GitHub Actions](docs/recipes/ci-configurations/github-actions.md)
+
+## Developer guide
+
+- [Plugin development](docs/developer-guide/plugin.md)
