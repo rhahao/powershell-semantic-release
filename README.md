@@ -23,9 +23,12 @@ PSSemanticRelease uses your commit messages to determine how the version should 
 
 By default, it relies on conventional commit formats like:
 
-- fix: → Patch release
-- feat: → Minor release
-- feat!: or fix!: → Major release
+| Commit message                                                       | Release type                    |
+| -------------------------------------------------------------------- | ------------------------------- |
+| `fix(pencil): stop graphite breaking when too much pressure applied` | Patch release                   |
+| `feat(pencil): add 'graphiteWidth' option`                           | Minor release                   |
+| `perf(pencil): remove graphiteWidth option`                          | _none_                          |
+| `feat(pencil)!: The graphiteWidth option has been removed.`          | Major release (Breaking change) |
 
 ---
 
@@ -33,14 +36,14 @@ By default, it relies on conventional commit formats like:
 
 A `PSSemanticRelease` run includes the following phases:
 
-| Step             | Description                                          |
-| ---------------- | ---------------------------------------------------- |
-| VerifyConditions | Ensure the environment and configuration are correct |
-| AnalyzeCommits   | Determine next release type from commits             |
-| VerifyRelease    | Optional additional checks                           |
-| GenerateNotes    | Create release notes from commit history             |
-| Prepare          | Update changelogs, manifests, and run custom scripts |
-| Publish          | Commit & tag in Git and publish artifacts            |
+| Step               | Description                                          |
+| ------------------ | ---------------------------------------------------- |
+| `VerifyConditions` | Ensure the environment and configuration are correct |
+| `AnalyzeCommits`   | Determine next release type from commits             |
+| `VerifyRelease`    | Optional additional checks                           |
+| `GenerateNotes`    | Create release notes from commit history             |
+| `Prepare`          | Update changelogs, manifests, and run custom scripts |
+| `Publish`          | Commit & tag in Git and publish artifacts            |
 
 This flow mirrors the official [semantic‑release](https://semantic-release.gitbook.io/semantic-release/#release-steps) pipeline.
 
