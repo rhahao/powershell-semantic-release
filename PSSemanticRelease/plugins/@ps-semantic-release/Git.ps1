@@ -93,7 +93,7 @@ class Git {
             }
         }
 
-        if ($lists.Count -eq 0) { 
+        if ($assets.Count -gt 0 -and $lists.Count -eq 0) { 
             Add-FailureLog -Message "Cannot find files listed in assets config" -Plugin $this.PluginName
         }
         else {
