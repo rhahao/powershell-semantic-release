@@ -1,8 +1,8 @@
 # CI configuration
 
-## Run `PSSemanticRelease` only after tests succeed
+## Run `Invoke-SemanticRelease` only after tests succeed
 
-The semantic release should be executed only after all tests in the CI build pass. If your CI runs multiple jobs (for example, testing on multiple OSs), make sure the semantic release step runs after all jobs succeed.
+The `Invoke-SemanticRelease` should be executed only after all tests in the CI build pass. If your CI runs multiple jobs (for example, testing on multiple OSs), make sure the semantic release step runs after all jobs succeed.
 
 Supported CI/CD systems include:
 
