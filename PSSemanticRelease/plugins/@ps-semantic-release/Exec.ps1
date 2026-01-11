@@ -79,7 +79,7 @@ class Exec {
             throw "[$($this.PluginName)] Script file `"$file`" not found."
         }
 
-        Add-ConsoleLog -Message "Running `"$file`" with arguments: $($arguments -join ' ')" -Plugin $this.PluginName
+        Add-InformationLog -Message "Running `"$file`" with arguments: $($arguments -join ' ')" -Plugin $this.PluginName
 
         try {
             $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
