@@ -20,7 +20,7 @@ if (Test-Path $distRoot) {
 
 New-Item $distPath -ItemType Directory -Force | Out-Null
 
-Copy-Item "$srcPath\*" $distPath -Recurse -Force
+Copy-Item "$srcPath\*" $distPath -Recurse -Force | Out-Null
 
 $publicPath = Join-Path $srcPath 'public'
 

@@ -23,9 +23,9 @@ class Git {
 
         $assets = $this.Config.assets
         $message = $this.Config.message
-        $hasAssets = $assets -is [array] -and $assets.Count -gt 0
+        $hasAssets = $assets -is [array]
 
-        if (-not $hasAssets) {
+        if ($hasAssets -and $assets.Count -gt 0) {
             throw "[$($this.PluginName)] At least one asset needs to be specified."
         }
 
