@@ -122,7 +122,8 @@ class Git {
             Add-InformationLog -Message "Skip $tag tag creation in DryRun mode" -Plugin $this.PluginName
         }
         else {
-            $tagAnnotation = $commitMessage -replace '(?m)^#', ' #'
+            $zwsp = [char]0x200B
+            $tagAnnotation = $commitMessage -replace '(?m)^#', "$zwsp#"
             git tag -a $tag -m $tagAnnotation 
         }
 
