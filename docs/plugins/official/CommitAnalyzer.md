@@ -48,21 +48,14 @@ Multiple rules can be provided; the plugin will match commit Type against type i
 
 ## Behavior details
 
-### EnsureConfig
-
-- Runs during construction to ensure `releaseRules` exist.
-- If `releaseRules` is missing, not an array, or empty, the plugin copies the default plugin config from `Context.Config.Default.plugins` into the project plugin config.
-- Filters `releaseRules` to only include rules where `release` is `patch` or `minor`.
-- Writes the filtered `releaseRules` back into `Context.Config.Project.plugins` for the running project.
-
-### VerifyConditions
+### `VerifyConditions`
 
 - Calls `Get-ConventionalCommits -context $this.Context` to collect commits since the last release.
 - Stores the commit list in `Context.Commits.List` and a formatted count in `Context.Commits.Formatted`.
 - If no commits are found, logs that no release is needed and sets `Context.Abort = $true`.
 - If commits are found, logs the number of commits and continues.
 
-### AnalyzeCommits
+### `AnalyzeCommits`
 
 - Iterates each commit in `Context.Commits.List`.
 - For each commit:
