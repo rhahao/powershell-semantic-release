@@ -1,4 +1,4 @@
-$prefix = "[ps-semantic-release] ›"
+$prefix = "[ps-semantic-release]"
 
 function Add-ConsoleLog {
     param ($Message)
@@ -12,9 +12,9 @@ function Add-InformationLog {
     if ($Plugin) {
         $Plugin = "[$Plugin]"
 
-        Write-Host "$prefix $Plugin › ℹ $Message"
+        Write-Host "$prefix $Plugin i $Message"
     } else {
-        Write-Host "$prefix ℹ $Message"
+        Write-Host "$prefix i $Message"
     }
 
 }
@@ -25,9 +25,9 @@ function Add-SuccessLog {
     if ($Plugin) {
         $Plugin = "[$Plugin]"
 
-        Write-Host "$prefix $Plugin › ✔ $Message"
+        Write-Host "$prefix $Plugin v $Message"
     } else {
-        Write-Host "$prefix ✔ $Message"
+        Write-Host "$prefix v $Message"
     }
 }
 
@@ -37,9 +37,9 @@ function Add-WarningLog {
     if ($Plugin) {
         $Plugin = "[$Plugin]"
 
-        Write-Host "$prefix $Plugin › ⚠ $Message"
+        Write-Host "$prefix $Plugin ! $Message"
     } else {
-        Write-Host "$prefix ⚠ $Message"
+        Write-Host "$prefix ! $Message"
     }
 }
 
@@ -49,8 +49,8 @@ function Add-FailureLog {
     if ($Plugin) {
         $Plugin = "[$Plugin]"
 
-        Write-Host "$prefix $Plugin › ✘ $Message"
+        Write-Host "$prefix $Plugin x $Message"
     } else {
-        Write-Host "$prefix ✘ $Message"
+        Write-Host "$prefix x $Message"
     }
 }
