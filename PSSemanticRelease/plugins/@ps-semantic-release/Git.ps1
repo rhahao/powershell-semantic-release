@@ -47,10 +47,6 @@ class Git {
             throw "[$($this.PluginName)] At least one asset needs to be specified."
         }
 
-        if (-not $this.Context.DryRun) {
-            Set-GitIdentity
-        }
-
         $currentVersion = Get-CurrentSemanticVersion -context $this.Context.Config.Project.unifyTag
         $this.Context.CurrentVersion.Branch = $currentVersion
 
@@ -97,6 +93,10 @@ class Git {
             Add-FailureLog -Message "Cannot find files listed in assets config" -Plugin $this.PluginName
         }
         else {
+            if (-not $this.Context.DryRun) {
+                Set-GitIdentity
+            }
+        
             Add-InformationLog -Message "Found $($lists.Count) file(s) to commit" -Plugin $this.PluginName
 
             # Stage files
