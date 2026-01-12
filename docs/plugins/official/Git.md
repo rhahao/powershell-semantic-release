@@ -12,7 +12,7 @@ A plugin that stages, commits, tags, and pushes release-related changes to the r
   - **Required:** no
   - **Default:** plugin default from `Context.Config.Default.plugins`
     ```json
-    "chore(release): ${nextRelease.version} [skip ci]"
+    "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}"
     ```
   - **Description:** Commit message template. The plugin expands the template against the pipeline `Context` using `Expand-ContextString` before committing.
 
@@ -78,7 +78,7 @@ A plugin that stages, commits, tags, and pushes release-related changes to the r
     [
       "@ps-semantic-release/Git",
       {
-        "message": "chore(release): ${nextRelease.version} [skip ci]",
+        "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}",
         "assets": ["dist/**", "CHANGELOG.md"]
       }
     ]
