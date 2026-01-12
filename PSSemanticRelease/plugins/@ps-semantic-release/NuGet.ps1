@@ -44,6 +44,11 @@ class NuGet {
   }
 
   [void] VerifyConditions() {
+    $typeName = "`"$($this.PluginName)`""
+    $step = "VerifyConditions"
+
+    Add-InformationLog "Start step $step of plugin $typeName"
+
     try {
       if (-not $this.Context.DryRun -and -not $env:NUGET_API_KEY) {
         throw "[$($this.PluginName)] No environment variable set for NUGET_API_KEY"
@@ -65,6 +70,8 @@ class NuGet {
       if ($Repository -and $Repository -ne "PSGallery") {
         Register-PSRepository -Name $Repository -SourceLocation $Source -InstallationPolicy Trusted
       }
+
+      Add-SuccessLog "Completed step $step of plugin $typeName"
     }
     catch {
       throw $_
@@ -109,7 +116,9 @@ class NuGet {
     if ($dryRun) { 
       Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
       return
-    }   
+    }
+
+    Add-InformationLog "Start step $step of plugin $typeName"
 
     try {
       $distPath = Get-Item -Path $this.Config.path
@@ -119,9 +128,9 @@ class NuGet {
         $Repository = "PSGallery"
       }
 
-      Write-Host "Publishing module to $Repository"
+      Add-InformationLog -Message "Publishing module to $Repository" -Plugin $this.PluginName
       Publish-Module -Path $distPath -Repository $Repository -NuGetApiKey $env:NUGET_API_KEY
-      Write-Host "Publish completed successfully"
+      Add-InformationLog -Message "Publish completed successfully" -Plugin $this.PluginName
 
       Add-SuccessLog "Completed step $step of plugin $typeName"
     }
