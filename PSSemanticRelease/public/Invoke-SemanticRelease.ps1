@@ -9,6 +9,8 @@ function Invoke-SemanticRelease {
         $semanticVersion = Get-PSSemanticReleaseVersion
         Add-InformationLog "PSSemanticRelease version $semanticVersion"
 
+        Test-GitRepository
+
         $context = New-ReleaseContext $DryRun
 
         if ($context.DryRun) {

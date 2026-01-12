@@ -143,7 +143,8 @@ function Test-GitPushAccessCI {
 
         if ($output -match "Everything up-to-date|To https?://|To git@") {
             return "Allowed to push on branch $currentBranch"
-        } else {
+        }
+        else {
             throw "Push failed: permission denied."
         }
     }
@@ -180,7 +181,6 @@ function Set-GitIdentity {
         throw $_
     }
 }
-
 function Get-NextSemanticVersion {
     param ($context)
 
@@ -244,4 +244,10 @@ function Get-NextSemanticVersion {
     }
     
     return $nextVersion
+}
+
+function Test-GitRepository {
+    if (-not (Test-Path .git)) {
+        throw "[ps-semantic-release] Not a Git repository"
+    }
 }
