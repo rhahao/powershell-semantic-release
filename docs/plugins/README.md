@@ -15,7 +15,7 @@ Plugins are referenced by name in the configuration file and are loaded automati
 - [@ps-semantic-release/Exec](./official/Exec.md)
 - [@ps-semantic-release/NuGet](./official/NuGet.md)
 - [@ps-semantic-release/GitHub](./official/GitHub.md)
-- @ps-semantic-release/GitLab
+- [@ps-semantic-release/GitLab](./official/GitLab.md)
 
 ---
 
