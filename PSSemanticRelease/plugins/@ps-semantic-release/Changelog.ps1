@@ -59,7 +59,7 @@ class Changelog {
 
         Add-InformationLog "Start step $step of plugin $typeName"
 
-        $changelogTitle = $this.Config.title
+        $changelogTitle = $plugin.Config.title
         $notes = $this.Context.NextRelease.Notes        
 
         $preContents = ""

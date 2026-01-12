@@ -92,7 +92,7 @@ class NuGet {
         $path = Get-Item -Path "$($plugin.Config.path)/*.psd1" -ErrorAction SilentlyContinue 
 
         if ($null -eq $path) {
-            throw "[$($this.PluginName)] Cannot find the module manifest in the provided $(this.Config.path)"
+            throw "[$($this.PluginName)] Cannot find the module manifest in the provided $($plugin.Config.path)"
         }
 
         $this.FormatReleaseNotes()

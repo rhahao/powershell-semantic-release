@@ -11,39 +11,51 @@ class Exec {
     }
 
     [void] VerifyConditions() {
-        if (-not $this.Config.verifyConditionsPsScript) { return }
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
-        $this.RunScript("VerifyConditions", $false, $this.Config.verifyConditionsPsScript)
+        if (-not $plugin.Config.verifyConditionsPsScript) { return }
+
+        $this.RunScript("VerifyConditions", $false, $plugin.Config.verifyConditionsPsScript)
     }
 
     [void] AnalyzeCommits() {
-        if (-not $this.Config.analyzeCommitsPsScript) { return }
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
-        $this.RunScript("AnalyzeCommits", $false, $this.Config.analyzeCommitsPsScript)
+        if (-not $plugin.Config.analyzeCommitsPsScript) { return }
+
+        $this.RunScript("AnalyzeCommits", $false, $plugin.Config.analyzeCommitsPsScript)
     }
 
     [void] VerifyRelease() {
-        if (-not $this.Config.verifyReleasePsScript) { return }
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
-        $this.RunScript("VerifyRelease", $false, $this.Config.verifyReleasePsScript)
+        if (-not $plugin.Config.verifyReleasePsScript) { return }
+
+        $this.RunScript("VerifyRelease", $false, $plugin.Config.verifyReleasePsScript)
     }
 
     [void] GenerateNotes() {
-        if (-not $this.Config.generateNotesPsScript) { return }
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
-        $this.RunScript("GenerateNotes", $false, $this.Config.generateNotesPsScript)
+        if (-not $plugin.Config.generateNotesPsScript) { return }
+
+        $this.RunScript("GenerateNotes", $false, $plugin.Config.generateNotesPsScript)
     }
 
     [void] Prepare() {
-        if (-not $this.Config.preparePsScript) { return }
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
-        $this.RunScript("Prepare", $false, $this.Config.preparePsScript)
+        if (-not $plugin.Config.preparePsScript) { return }
+
+        $this.RunScript("Prepare", $false, $plugin.Config.preparePsScript)
     }
 
     [void] Publish() {
-        if (-not $this.Config.publishPsScript) { return }
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+        
+        if (-not $plugin.Config.publishPsScript) { return }
 
-        $this.RunScript("Publish", $true, $this.Config.publishPsScript)
+        $this.RunScript("Publish", $true, $plugin.Config.publishPsScript)
     }
 
     [void] RunScript([string]$step, [bool]$haltDryRun, [string]$scriptProp) {
