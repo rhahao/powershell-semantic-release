@@ -12,8 +12,9 @@
 
 ## Plugins
 
-- Official plugins
-  - [@ps-semantic-release/NuGet](docs/plugins/official/NuGet.md)
+- [Plugins List](docs/plugins/README.md)
+  - Official plugins
+    - [@ps-semantic-release/NuGet](docs/plugins/official/NuGet.md)
 
 ## Recipes
 

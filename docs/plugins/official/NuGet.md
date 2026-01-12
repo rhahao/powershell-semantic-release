@@ -18,7 +18,7 @@ A plugin for publishing PowerShell modules to NuGet-based repositories. It updat
 
 - **Context.NextRelease.Notes** is used to build plain text release notes.
 - **Context.NextRelease.Channel** is used to set `-Prerelease` on the manifest when PowerShell major version is 6 or greater and channel is not `default`.
-- **Context.DryRun** disables the NUGET_API_KEY requirement and causes `Publish` to skip actual publishing.
+- **Context.DryRun** disables the `NUGET_API_KEY` requirement and causes `Publish` to skip actual publishing.
 - **Environment variable NUGET_API_KEY** must be set when not in DryRun mode.
 
 ---
