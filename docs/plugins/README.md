@@ -8,14 +8,14 @@ Plugins are referenced by name in the configuration file and are loaded automati
 
 ## Official plugins
 
-- `@ps-semantic-release/commit-analyzer`
-- `@ps-semantic-release/ReleaseNotesGenerator`
-- `@ps-semantic-release/Changelog`
-- `@ps-semantic-release/Git`
-- `@ps-semantic-release/Exec`
-- [`@ps-semantic-release/NuGet`](./official/NuGet.md)
-- `@ps-semantic-release/GitHub`
-- `@ps-semantic-release/GitLab`
+- @ps-semantic-release/commit-analyzer
+- @ps-semantic-release/ReleaseNotesGenerator
+- @ps-semantic-release/Changelog
+- @ps-semantic-release/Git
+- @ps-semantic-release/Exec
+- [@ps-semantic-release/NuGet](./official/NuGet.md)
+- @ps-semantic-release/GitHub
+- @ps-semantic-release/GitLab
 
 ---
 
