@@ -10,9 +10,10 @@
 - [Configuration](docs/usage/configuration.md)
 - [Plugins](docs/usage/plugins.md)
 
-## Extending
+## Plugins
 
-- [Plugins](docs/extending/plugins-list.md)
+- Official plugins
+  - [@ps-semantic-release/NuGet](docs/plugins/official/NuGet.md)
 
 ## Recipes
 
