@@ -79,7 +79,7 @@ A plugin that stages, commits, tags, and pushes release-related changes to the r
       "@ps-semantic-release/Git",
       {
         "message": "chore(release): {NextRelease.Version} [skip ci]\n\n{NextRelease.Notes}",
-        "assets": ["dist/**", "CHANGELOG.md"]
+        "assets": ["CHANGELOG.md"]
       }
     ]
   ]
