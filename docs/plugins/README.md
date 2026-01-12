@@ -10,7 +10,7 @@ Plugins are referenced by name in the configuration file and are loaded automati
 
 - [@ps-semantic-release/CommitAnalyzer](./official/CommitAnalyzer.md)
 - [@ps-semantic-release/ReleaseNotesGenerator](./official/ReleaseNotesGenerator.md)
-- @ps-semantic-release/Changelog
+- [@ps-semantic-release/Changelog](./official/Changelog.md)
 - @ps-semantic-release/Git
 - @ps-semantic-release/Exec
 - [@ps-semantic-release/NuGet](./official/NuGet.md)

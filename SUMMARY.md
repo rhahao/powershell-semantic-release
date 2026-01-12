@@ -16,6 +16,7 @@
   - Official plugins
     - [@ps-semantic-release/CommitAnalyzer](docs/plugins/official/CommitAnalyzer.md)
     - [@ps-semantic-release/ReleaseNotesGenerator](docs/plugins/official/ReleaseNotesGenerator.md)
+    - [@ps-semantic-release/Changelog](docs/plugins/official/Changelog.md)
     - [@ps-semantic-release/NuGet](docs/plugins/official/NuGet.md)
 
 ## Recipes
