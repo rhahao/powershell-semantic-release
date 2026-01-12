@@ -37,7 +37,7 @@ class Git {
         $gitStatus = Get-GitStatus
 
         if ($gitStatus) {
-            # throw "[$($this.PluginName)] Working tree is not clean. Commit or stash changes before releasing."
+            throw "[$($this.PluginName)] Working tree is not clean. Commit or stash changes before releasing."
         }
 
         $assets = $plugin.Config.assets

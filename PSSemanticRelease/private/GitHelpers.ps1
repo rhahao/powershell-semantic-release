@@ -242,7 +242,7 @@ function New-GitTag {
 
     $version = $context.NextRelease.Version
     $currentBranch = $context.Repository.BranchCurrent
-    $unifyTag = $context.Config.unifyTag
+    $unifyTag = $context.Config.Project.unifyTag
 
     $tag = "v$Version"
 
@@ -257,6 +257,7 @@ function New-GitTag {
 
         $zwsp = [char]0x200B
         $tagAnnotation = $commitMessage -replace '(?m)^#', "$zwsp#"
+        
         git tag -a $tag -m $tagAnnotation
     }
     else {
