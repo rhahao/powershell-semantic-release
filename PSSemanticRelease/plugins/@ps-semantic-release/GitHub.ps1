@@ -67,7 +67,7 @@ class GitHub {
                 throw "[$($this.PluginName)] Specify the array of files to upload for a release."
             }
 
-            if ($this.Context.CI) {
+            if ($this.Context.EnvCI.IsCI) {
                 if ($env:GITHUB_ACTIONS -eq "false") {
                     throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitHub Action"
                 }
@@ -105,7 +105,7 @@ class GitHub {
 
             $plugin.Config.token = $this.Context.EnvCI.Token
 
-            if ($this.Context.CI) {
+            if ($this.Context.EnvCI.IsCI) {
                 $this.TestReleasePermission()
             }
 

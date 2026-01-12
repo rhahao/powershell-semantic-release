@@ -94,7 +94,7 @@ class GitLab {
                 throw "[$($this.PluginName)] Specify the array of files to upload for a release."
             }
 
-            if ($this.Context.CI) {
+            if ($this.Context.EnvCI.IsCI) {
                 if ($env:GITLAB_CI -eq "false") {
                     throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitLab Pipeline"
                 }
@@ -120,7 +120,7 @@ class GitLab {
             $repo = $repoUrl.Substring($plugin.Config.gitlabUrl.Length).TrimStart('/')
             $plugin.Config.projectId = [uri]::EscapeDataString($repo)
 
-            if ($this.Context.CI) {
+            if ($this.Context.EnvCI.IsCI) {
                 $this.TestReleasePermission()
             }
 
