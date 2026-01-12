@@ -13,7 +13,8 @@ function Add-InformationLog {
         $Plugin = "[$Plugin]"
 
         Write-Host "$prefix $Plugin i $Message"
-    } else {
+    }
+    else {
         Write-Host "$prefix i $Message"
     }
 
@@ -26,7 +27,8 @@ function Add-SuccessLog {
         $Plugin = "[$Plugin]"
 
         Write-Host "$prefix $Plugin v $Message"
-    } else {
+    }
+    else {
         Write-Host "$prefix v $Message"
     }
 }
@@ -38,7 +40,8 @@ function Add-WarningLog {
         $Plugin = "[$Plugin]"
 
         Write-Host "$prefix $Plugin ! $Message"
-    } else {
+    }
+    else {
         Write-Host "$prefix ! $Message"
     }
 }
@@ -50,7 +53,21 @@ function Add-FailureLog {
         $Plugin = "[$Plugin]"
 
         Write-Host "$prefix $Plugin x $Message"
-    } else {
+    }
+    else {
         Write-Host "$prefix x $Message"
+    }
+}
+
+function Add-FatalLog {
+    param ($Message)
+
+    if ($Plugin) {
+        $Plugin = "[$Plugin]"
+
+        throw "$prefix $Plugin x $Message"
+    }
+    else {
+        throw "$prefix x $Message"
     }
 }

@@ -1,24 +1,27 @@
 class GitLab {
     [string]$PluginName
-    [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    GitLab([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+    GitLab([string]$PluginName, [PSCustomObject]$Context) {
         $this.PluginName = $PluginName
-        $this.Config = $Config
         $this.Context = $Context
+
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $PluginName
+        $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
     }
 
     [void] TestReleasePermission() {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
         try {
             $headers = @{
-                "PRIVATE-TOKEN" = $($this.Config.token)
+                "PRIVATE-TOKEN" = $($plugin.Config.token)
                 "User-Agent"    = "PSSemanticRelease"
             }
     
             $project = Invoke-RestMethod `
                 -Method Get `
-                -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)" `
+                -Uri "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)" `
                 -Headers $headers
 
             $access = $project.permissions.project_access.access_level
@@ -36,6 +39,8 @@ class GitLab {
     }
 
     [PSCustomObject] UploadFileToProject([string]$path) {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
         try {
             $itemObject = Get-Item -Path $path
 
@@ -48,7 +53,7 @@ class GitLab {
             }
 
             $headers = @{
-                "PRIVATE-TOKEN" = $($this.Config.token)
+                "PRIVATE-TOKEN" = $($plugin.Config.token)
                 "User-Agent"    = "PSSemanticRelease"
             }
 
@@ -58,12 +63,12 @@ class GitLab {
             
             $response = Invoke-RestMethod `
                 -Method Post `
-                -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)/uploads" `
+                -Uri "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)/uploads" `
                 -Headers $headers `
                 -Form $form
 
                 
-            $fullPath = "$($this.Config.gitlabUrl)$($response.full_path)"
+            $fullPath = "$($plugin.Config.gitlabUrl)$($response.full_path)"
 
             Add-InformationLog -Message "Uploaded file: $fullPath" -Plugin $this.PluginName
 
@@ -75,13 +80,15 @@ class GitLab {
     }
 
     [void] VerifyConditions() {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
         try {
             $typeName = "`"$($this.PluginName)`""
             $step = "VerifyConditions"
 
             Add-InformationLog "Start step $step of plugin $typeName"
             
-            $assets = $this.Config.assets
+            $assets = $plugin.Config.assets
 
             if ($assets -and $assets -isnot [array]) {
                 throw "[$($this.PluginName)] Specify the array of files to upload for a release."
@@ -97,14 +104,9 @@ class GitLab {
                 }
             }
 
-            $token = $null
+            $plugin.Config.token = $this.Context.EnvCI.Token
 
-            if ($env:GITLAB_TOKEN) { $token = $env:GITLAB_TOKEN }
-            if ($env:GL_TOKEN) { $token = $env:GL_TOKEN }
-
-            $this.Config.token = $token
-
-            $this.Config.gitlabUrl = if ($env:GITLAB_URL) {
+            $plugin.Config.gitlabUrl = if ($env:GITLAB_URL) {
                 $env:GITLAB_URL.TrimEnd('/')
             }
             elseif ($env:GL_URL) {
@@ -115,12 +117,8 @@ class GitLab {
             }
 
             $repoUrl = $this.Context.Repository.Url
-            $repo = $repoUrl.Substring($this.Config.gitlabUrl.Length).TrimStart('/')
-            $this.Config.projectId = [uri]::EscapeDataString($repo)
-
-            $message = Test-GitPushAccessCI -context $this.Context -token $token
-
-            Add-SuccessLog -Message "$message to the GitLab repository" -Plugin $this.PluginName
+            $repo = $repoUrl.Substring($plugin.Config.gitlabUrl.Length).TrimStart('/')
+            $plugin.Config.projectId = [uri]::EscapeDataString($repo)
 
             if ($this.Context.CI) {
                 $this.TestReleasePermission()
@@ -137,6 +135,7 @@ class GitLab {
         $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Prepare"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         if ($dryRun) { 
             Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
@@ -145,7 +144,7 @@ class GitLab {
 
         Add-InformationLog "Start step $step of plugin $typeName"
 
-        $assets = $this.Config.assets
+        $assets = $plugin.Config.assets
         $validAssets = @()
 
         if ($assets -and $assets -is [array]) {
@@ -160,12 +159,14 @@ class GitLab {
             }
         }
 
-        $this.Config.validAssets = , $validAssets
+        $plugin.Config.validAssets = , $validAssets
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 
     [void] Publish() {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
         try {
             $typeName = "`"$($this.PluginName)`""
             $dryRun = $this.Context.DryRun
@@ -180,8 +181,8 @@ class GitLab {
 
             $assetsLinks = @()
 
-            if ($this.Config.validAssets.Count -gt 0) {
-                foreach ($asset in $this.Config.validAssets) {
+            if ($plugin.Config.validAssets.Count -gt 0) {
+                foreach ($asset in $plugin.Config.validAssets) {
                     if ($asset.url) {
                         $assetsLinks += @{ name = $asset.label; url = $asset.url; link_type = "other" }
                     }
@@ -212,13 +213,13 @@ class GitLab {
             $bodyJson = $body | ConvertTo-Json -Depth 5
 
             $headers = @{
-                "PRIVATE-TOKEN" = $($this.Config.token)
+                "PRIVATE-TOKEN" = $($plugin.Config.token)
                 "User-Agent"    = "PSSemanticRelease"
             }
 
             $response = Invoke-RestMethod `
                 -Method Post `
-                -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)/releases" `
+                -Uri "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)/releases" `
                 -Headers $headers `
                 -Body $bodyJson `
                 -ContentType "application/json"

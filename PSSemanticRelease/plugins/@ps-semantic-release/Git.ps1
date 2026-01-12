@@ -1,60 +1,50 @@
 class Git {
     [string]$PluginName
-    [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    Git([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+    Git([string]$PluginName, [PSCustomObject]$Context) {
         $this.PluginName = $PluginName
-        $this.Config = $Config
         $this.Context = $Context
+
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $PluginName
+        $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
 
         $this.EnsureConfig()
     }
 
     [void] EnsureConfig() {
         $typeName = $this.PluginName
-        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
         
-        if (-not $this.Config.message) {
+        if (-not $plugin.Config.message) {
             $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
-            $this.Config.message = $configDefault.Config.message
-
-            $this.Context.Config.Project.plugins[$pluginIndex].Config.message = $configDefault.Config.message
+            $this.Context.Config.Project.plugins[$this.PluginIndex].Config.message = $configDefault.Config.message
         }
 
-        if ($this.Config.assets) {
-            $this.Config.assets = , $this.Config.assets
+        if ($plugin.Config.assets) {
+            $this.Context.Config.Project.plugins[$this.PluginIndex].Config.assets = , $plugin.Config.assets
         }
     }
 
     [void] VerifyConditions() {
         $typeName = "`"$($this.PluginName)`""
         $step = "VerifyConditions"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         Add-InformationLog "Start step $step of plugin $typeName"
 
         $gitStatus = Get-GitStatus
 
         if ($gitStatus) {
-            throw "[$($this.PluginName)] Working tree is not clean. Commit or stash changes before releasing."
+            # throw "[$($this.PluginName)] Working tree is not clean. Commit or stash changes before releasing."
         }
 
-        $assets = $this.Config.assets
+        $assets = $plugin.Config.assets
         $hasAssets = $assets -is [array]
 
         if ($hasAssets -and $assets.Count -gt 0) {
             throw "[$($this.PluginName)] At least one asset needs to be specified."
-        }
-
-        $currentVersion = Get-CurrentSemanticVersion -context $this.Context.Config.Project.unifyTag
-        $this.Context.CurrentVersion.Branch = $currentVersion
-
-        if (-not $currentVersion) {
-            Add-InformationLog -Message "No previous release found, retrieving all commits" -Plugin $this.PluginName
-        }
-        else {
-            Add-InformationLog -Message "Found git tag v$currentVersion on branch $($this.Context.Repository.BranchCurrent)" -Plugin $this.PluginName
         }
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
@@ -64,6 +54,7 @@ class Git {
         $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Prepare"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         if ($dryRun) { 
             Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
@@ -72,8 +63,8 @@ class Git {
 
         Add-InformationLog "Start step $step of plugin $typeName"
 
-        $assets = $this.Config.assets
-        $messageTemplate = $this.Config.message
+        $assets = $plugin.Config.assets
+        $messageTemplate = $plugin.Config.message
         $commitMessage = Expand-ContextString -context $this.Context -template $messageTemplate
 
         $lists = @()
@@ -110,23 +101,6 @@ class Git {
             git commit -m $commitMessage --quiet
         }
 
-        $version = $this.Context.NextRelease.Version
-
-        $tag = "v$Version"
-
-        if (Test-GitTagExist $tag) {
-            throw "Tag $tag already exists"
-        }
-
-        if ($dryRun) {
-            Add-InformationLog -Message "Skip $tag tag creation in DryRun mode" -Plugin $this.PluginName
-        }
-        else {
-            $zwsp = [char]0x200B
-            $tagAnnotation = $commitMessage -replace '(?m)^#', "$zwsp#"
-            git tag -a $tag -m $tagAnnotation 
-        }
-
         Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 
@@ -134,6 +108,7 @@ class Git {
         $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Publish"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         if ($dryRun) { 
             Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
@@ -144,8 +119,8 @@ class Git {
         
         $currentBranch = $this.Context.Repository.BranchCurrent
         $nextVersion = $this.Context.NextRelease.Version
-        $assets = $this.Config.assets
-        $message = $this.Config.message
+        $assets = $plugin.Config.assets
+        $message = $plugin.Config.message
         $hasAssets = $assets -is [array] -and $assets.Count -gt 0
 
         $tag = "v$nextVersion"

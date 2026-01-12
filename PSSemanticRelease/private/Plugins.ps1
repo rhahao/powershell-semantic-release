@@ -1,4 +1,4 @@
-function Update-PluginsList {
+function Update-ConfigPluginsList {
     param ([PSCustomObject]$context)
 
     $default = $context.Config.Default.plugins
@@ -72,7 +72,7 @@ function Get-SemanticReleasePlugins {
         }
 
         $className = $baseName
-        $instance = New-Object -TypeName ([Ref]$className).Value -ArgumentList $plugin.Name, $plugin.Config, $Context
+        $instance = New-Object -TypeName ([Ref]$className).Value -ArgumentList $plugin.Name, $Context
 
         $finalPlugins += $instance
     }

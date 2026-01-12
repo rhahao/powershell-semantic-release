@@ -1,32 +1,32 @@
 class ReleaseNotesGenerator {
     [string]$PluginName
-    [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    ReleaseNotesGenerator([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+    ReleaseNotesGenerator([string]$PluginName, [PSCustomObject]$Context) {
         $this.PluginName = $PluginName
-        $this.Config = $Config
         $this.Context = $Context
+
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $PluginName
+        $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
 
         $this.EnsureConfig()
     }
 
     [void] EnsureConfig() {
         $typeName = $this.PluginName
-        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $typeName
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
         
-        if (-not $this.Config.commitsSort) {
+        if (-not $plugin.commitsSort) {
             $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $typeName }
 
-            $this.Config = $configDefault.Config
-
-            $this.Context.Config.Project.plugins[$pluginIndex].Config = $configDefault.Config
+            $plugin = $configDefault.Config
         }
     }
 
-    [void] GenerateNotes() {
+    [string] GenerateNotes() {
         $typeName = "`"$($this.PluginName)`""
         $step = "GenerateNotes"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         Add-InformationLog "Start step $step of plugin $typeName"
 
@@ -61,77 +61,79 @@ class ReleaseNotesGenerator {
             $sections[$section] += $commit
         }
 
+        $notes = ""
+
         if ($sections.Count -eq 0) {
             Add-InformationLog -Message "No user facing changes" -Plugin $this.PluginName
-            return
-        }
-
-        $lines = @()
-
-        $repoUrl = $this.Context.Repository.Url
-        $versionPrev = $this.Context.CurrentVersion.Branch
-        $versionNext = $this.Context.NextRelease.Version
-        $date = Get-Date -Format "yyyy-MM-dd"
-
-        $compareUrl = Get-CompareUrl -RepositoryUrl $repoUrl -FromVersion $versionPrev -ToVersion $versionNext
-        $title = ""
-
-        if ($this.Context.NextRelease.Type -eq "patch") {
-            $title = "## "
         }
         else {
-            $title = "# "
-        }
-    
-        if ($compareUrl) {
-            $title += "[$versionNext]($compareUrl) "
-        }
-        else {
-            $title += "$versionNext "
-        }
+            $lines = @()
 
-        $title += "($date)"
+            $repoUrl = $this.Context.Repository.Url
+            $versionPrev = $this.Context.CurrentVersion.Branch
+            $versionNext = $this.Context.NextRelease.Version
+            $date = Get-Date -Format "yyyy-MM-dd"
 
-        $lines += $title
-        $lines += ""
+            $compareUrl = Get-CompareUrl -RepositoryUrl $repoUrl -FromVersion $versionPrev -ToVersion $versionNext
+            $title = ""
 
-        $orderedSections = ($commitAnalyzerPlugin.Config.releaseRules | ForEach-Object { $_.section }) | Select-Object -Unique
-
-        foreach ($section in $orderedSections) {
-            if (-not $sections.Contains($section)) {
-                continue
+            if ($this.Context.NextRelease.Type -eq "patch") {
+                $title = "## "
             }
-             
-            $lines += "### $section"
+            else {
+                $title = "# "
+            }
+    
+            if ($compareUrl) {
+                $title += "[$versionNext]($compareUrl) "
+            }
+            else {
+                $title += "$versionNext "
+            }
+
+            $title += "($date)"
+
+            $lines += $title
             $lines += ""
 
-            $sectionCommits = $sections[$section]
-            $sectionSortKeys = $this.Config.commitsSort
+            $orderedSections = ($commitAnalyzerPlugin.Config.releaseRules | ForEach-Object { $_.section }) | Select-Object -Unique
+
+            foreach ($section in $orderedSections) {
+                if (-not $sections.Contains($section)) {
+                    continue
+                }
+             
+                $lines += "### $section"
+                $lines += ""
+
+                $sectionCommits = $sections[$section]
+                $sectionSortKeys = $plugin.commitsSort
             
-            $sortedCommits = Format-SortCommits -Commits $sectionCommits -SortKeys $sectionSortKeys
+                $sortedCommits = Format-SortCommits -Commits $sectionCommits -SortKeys $sectionSortKeys
 
-            foreach ($commit in $sortedCommits) {
-                $commitLink = ""
+                foreach ($commit in $sortedCommits) {
+                    $commitLink = ""
 
-                $link = Get-CommitUrl -RepositoryUrl $repoUrl -Sha $commit.Sha
+                    $link = Get-CommitUrl -RepositoryUrl $repoUrl -Sha $commit.Sha
 
-                if ($link) {
-                    $shortSha = $commit.Sha.Substring(0, 7)
-                    $commitLink = " ([$shortSha]($link))"
+                    if ($link) {
+                        $shortSha = $commit.Sha.Substring(0, 7)
+                        $commitLink = " ([$shortSha]($link))"
+                    }
+
+                    $line = "* **$($commit.Scope):** $($commit.Subject)$commitLink"
+
+                    $lines += $line
                 }
 
-                $line = "* **$($commit.Scope):** $($commit.Subject)$commitLink"
-
-                $lines += $line
+                $lines += ""
             }
 
-            $lines += ""
-        }
-
-        $notes = $lines -join "`n"
-
-        $this.Context.NextRelease.Notes = $notes
-
+            $notes = $lines -join "`n"
+        }    
+            
         Add-SuccessLog "Completed step $step of plugin $typeName"
+
+        return $notes
     }
 }

@@ -1,17 +1,20 @@
 class GitHub {
     [string]$PluginName
-    [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    GitHub([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+    GitHub([string]$PluginName, [PSCustomObject]$Context) {
         $this.PluginName = $PluginName
-        $this.Config = $Config
         $this.Context = $Context
+
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $PluginName
+        $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
     }
 
     [void] TestReleasePermission() {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
         $headers = @{
-            Authorization = "Bearer $($this.Config.token)"
+            Authorization = "Bearer $($plugin.Config.token)"
             Accept        = "application/vnd.github+json"
             "User-Agent"  = "PSSemanticRelease"
         }
@@ -25,7 +28,7 @@ class GitHub {
     
             $response = Invoke-RestMethod `
                 -Method Post `
-                -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases" `
+                -Uri "$($plugin.Config.githubApiUrl)/repos/$($plugin.Config.repo)/releases" `
                 -Headers $headers `
                 -Body $body `
                 -ContentType "application/json"
@@ -34,7 +37,7 @@ class GitHub {
 
             Invoke-RestMethod `
                 -Method Delete `
-                -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases/$releaseId" `
+                -Uri "$($plugin.Config.githubApiUrl)/repos/$($plugin.Config.repo)/releases/$releaseId" `
                 -Headers $headers
     
             Add-SuccessLog -Message "Allowed to create release to the GitHub repository" -Plugin $this.PluginName
@@ -50,13 +53,15 @@ class GitHub {
     }
 
     [void] VerifyConditions() {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
         try {
             $typeName = "`"$($this.PluginName)`""
             $step = "VerifyConditions"
 
             Add-InformationLog "Start step $step of plugin $typeName"
             
-            $assets = $this.Config.assets
+            $assets = $plugin.Config.assets
 
             if ($assets -and $assets -isnot [array]) {
                 throw "[$($this.PluginName)] Specify the array of files to upload for a release."
@@ -72,7 +77,7 @@ class GitHub {
                 }
             }
 
-            $this.Config.githubUrl = if ($env:GITHUB_SERVER_URL) {
+            $plugin.Config.githubUrl = if ($env:GITHUB_SERVER_URL) {
                 $env:GITHUB_SERVER_URL.TrimEnd('/')
             }
             elseif ($env:GITHUB_URL) {
@@ -85,7 +90,7 @@ class GitHub {
                 "https://github.com"
             }
             
-            $this.Config.githubApiUrl = if ($env:GITHUB_API_URL) {
+            $plugin.Config.githubApiUrl = if ($env:GITHUB_API_URL) {
                 $env:GITHUB_API_URL.TrimEnd('/')
             }
             elseif ($env:GH_API_URL) {
@@ -96,18 +101,9 @@ class GitHub {
             }
 
             $repoUrl = $this.Context.Repository.Url
-            $this.Config.repo = $repoUrl.Substring($this.Config.githubUrl.Length).TrimStart('/')
+            $plugin.Config.repo = $repoUrl.Substring($plugin.Config.githubUrl.Length).TrimStart('/')
 
-            $token = $null
-
-            if ($env:GITHUB_TOKEN) { $token = $env:GITHUB_TOKEN }
-            if ($env:GH_TOKEN) { $token = $env:GH_TOKEN }
-
-            $this.Config.token = $token
-
-            $message = Test-GitPushAccessCI -context $this.Context -token $token
-
-            Add-SuccessLog -Message "$message to the GitHub repository" -Plugin $this.PluginName
+            $plugin.Config.token = $this.Context.EnvCI.Token
 
             if ($this.Context.CI) {
                 $this.TestReleasePermission()
@@ -125,6 +121,7 @@ class GitHub {
         $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
         $step = "Publish"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         if ($dryRun) { 
             Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
@@ -145,14 +142,14 @@ class GitHub {
         } | ConvertTo-Json -Depth 5
 
         $headers = @{
-            Authorization = "Bearer $($this.Config.token)"
+            Authorization = "Bearer $($plugin.Config.token)"
             Accept        = "application/vnd.github+json"
             "User-Agent"  = "PSSemanticRelease"
         }
 
         $response = Invoke-RestMethod `
             -Method Post `
-            -Uri "$($this.Config.githubApiUrl)/repos/$($this.Config.repo)/releases" `
+            -Uri "$($plugin.Config.githubApiUrl)/repos/$($plugin.Config.repo)/releases" `
             -Headers $headers `
             -Body $body `
             -ContentType "application/json"

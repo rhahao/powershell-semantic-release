@@ -42,3 +42,25 @@ function Get-EnvFromFile {
         [Environment]::SetEnvironmentVariable($name, $value, "Process")
     }
 }
+
+function Get-ReleaseTypeFromLists {
+    param($types)
+
+    $typesArray = , $types
+    $typesArray = $typesArray | Sort-Object -Unique
+
+    $type = if ($typesArray -contains "major") {
+        "major"
+    }
+    elseif ($typesArray -contains "minor") {
+        "minor"
+    }
+    elseif ($typesArray -contains "patch") {
+        "patch"
+    }
+    else {
+        $null
+    }
+
+    return $type
+}

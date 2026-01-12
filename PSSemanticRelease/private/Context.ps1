@@ -8,8 +8,8 @@ function New-ReleaseContext {
 
     return [PSCustomObject]@{
         Abort          = $false
-        
-        CI             = Test-CIEnvironment
+
+        EnvCI          = Get-CIContext
 
         DryRun         = if ($DryRun) { $true } else { $false }
 
@@ -17,13 +17,13 @@ function New-ReleaseContext {
             Default = $config.Default
             Project = $config.Config
         }
-
-
+        
         Repository     = [PSCustomObject]@{
-            BranchDefault = Get-BranchDefault
-            BranchCurrent = Get-CurrentBranch
-            Url           = $remoteUrl
-            RemoteUrl     = $repoUrl
+            BranchDefault     = Get-BranchDefault
+            BranchCurrent     = $null
+            Url               = $repoUrl
+            OriginalRemoteUrl = $remoteUrl
+            RemoteUrl         = $remoteUrl
         }
 
         Commits        = [PSCustomObject]@{

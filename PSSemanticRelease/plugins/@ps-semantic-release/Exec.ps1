@@ -1,12 +1,13 @@
 class Exec {
     [string]$PluginName
-    [PSCustomObject]$Config
     [PSCustomObject]$Context
 
-    Exec([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+    Exec([string]$PluginName, [PSCustomObject]$Context) {
         $this.PluginName = $PluginName
-        $this.Config = $Config
         $this.Context = $Context
+
+        $pluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $PluginName
+        $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
     }
 
     [void] VerifyConditions() {

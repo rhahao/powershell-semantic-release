@@ -11,10 +11,6 @@ function Get-BranchDefault {
     
     return $defaultBranch
 }
-function Get-CurrentBranch {
-    $currentBranch = git rev-parse --abbrev-ref HEAD
-    return $currentBranch
-}
 
 function Get-CommitUrl {
     param (
@@ -54,13 +50,9 @@ function Get-CompareUrl {
 }
 
 function Get-ConventionalCommits {
-    param($context)
+    $lastTag = git describe --tags --abbrev=0 HEAD 2>$null
 
-    $Branch = $context.Repository.BranchCurrent
-
-    $lastTag = git describe --tags --abbrev=0 $Branch 2>$null
-
-    $range = if ($lastTag) { "$lastTag..$Branch" } else { $Branch }
+    $range = if ($lastTag) { "$lastTag..HEAD" } else { 'HEAD' }
 
     $commits = @()
 
@@ -122,7 +114,7 @@ function Get-GitRemoteUrl {
     git remote get-url origin
 }
 
-function Test-GitPushAccessCI {
+function Test-GitPushAccess {
     param($context, $token)
     
     try {
@@ -138,15 +130,8 @@ function Test-GitPushAccessCI {
         }
     
         $currentBranch = $context.Repository.BranchCurrent
-
-        $output = git push --dry-run origin $currentBranch 2>&1
-
-        if ($output -match "Everything up-to-date|To https?://|To git@") {
-            return "Allowed to push on branch $currentBranch"
-        }
-        else {
-            throw "Push failed: permission denied."
-        }
+        
+        git push --dry-run --no-verify --quiet origin $currentBranch 2>$null
     }
     catch {
         throw "Push check failed: $_"
@@ -250,4 +235,37 @@ function Test-GitRepository {
     if (-not (Test-Path .git)) {
         throw "[ps-semantic-release] Not a Git repository"
     }
+}
+
+function New-GitTag {
+    param($context)
+
+    $version = $context.NextRelease.Version
+    $currentBranch = $context.Repository.BranchCurrent
+    $unifyTag = $context.Config.unifyTag
+
+    $tag = "v$Version"
+
+    if (Test-GitTagExist $tag) {
+        throw "Tag $tag already exists"
+    }
+
+    if ($unifyTag) {
+        $gitConfig = $context.Config.Project.plugins | Where-Object { $_.Name -eq "@ps-semantic-release/Git" }
+        $messageTemplate = $gitConfig.Config.message
+        $commitMessage = Expand-ContextString -context $context -template $messageTemplate
+
+        $zwsp = [char]0x200B
+        $tagAnnotation = $commitMessage -replace '(?m)^#', "$zwsp#"
+        git tag -a $tag -m $tagAnnotation
+    }
+    else {
+        git tag $tag $currentBranch
+    }    
+}
+
+function Push-GitTag {
+    param($repositoryUrl)
+
+    git push --tags $repositoryUrl 2>$null
 }

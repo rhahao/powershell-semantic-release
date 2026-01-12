@@ -125,3 +125,20 @@ function Format-ReleaseNotesDryRun {
 
     return $draftNotes -join "`n"
 }
+
+function Format-ReleaseBranchesList {
+    param($branches)
+
+    $list = @()
+
+    foreach ($b in $branches) {
+        if ($b -is [string]) {
+            $list += $b
+        }
+        else {
+            $list += $b.name
+        }
+    }
+
+    return $list
+}
