@@ -9,7 +9,7 @@ Plugins are referenced by name in the configuration file and are loaded automati
 ## Official plugins
 
 - [@ps-semantic-release/CommitAnalyzer](./official/CommitAnalyzer.md)
-- @ps-semantic-release/ReleaseNotesGenerator
+- [@ps-semantic-release/ReleaseNotesGenerator](./official/ReleaseNotesGenerator.md)
 - @ps-semantic-release/Changelog
 - @ps-semantic-release/Git
 - @ps-semantic-release/Exec
