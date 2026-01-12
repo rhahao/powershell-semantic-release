@@ -1,4 +1,4 @@
-# `@ps-semantic-release/NuGet`
+# @ps-semantic-release/NuGet
 
 A plugin for publishing PowerShell modules to NuGet-based repositories. It updates the module manifest with generated release notes and optional prerelease channel, then publishes the module using `Publish-Module`. Authentication is expected via the `NUGET_API_KEY` environment variable unless running in DryRun mode.
 
