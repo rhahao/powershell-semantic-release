@@ -20,6 +20,7 @@
     - [@ps-semantic-release/Git](docs/plugins/official/Git.md)
     - [@ps-semantic-release/Exec](docs/plugins/official/Exec.md)
     - [@ps-semantic-release/NuGet](docs/plugins/official/NuGet.md)
+    - [@ps-semantic-release/GitHub](docs/plugins/official/GitHub.md)
 
 ## Recipes
 
