@@ -18,7 +18,7 @@ class GitLab {
     
             $project = Invoke-RestMethod `
                 -Method Get `
-                -Uri "$(this.Config.gitlabUrl)/api/v4/projects/$(this.Config.projectId)" `
+                -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)" `
                 -Headers $headers
 
             $access = $project.permissions.project_access.access_level
@@ -32,6 +32,45 @@ class GitLab {
         }
         catch {
             throw "[$($this.PluginName)] Cannot access project or lacks permission: $($_.Exception.Message)"
+        }
+    }
+
+    [PSCustomObject] UploadFileToProject([string]$path) {
+        try {
+            $itemObject = Get-Item -Path $path
+
+            if ($itemObject.PSContainer) {
+                $parent = $itemObject.Parent.FullName
+                $destination = Join-Path $parent "$($itemObject.Name).zip"
+                Compress-Archive -Path $path -DestinationPath $destination -Force | Out-Null
+
+                $path = $destination
+            }
+
+            $headers = @{
+                "PRIVATE-TOKEN" = $($this.Config.token)
+                "User-Agent"    = "PSSemanticRelease"
+            }
+
+            $form = @{ 
+                file = Get-Item -Path $path
+            }
+            
+            $response = Invoke-RestMethod `
+                -Method Post `
+                -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)/uploads" `
+                -Headers $headers `
+                -Form $form
+
+                
+            $fullPath = "$($this.Config.gitlabUrl)$($response.full_path)"
+
+            Add-InformationLog -Message "Uploaded file: $fullPath" -Plugin $this.PluginName
+
+            return [PSCustomObject]@{ Url = $fullPath; Alt = $response.alt }
+        }
+        catch {
+            throw "Failed to upload asset $path to the project: $($_.Exception.Message)"
         }
     }
 
@@ -94,10 +133,10 @@ class GitLab {
         }
     }
 
-    [void] Publish() {
+    [void] Prepare() {
         $typeName = "`"$($this.PluginName)`""
         $dryRun = $this.Context.DryRun
-        $step = "Publish"
+        $step = "Prepare"
 
         if ($dryRun) { 
             Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
@@ -105,32 +144,93 @@ class GitLab {
         }
 
         Add-InformationLog "Start step $step of plugin $typeName"
-        
-        $version = $this.Context.NextRelease.Version
-        $tag = "v$($version)"
 
-        $body = @{
-            name        = $tag
-            tag_name    = $tag
-            description = $this.Context.NextRelease.Notes
-        } | ConvertTo-Json -Depth 5
+        $assets = $this.Config.assets
+        $validAssets = @()
 
-        $headers = @{
-            "PRIVATE-TOKEN" = $($this.Config.token)
-            "User-Agent"    = "PSSemanticRelease"
-        }        
+        if ($assets -and $assets -is [array]) {
+            foreach ($asset in $assets) {
+                if ($asset.path -and (Test-Path $asset.path)) {
+                    $validAssets += $asset
+                }
 
-        $response = Invoke-RestMethod `
-            -Method Post `
-            -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)/releases" `
-            -Headers $headers `
-            -Body $body `
-            -ContentType "application/json"
+                if ($asset.url) {
+                    $validAssets += $asset
+                }
+            }
+        }
 
-        $releaseUrl = $response.web_url
-
-        Add-InformationLog -Message "Published GitLab release: $releaseUrl" -Plugin $this.PluginName
+        $this.Config.validAssets = , $validAssets
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
+    }
+
+    [void] Publish() {
+        try {
+            $typeName = "`"$($this.PluginName)`""
+            $dryRun = $this.Context.DryRun
+            $step = "Publish"
+
+            if ($dryRun) { 
+                Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
+                return
+            }
+
+            Add-InformationLog "Start step $step of plugin $typeName"
+
+            $assetsLinks = @()
+
+            if ($this.Config.validAssets.Count -gt 0) {
+                foreach ($asset in $this.Config.validAssets) {
+                    if ($asset.url) {
+                        $assetsLinks += @{ name = $asset.label; url = $asset.url; link_type = "other" }
+                    }
+
+                    if ($asset.path) {
+                        $response = UploadFileToProject $asset.path
+
+                        $name = if (-not $asset.label) { $response.Alt } else { $asset.label }
+
+                        $assetsLinks += @{ name = $name; url = $response.Url; link_type = "other" }
+                    }
+                }
+            }            
+        
+            $version = $this.Context.NextRelease.Version
+            $tag = "v$($version)"
+
+            $body = @{
+                name        = $tag
+                tag_name    = $tag
+                description = $this.Context.NextRelease.Notes
+            }
+
+            if ($assetsLinks.Count -gt 0) { 
+                $body.assets = @{ links = $assetsLinks }
+            }
+
+            $bodyJson = $body | ConvertTo-Json -Depth 5
+
+            $headers = @{
+                "PRIVATE-TOKEN" = $($this.Config.token)
+                "User-Agent"    = "PSSemanticRelease"
+            }
+
+            $response = Invoke-RestMethod `
+                -Method Post `
+                -Uri "$($this.Config.gitlabUrl)/api/v4/projects/$($this.Config.projectId)/releases" `
+                -Headers $headers `
+                -Body $bodyJson `
+                -ContentType "application/json"
+
+            $releaseUrl = $response.web_url
+
+            Add-InformationLog -Message "Published GitLab release: $releaseUrl" -Plugin $this.PluginName
+
+            Add-SuccessLog "Completed step $step of plugin $typeName"
+        }
+        catch {
+            throw $_
+        }
     }
 }
