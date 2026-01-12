@@ -132,7 +132,7 @@ function Invoke-SemanticRelease {
             New-GitTag -context $context
             Push-GitTag $context.Repository.Url
 
-            Add-SuccessLog "Created tag $nextVersion"
+            Add-SuccessLog "Created tag v$nextVersion"
         }
 
         $plugins.Publish()
