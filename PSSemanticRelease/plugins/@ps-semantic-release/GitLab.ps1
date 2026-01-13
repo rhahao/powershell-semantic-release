@@ -107,7 +107,7 @@ class GitLab {
             $plugin.Config | Add-Member -NotePropertyName token -NotePropertyValue $this.Context.EnvCI.Token
 
             $gitlabUrl = if ($env:CI_SERVER_HOST) { 
-                $env:CI_SERVER_HOST 
+                "https://$env:CI_SERVER_HOST"
             }
             elseif ($env:GITLAB_URL) {
                 $env:GITLAB_URL.TrimEnd('/')
