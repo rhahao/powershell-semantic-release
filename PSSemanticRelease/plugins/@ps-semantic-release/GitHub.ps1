@@ -69,7 +69,7 @@ class GitHub {
             }            
 
             $fileName = if ($asset.name) { 
-                $asset.name 
+                Expand-ContextString -context $this.Context -template $asset.name 
             } 
             else { 
                 [System.IO.Path]::GetFileName($path) 
