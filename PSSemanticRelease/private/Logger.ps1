@@ -47,7 +47,7 @@ function Add-WarningLog {
 }
 
 function Add-FailureLog {
-    param ($Message)
+    param ($Message, $Plugin)
 
     if ($Plugin) {
         $Plugin = "[$Plugin]"
@@ -60,7 +60,7 @@ function Add-FailureLog {
 }
 
 function Add-FatalLog {
-    param ($Message)
+    param ($Message, $Plugin)
 
     if ($Plugin) {
         $Plugin = "[$Plugin]"
