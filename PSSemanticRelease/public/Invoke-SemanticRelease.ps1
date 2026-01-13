@@ -129,7 +129,7 @@ function Invoke-SemanticRelease {
     }
     else {
         New-GitTag -context $context
-        Push-GitTag $context.Repository.OriginRemoteUrl
+        Push-GitTag "v$nextVersion"
 
         Add-SuccessLog "Created tag v$nextVersion"
     }
