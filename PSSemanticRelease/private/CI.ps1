@@ -25,7 +25,7 @@ function Get-CIContext {
             $ctx.PRNumber = $env:CI_MERGE_REQUEST_IID
             $ctx.PRBranch = $env:CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
             $ctx.TargetBranch = $env:CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-            $ctx.Token = if ($env:GL_TOKEN) { $env:GL_TOKEN } else { $env:GITLAB_TOKEN }
+            $ctx.Token = if ($env:GL_TOKEN) { $env:GL_TOKEN } elseif ($env:GITLAB_TOKEN) { $env:GITLAB_TOKEN } else { $env:CI_JOB_TOKEN }
         }
 
         # -----------------------
