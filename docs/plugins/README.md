@@ -1,24 +1,16 @@
-# Plugins List
+# Plugins
 
-**PSSemanticRelease** is built around a plugin system. Each release step is implemented by one or more plugins, allowing the release process to be flexible and extensible.
+Plugins are the heart of PSSemanticRelease, allowing you to customize and extend the release workflow. Each plugin handles a specific step in the release process, such as analyzing commits, generating release notes, or publishing to a registry.
 
-Plugins are referenced by name in the configuration file and are loaded automatically by **PSSemanticRelease.**
+### Official Plugins
 
----
+This section provides detailed documentation for each of the official plugins bundled with PSSemanticRelease.
 
-## Official plugins
-
-- [@ps-semantic-release/CommitAnalyzer](./official/CommitAnalyzer.md)
-- [@ps-semantic-release/ReleaseNotesGenerator](./official/ReleaseNotesGenerator.md)
-- [@ps-semantic-release/Changelog](./official/Changelog.md)
-- [@ps-semantic-release/Git](./official/Git.md)
-- [@ps-semantic-release/Exec](./official/Exec.md)
-- [@ps-semantic-release/NuGet](./official/NuGet.md)
-- [@ps-semantic-release/GitHub](./official/GitHub.md)
-- [@ps-semantic-release/GitLab](./official/GitLab.md)
-
----
-
-## Community plugins
-
-Open a Pull Request to add your plugin to the list.
+* **[@ps-semantic-release/CommitAnalyzer](./CommitAnalyzer.md)**: Determines the release type from commit messages.
+* **[@ps-semantic-release/ReleaseNotesGenerator](./ReleaseNotesGenerator.md)**: Generates changelog content.
+* **[@ps-semantic-release/Changelog](./Changelog.md)**: Updates the `CHANGELOG.md` file.
+* **[@ps-semantic-release/Git](./git.md)**: Commits, tags, and pushes changes to your repository.
+* **[@ps-semantic-release/GitHub](./GitHub.md)**: Creates a GitHub release.
+* **[@ps-semantic-release/GitLab](./GitLab.md)**: Creates a GitLab release.
+* **[@ps-semantic-release/NuGet](./NuGet.md)**: Publishes your module to a NuGet repository.
+* **[@ps-semantic-release/Exec](./Exec.md)**: Executes custom scripts during the release process.

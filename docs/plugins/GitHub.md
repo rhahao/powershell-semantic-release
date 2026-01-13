@@ -25,8 +25,8 @@ A plugin that creates GitHub releases via the GitHub REST API. It validates conf
 - When running in CI (`Context.CI` is true):
   - Ensures the runner is GitHub Actions by checking `GITHUB_ACTIONS` environment variable; if not running under GitHub Actions, throws an error.
   - Ensures a GitHub token is available in `GITHUB_TOKEN` or `GH_TOKEN`; if missing, throws an error.
-- Derives `githubUrl` from `GITHUB_SERVER_URL`, `GITHUB_URL`, or `GH_URL` environment variables, falling back to `https://github.com`. Trailing slashes are trimmed.
-- Derives `githubApiUrl` from `GITHUB_API_URL` or `GH_API_URL`, falling back to `https://api.github.com`. Trailing slashes are trimmed.
+- Derives `githubUrl` from `GITHUB_SERVER_URL`, `GITHUB_URL`, or `GH_URL` environment variables, falling back to `https://GitHub.com`. Trailing slashes are trimmed.
+- Derives `githubApiUrl` from `GITHUB_API_URL` or `GH_API_URL`, falling back to `https://api.GitHub.com`. Trailing slashes are trimmed.
 - Computes `repo` by removing the `githubUrl` prefix from `Context.Repository.Url` and trimming leading slashes (resulting in `owner/repo`).
 - Reads token from `GITHUB_TOKEN` or `GH_TOKEN` environment variables and stores it in `Config.token`.
 - Calls `Test-GitPushAccessCI -context $this.Context -token $token` to verify push access and logs the returned message.
@@ -44,7 +44,7 @@ A plugin that creates GitHub releases via the GitHub REST API. It validates conf
   - `prerelease`: `Context.NextRelease.Prerelease`
   - `draft`: `false`
 - Serializes the payload to JSON with sufficient depth.
-- Builds request headers with `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`, and `User-Agent`.
+- Builds request headers with `Authorization: Bearer <token>`, `Accept: application/vnd.GitHub+json`, and `User-Agent`.
 - Calls `POST $githubApiUrl/repos/$repo/releases` with the payload to create the release.
 - Extracts `html_url` from the response and logs the published release URL.
 - Logs completion of publishing.

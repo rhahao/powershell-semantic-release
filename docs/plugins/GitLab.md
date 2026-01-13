@@ -13,7 +13,7 @@ A plugin that creates GitLab releases via the GitLab REST API. It validates conf
   - Ensures the runner is GitLab CI by checking `GITLAB_CI` environment variable; if not running under GitLab CI, throws an error.
   - Ensures a GitLab token is available in `GITLAB_TOKEN` or `GL_TOKEN`; if missing, throws an error.
 - Reads token from `GITLAB_TOKEN` or `GL_TOKEN` environment variables and stores it in `Config.token`.
-- Derives `gitlabUrl` from `GITLAB_URL` or `GL_URL`, falling back to `https://gitlab.com`. Trailing slashes are trimmed.
+- Derives `gitlabUrl` from `GITLAB_URL` or `GL_URL`, falling back to `https://GitLab.com`. Trailing slashes are trimmed.
 - Computes `projectId` by removing the `gitlabUrl` prefix from `Context.Repository.Url`, trimming leading slashes, and URL-encoding the result (suitable for GitLab API project identifiers).
 - Calls `Test-GitPushAccessCI -context $this.Context -token $token` to verify push access and logs the returned message.
 - If running in CI, calls `TestReleasePermission()` to verify the token has sufficient permissions to create releases.

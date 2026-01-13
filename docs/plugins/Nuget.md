@@ -90,7 +90,7 @@ A plugin for publishing PowerShell modules to NuGet-based repositories. It updat
       {
         "path": "dist",
         "Repository": "MyPrivateRepo",
-        "Source": "https://nuget.mycompany.local/v3/index.json"
+        "Source": "https://NuGet.mycompany.local/v3/index.json"
       }
     ]
   ]

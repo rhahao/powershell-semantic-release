@@ -1,33 +1,21 @@
-# Table of contents
+# Table of Contents
 
-- [README](README.md)
-
-## Usage
-
-- [Getting started](docs/usage/getting-started.md)
-- [Installation](docs/usage/installation.md)
-- [CI Configuration](docs/usage/ci-configuration.md)
-- [Configuration](docs/usage/configuration.md)
-- [Plugins](docs/usage/plugins.md)
-
-## Plugins
-
-- [Plugins List](docs/plugins/README.md)
-  - Official plugins
-    - [@ps-semantic-release/CommitAnalyzer](docs/plugins/official/CommitAnalyzer.md)
-    - [@ps-semantic-release/ReleaseNotesGenerator](docs/plugins/official/ReleaseNotesGenerator.md)
-    - [@ps-semantic-release/Changelog](docs/plugins/official/Changelog.md)
-    - [@ps-semantic-release/Git](docs/plugins/official/Git.md)
-    - [@ps-semantic-release/Exec](docs/plugins/official/Exec.md)
-    - [@ps-semantic-release/NuGet](docs/plugins/official/NuGet.md)
-    - [@ps-semantic-release/GitHub](docs/plugins/official/GitHub.md)
-    - [@ps-semantic-release/GitLab](docs/plugins/official/GitLab.md)
-
-## Recipes
-
-- CI configurations
-  - [GitHub Actions](docs/recipes/ci-configurations/github-actions.md)
-
-## Developer guide
-
-- [Plugin development](docs/developer-guide/plugin.md)
+* [Introduction](./README.md)
+* [Usage](./docs/usage/README.md)
+  * [Installation](./docs/usage/installation.md)
+  * [Getting Started](./docs/usage/getting-started.md)
+  * [Configuration](./docs/usage/configuration.md)
+  * [CI Configuration](./docs/usage/ci-configuration.md)
+* [Plugins](./docs/plugins/README.md)
+  * [@ps-semantic-release/CommitAnalyzer](./docs/plugins/CommitAnalyzer.md)
+  * [@ps-semantic-release/ReleaseNotesGenerator](./docs/plugins/ReleaseNotesGenerator.md)
+  * [@ps-semantic-release/Changelog](./docs/plugins/Changelog.md)
+  * [@ps-semantic-release/Git](./docs/plugins/Git.md)
+  * [@ps-semantic-release/GitHub](./docs/plugins/GitHub.md)
+  * [@ps-semantic-release/GitLab](./docs/plugins/GitLab.md)
+  * [@ps-semantic-release/NuGet](./docs/plugins/NuGet.md)
+  * [@ps-semantic-release/Exec](./docs/plugins/Exec.md)
+* [Developer Guide](./docs/developer-guide/README.md)
+  * [Plugin Development](./docs/developer-guide/plugin.md)
+* [Recipes](./docs/recipes/README.md)
+  * [GitHub Actions](./docs/recipes/ci-configurations/github-actions.md)

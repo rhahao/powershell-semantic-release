@@ -14,6 +14,7 @@ A plugin that creates or updates a Markdown changelog file with the generated re
   - Description: Path to the changelog Markdown file to create or update. Must be a `.md` file.
 
 - `title`:
+
   - Type: string
   - Required: no
   - Default: plugin default from `Context.Config.Default.plugins`: `""`
