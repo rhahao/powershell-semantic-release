@@ -19,3 +19,4 @@
   * [Plugin Development](./docs/developer-guide/plugin.md)
 * [Recipes](./docs/recipes/README.md)
   * [GitHub Actions](./docs/recipes/ci-configurations/github-actions.md)
+  * [GitLab CI/CD](./docs/recipes/ci-configurations/gitlab-ci.md)
