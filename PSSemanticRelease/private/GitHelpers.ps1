@@ -2,10 +2,8 @@ function Get-GitModifiedFiles {
     return git ls-files -m -o
 }
 
-function Get-BranchDefault {
-    $defaultBranch = git remote show origin | Select-String 'HEAD branch' | ForEach-Object { ($_ -split ':')[1].Trim() }
-    
-    return $defaultBranch
+function Get-GitBranchCurrent {
+    return git rev-parse --abbrev-ref HEAD 2>$null
 }
 
 function Get-CommitUrl {

@@ -11,7 +11,13 @@ function Invoke-SemanticRelease {
     Test-GitRepository
 
     $context = New-ReleaseContext $DryRun
-    $context.Repository.BranchCurrent = $context.EnvCI.Branch
+    $currentBranch = $context.EnvCI.Branch
+
+    if (-not $currentBranch) {
+        $currentBranch = Get-GitBranchCurrent
+    }
+
+    $context.Repository.BranchCurrent = $currentBranch
 
     if (-not $context.EnvCI.IsCI -and -not $context.DryRun -and -not $context.noCi) {
         Add-WarningLog "This run was not triggered in a known CI environment, running in DryRun mode."
@@ -33,12 +39,15 @@ function Invoke-SemanticRelease {
     $plugins.List()
 
     $isReleaseBranch = Confirm-ReleaseBranch -context $context
-    $currentBranch = $context.Repository.BranchCurrent
 
     if (-not $isReleaseBranch) {            
         $releaseBranches = (Format-ReleaseBranchesList $context.Config.Project.branches) -join ", "
 
         return Add-InformationLog "This run was triggered on the branch ${currentBranch}, while PSSemanticRelease is configured to only publish from $releaseBranches, therefore a new version will not be published."
+    }
+
+    if (-not $currentBranch) {
+        return Add-InformationLog "Unable to determine the current branch, therefore a new version will not be published."
     }
 
     $logRan = "Running automated release from branch $currentBranch on repository $($context.Repository.RemoteUrl)"
