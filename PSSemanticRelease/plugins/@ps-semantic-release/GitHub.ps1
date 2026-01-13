@@ -74,7 +74,10 @@ class GitHub {
                 [System.IO.Path]::GetFileName($asset.path) 
             }
 
-            $label = if ($asset.label) { $asset.label } else { $null }
+            $label = if ($asset.label) { 
+                Expand-ContextString -context $this.Context -template $asset.label
+            }
+            else { $null }
 
             $assetUrl = "$($uploadUrl)?name=$fileName"
 

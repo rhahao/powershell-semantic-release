@@ -16,7 +16,17 @@
         "path": "dist/PSSemanticRelease"
       }
     ],
-    "@ps-semantic-release/GitHub"
+    [
+      "@ps-semantic-release/GitHub",
+      {
+        "assets": [
+          {
+            "path": "dist/PSSemanticRelease",
+            "label": "PSSemanticRelease-{NextRelease.Version}"
+          }
+        ]
+      }
+    ]
   ],
   "unifyTag": true
 }

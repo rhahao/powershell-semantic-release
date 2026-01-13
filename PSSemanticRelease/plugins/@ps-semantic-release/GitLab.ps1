@@ -207,7 +207,12 @@ class GitLab {
 
                         if ($null -eq $response) { continue }
 
-                        $name = if (-not $asset.label) { $response.Alt } else { $asset.label }
+                        $name = if (-not $asset.label) { 
+                            $response.Alt
+                        }
+                        else { 
+                            Expand-ContextString -context $this.Context $asset.label 
+                        }
 
                         $assetsLinks += @{ name = $name; url = $response.Url; link_type = "other" }
                     }
