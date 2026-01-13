@@ -22,7 +22,7 @@
         "assets": [
           {
             "path": "dist/PSSemanticRelease",
-            "label": "PSSemanticRelease-{NextRelease.Version}"
+            "label": "PSSemanticRelease-v{NextRelease.Version}"
           }
         ]
       }
