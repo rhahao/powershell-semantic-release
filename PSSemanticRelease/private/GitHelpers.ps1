@@ -126,10 +126,10 @@ function Test-GitPushAccess {
         $token = $context.EnvCI.Token
 
         # Rewrite HTTPS remote URL for CI using bot username
-        if ($token -and $remoteUrl -match '^https://') {
+        if ($token -and $remoteUrl -match '^https?://') {
             # Remove existing username if present
             $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
-            $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https://','')"
+            $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https?://','')"
             $context.Repository.OriginRemoteUrl = $remoteUrl
             git remote set-url origin $remoteUrl
         }
