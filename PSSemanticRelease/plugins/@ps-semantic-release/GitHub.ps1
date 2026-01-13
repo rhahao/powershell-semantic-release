@@ -55,23 +55,24 @@ class GitHub {
     [void] UploadAssetToRelease([string]$uploadUrl, [PSCustomObject]$asset) {
         $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
-        try {            
-            $itemObject = Get-Item -Path $asset.path
+        try {      
+            $path = $asset.path 
+            $itemObject = Get-Item -Path $path
             $zipPath = ""
 
             if ($itemObject.PSIsContainer) {
                 $parent = $itemObject.Parent.FullName
                 $zipPath = Join-Path $parent "$($itemObject.Name).zip"
-                Compress-Archive -Path $asset.path -DestinationPath $zipPath -Force | Out-Null
+                Compress-Archive -Path $path -DestinationPath $zipPath -Force | Out-Null
 
-                $asset.path = $zipPath
+                $path = $zipPath
             }            
 
             $fileName = if ($asset.name) { 
                 $asset.name 
             } 
             else { 
-                [System.IO.Path]::GetFileName($asset.path) 
+                [System.IO.Path]::GetFileName($path) 
             }
 
             $label = if ($asset.label) { 
@@ -94,7 +95,7 @@ class GitHub {
                 -Method Post `
                 -Uri $assetUrl `
                 -Headers $headers `
-                -InFile $asset.path `
+                -InFile $path `
                 -ContentType "application/octet-stream"
                 
             if ($zipPath) {
