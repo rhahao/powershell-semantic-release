@@ -107,21 +107,25 @@ function Get-CurrentSemanticVersion {
 }
 
 function Get-GitRemoteUrl {
-    git remote get-url origin
+    if (-not $env:CI_SERVER_HOST -or -not $env:CI_PROJECT_PATH) {
+        return git config --get remote.origin.url
+    }
+
+    return "git@$($env:CI_SERVER_HOST):$($env:CI_PROJECT_PATH).git"
 }
 
 function Test-GitPushAccess {
     param($context, $token)
     
     try {
-        $remoteUrl = $context.Repository.RemoteUrl
+        $remoteUrl = $context.Repository.OriginalRemoteUrl
 
         # Rewrite HTTPS remote URL for CI using bot username
         if ($token -and $remoteUrl -match '^https://') {
             # Remove existing username if present
             $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
             $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https://','')"
-            $context.Repository.RemoteUrl = $remoteUrl
+            $context.Repository.OriginalRemoteUrl = $remoteUrl
             git remote set-url origin $remoteUrl
         }
     
