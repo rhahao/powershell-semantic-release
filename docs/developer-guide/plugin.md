@@ -1,90 +1,85 @@
-# Creating a Plugin
+# How to create a Plugin
 
-A **PSSemanticRelease** plugin is a PowerShell class that implements one or more lifecycle steps. Each step receives:
+Plugins are the core of the `PSSemanticRelease` engine. They are PowerShell classes that hook into one or more steps of the release process, allowing you to extend and customize every part of the release workflow.
 
-- `$Config` — the plugin-specific configuration from `semantic-release.json`.
-- `$Context` — the runtime context, including commit info, release info, environment variables, and dry-run flag.
+## The Release Pipeline
 
-You can implement only the lifecycles your plugin needs. Typical lifecycles include:
+The engine executes a series of steps in a predefined order. A plugin can implement methods corresponding to these step names to participate in the release.
 
-- `VerifyConditions` — check that configuration and environment variables are valid.
-- `AnalyzeCommits` — analyze commits to determine the next release type.
-- `VerifyRelease` — validate the release metadata.
-- `GenerateNotes` — create formatted release notes.
-- `Prepare` — update changelogs, manifests, or prepare artifacts.
-- `Publish` — publish artifacts to repositories or registries.
+1.  `VerifyConditions` — Check for prerequisites (e.g., environment variables, clean git status, auth tokens).
+2.  `AnalyzeCommits` — Analyze commits to determine the release type (major, minor, patch).
+3.  `VerifyRelease` — Perform any final validation on the computed release metadata before `GenerateNotes`.
+4.  `GenerateNotes` — Create formatted release notes from the analyzed commits.
+5.  `Prepare` — Modify files, create changelogs, or package artifacts for the release.
+6.  `Publish` — Publish the artifacts to repositories or registries.
 
-## Plugin Class Structure
+---
+
+## Plugin Architecture
+
+### The Plugin Class
+
+A plugin is a PowerShell class that is instantiated by the release engine. The constructor receives the plugin's name and the shared context object. The plugin is then responsible for finding its own configuration within that context.
 
 ```powershell
 class MyPlugin {
     [string]$PluginName
-    [PSCustomObject]$Config
     [PSCustomObject]$Context
+    [int]$PluginIndex
 
-    MyPlugin([string]$PluginName, [PSCustomObject]$Config, [PSCustomObject]$Context) {
+    MyPlugin([string]$PluginName, [PSCustomObject]$Context) {
         $this.PluginName = $PluginName
-        $this.Config = $Config
         $this.Context = $Context
+
+        # Find this plugin's index in the project configuration for easy access.
+        $this.PluginIndex = Get-PluginIndex -Plugins $this.Context.Config.Project.plugins -Name $this.PluginName
+
+        # Call a method to set up default configuration values.
+        $this.EnsureConfig()
     }
 
-    [void] SomeHelperFunction() {
-        # create your helper inside the class
+    [void] EnsureConfig() {
+        # Get the default config for this plugin type.
+        $configDefault = $this.Context.Config.Default.plugins | Where-Object { $_.Name -eq $this.PluginName }
+
+        # If a specific config value is not set in the user's config, apply the default.
+        if (-not $this.Context.Config.Project.plugins[$this.PluginIndex].Config.myValue) {
+            $this.Context.Config.Project.plugins[$this.PluginIndex].Config.myValue = $configDefault.Config.myValue
+        }
     }
 
     [void] VerifyConditions() {
-        # Check configuration, environment variables, or repository setup
-        if (-not $this.Config.Path) {
-            throw "[$($this.PluginName)] Config 'Path' is required"
-        }
-    }
-
-    [void] Prepare() {
-        # Prepare artifacts, update changelogs or manifests
-        $this.Context.NextRelease.Notes = "Release notes here"
-    }
-
-    [void] Publish() {
-        # Publish artifacts (e.g., NuGet/PSGallery)
-        if (-not $this.Context.DryRun) {
-            Write-Host "Publishing module..."
-        }
+        # Get this plugin's specific config for this step.
+        $pluginConfig = $this.Context.Config.Project.plugins[$this.PluginIndex].Config
+        Add-InformationLog "Start step VerifyConditions of plugin `"$($this.PluginName)`""
+        # ... step logic ...
+        Add-SuccessLog "Completed step VerifyConditions of plugin `"$($this.PluginName)`""
     }
 }
 ```
 
-## Key Points
+### The Shared `$Context` Object
 
-- **Constructor** — receives plugin name, config, and context.
-- **Lifecycle methods** — implement only the steps needed (`VerifyConditions`, `AnalyzeCommits`, `Prepare`, `Publish`, etc.).
-- **DryRun support** — check `$this.Context.DryRun` to skip actions safely.
-- **Logging** — use `Add-InformationLog`, `Add-SuccessLog`, `Add-WarningLog` for consistent output.
-- **Configuration validation** — always validate required config and environment variables in `VerifyConditions`.
-- **Formatting release notes** — can be done in a helper method inside the plugin (e.g., `FormatReleaseNotes()`).
+The `$Context` object is how plugins communicate with each other and with the engine. Changes made to this object by one plugin are visible to all subsequent plugins.
 
-## Example Plugin Flow (NuGet)
+Key properties include:
 
-- `VerifyConditions`
-  Checks that `NUGET_API_KEY` is set and the module path exists.
-- `Prepare`
-  Updates module manifest, formats release notes, adds pre-release info if applicable.
-- `Publish`
-  Pushes the module to PSGallery or another NuGet repository if `DryRun` is false.
+- `Context.Config`: Contains the entire project configuration (`Project`, `Default`). A plugin must look up its own config within this object.
+- `Context.CurrentVersion`: Information about the last release (`Branch`, `GitTag`, `Version`).
+- `Context.NextRelease`: The heart of the release-in-progress.
+  - `Context.NextRelease.Type`: (string) Set by `AnalyzeCommits` (e.g., `minor`).
+  - `Context.NextRelease.Version`: (string) Set by `AnalyzeCommits` (e.g., `1.2.0`).
+  - `Context.NextRelease.Notes`: (string) Set by `GenerateNotes`.
+- `Context.Commits`: A list of `ConventionalCommit` objects.
+- `Context.Repository`: Information about the Git repository (`Url`, `BranchCurrent`).
+- `Context.DryRun`: (bool) If `$true`, plugins should avoid making any permanent changes.
+- `Context.Abort`: (bool) A plugin can set this to `$true` to gracefully halt the pipeline.
 
-## Using Context
+---
 
-`$Context` provides runtime information to the plugin:
+## Development Best Practices
 
-- `DryRun` — Boolean, true if in dry-run mode.
-- `NextRelease` — Contains `Version`, `Channel`, `Notes`, etc.
-- `Commits` — List of commits since last release.
-
-## Logging
-
-Use provided logging functions to output consistent messages:
-
-- `Add-InformationLog` "Some info message"
-- `Add-WarningLog` "Some warning"
-- `Add-SuccessLog` "Step completed successfully"
-
-This ensures messages are standardized in PSSemanticRelease output.
+- **Logging**: Use the standard logging functions (`Add-InformationLog`, `Add-SuccessLog`, `Add-WarningLog`). Prefix messages with `` `"$($this.PluginName)`" `` for clarity, as shown in the examples.
+- **Error Handling**: To signal a failure that should stop the pipeline, `throw` an exception. The engine will catch it and terminate the process.
+- **Dry Run Mode**: Always check `$this.Context.DryRun` before performing actions with side effects (network calls, file system writes).
+- **Configuration**: Use an `EnsureConfig` method, called from the constructor, to merge user-provided configuration with your plugin's defaults. This provides a robust fallback mechanism.

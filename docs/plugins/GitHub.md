@@ -1,18 +1,19 @@
 # @ps-semantic-release/GitHub
 
-A plugin that creates GitHub releases via the GitHub REST API. It validates configuration and CI environment, checks push permissions, optionally verifies release creation permissions by creating and deleting a draft release, and publishes a release with the generated release notes.
+A plugin that publishes releases to GitHub. It handles file uploads and creates a GitHub Release with the generated release notes.
 
 ---
 
 ## Configuration
 
 - `assets`:
-  - **Type:** array of strings
+  - **Type:** array of objects
   - **Required:** no
   - **Default:** none
-  - **Description:** List of file paths to upload to the GitHub release. If present, the plugin validates that `assets` is an array; actual upload behavior is not implemented in the provided code and would need to be added if required.
-
-**Note:** The plugin derives `repo`, `githubUrl`, and `githubApiUrl` from environment variables and the repository URL in `Context.Repository.Url`. Tokens are read from `GITHUB_TOKEN` or `GH_TOKEN` environment variables when running in CI.
+  - **Description:** A list of assets to upload to the GitHub release. Each asset is an object that can have the following properties:
+    - `path`: The path to the file or directory to upload. If a directory is provided, it will be compressed into a `.zip` file before uploading.
+    - `name`: An optional name for the uploaded asset. You can use placeholders like `{NextRelease.Version}`.
+    - `label`: An optional label for the asset, which will be displayed on the release page.
 
 ---
 
@@ -20,68 +21,60 @@ A plugin that creates GitHub releases via the GitHub REST API. It validates conf
 
 ### `VerifyConditions`
 
-- Logs the start of verification.
-- Validates `assets` shape: if `assets` is present and not an array, throws an error instructing the user to provide an array of files.
-- When running in CI (`Context.CI` is true):
-  - Ensures the runner is GitHub Actions by checking `GITHUB_ACTIONS` environment variable; if not running under GitHub Actions, throws an error.
-  - Ensures a GitHub token is available in `GITHUB_TOKEN` or `GH_TOKEN`; if missing, throws an error.
-- Derives `githubUrl` from `GITHUB_SERVER_URL`, `GITHUB_URL`, or `GH_URL` environment variables, falling back to `https://GitHub.com`. Trailing slashes are trimmed.
-- Derives `githubApiUrl` from `GITHUB_API_URL` or `GH_API_URL`, falling back to `https://api.GitHub.com`. Trailing slashes are trimmed.
-- Computes `repo` by removing the `githubUrl` prefix from `Context.Repository.Url` and trimming leading slashes (resulting in `owner/repo`).
-- Reads token from `GITHUB_TOKEN` or `GH_TOKEN` environment variables and stores it in `Config.token`.
-- Calls `Test-GitPushAccessCI -context $this.Context -token $token` to verify push access and logs the returned message.
-- If running in CI, calls `TestReleasePermission()` to attempt creating and deleting a draft release as a permission check.
-- Logs completion of verification.
+This step ensures that the plugin is running in a valid environment.
+
+- **Validates `assets`**: Checks that the `assets` configuration is an array, if provided.
+- **Checks CI environment**: If running in a CI environment, it verifies that:
+  - It is running in a GitHub Actions workflow.
+  - A `GITHUB_TOKEN` or `GH_TOKEN` is available.
+- **Determines GitHub URLs**: It automatically determines the correct GitHub API and server URLs, which is useful for GitHub Enterprise users.
+- **Verifies permissions**: In a CI environment, it will test if it has permissions to create a GitHub release.
+
+### `Prepare`
+
+This step prepares the assets for upload.
+
+- **Filters assets**: It iterates through the `assets` array and creates a list of valid assets where the `path` exists on the filesystem.
 
 ### `Publish`
 
-- Skips the step in DryRun mode and logs a warning.
-- Logs the start of publishing.
-- Builds the release payload:
-  - `tag_name`: `v<NextRelease.Version>`
-  - `name`: same as tag
-  - `body`: `Context.NextRelease.Notes`
-  - `prerelease`: `Context.NextRelease.Prerelease`
-  - `draft`: `false`
-- Serializes the payload to JSON with sufficient depth.
-- Builds request headers with `Authorization: Bearer <token>`, `Accept: application/vnd.GitHub+json`, and `User-Agent`.
-- Calls `POST $githubApiUrl/repos/$repo/releases` with the payload to create the release.
-- Extracts `html_url` from the response and logs the published release URL.
-- Logs completion of publishing.
+This step creates the GitHub release and uploads the assets. It is skipped in `DryRun` mode.
+
+1.  **Creates the release**: It sends a request to the GitHub API to create a new release, using the version number as the tag name and the release notes as the body.
+2.  **Uploads assets**: If any valid assets were found in the `Prepare` step, it uploads them to the newly created release. 
+    - If an asset `path` points to a directory, it is first compressed into a `.zip` file.
 
 ---
 
 ## Examples
 
-### Minimal plugin config
+### Uploading a build artifact
+
+This configuration will find the `my-module.zip` file in the `dist` directory and upload it with the label "My PowerShell Module".
 
 ```json
 {
-  "plugins": ["@ps-semantic-release/GitHub"]
+  "plugins": [
+    [
+      "@ps-semantic-release/GitHub",
+      {
+        "assets": [
+          {
+            "path": "./dist/my-module.zip",
+            "label": "My PowerShell Module"
+          }
+        ]
+      }
+    ]
+  ]
 }
 ```
 
-**CI environment variables required (when running in CI):**
-
-- `GITHUB_ACTIONS=true` (set by GitHub Actions)
-- `GITHUB_TOKEN` or `GH_TOKEN` — token with `repo` scope to create releases.
-
 ---
 
-## Logging and messages
+## Logging and Messages
 
-- **Start/Completed step** logs for `VerifyConditions` and `Publish`.
-- Informational logs for:
-  - Validation of `assets` shape.
-  - Derived `githubUrl`, `githubApiUrl`, and computed `repo`.
-  - Result of `Test-GitPushAccessCI` (push access check).
-  - Published release URL after successful creation.
-- Success logs:
-  - When allowed to create releases (after `TestReleasePermission`).
-  - When verification completes successfully.
-- Errors and thrown messages:
-  - `"[<PluginName>] Specify the array of files to upload for a release."` when `assets` is not an array.
-  - `"[<PluginName>] You are not running PSSemanticRelease using GitHub Action"` when CI is true but not running under GitHub Actions.
-  - `"[<PluginName>] No GitHub token (GITHUB_TOKEN or GH_TOKEN) found in CI environment."` when token is missing in CI.
-  - Any HTTP or network errors from the GitHub API are rethrown for upstream handling.
-- In DryRun mode: `Publish` logs a warning and returns without calling the API.
+- The plugin logs when it starts and completes each step.
+- It provides informative logs about the release creation and asset uploads.
+- It will throw an error if the environment is not configured correctly (e.g., missing token in CI).
+- In `DryRun` mode, it logs that the `Publish` step is being skipped.

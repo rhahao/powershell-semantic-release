@@ -73,7 +73,7 @@ Multiple rules can be provided; the plugin will match commit Type against type i
 - If a release is required:
   - Calls `Get-NextSemanticVersion -context $this.Context` to compute the next version.
   - Sets `Context.NextRelease.Version` and `Context.NextRelease.Type`.
-  - Logs the computed next version and whether it is a channeled prerelease based on `Context.NextRelease.Channel` and `Context.CurrentVersion.Branch`.
+  - Logs the computed next version and whether it is a channeled prerelease based on `Context.NextRelease.Channel` and `Context.Repository.BranchCurrent`.
 
 ---
 

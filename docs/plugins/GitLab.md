@@ -1,6 +1,19 @@
 # @ps-semantic-release/GitLab
 
-A plugin that creates GitLab releases via the GitLab REST API. It validates configuration and CI environment, checks push permissions, optionally verifies release creation permissions, and publishes a release.
+A plugin that publishes releases to GitLab. It can upload release assets and creates a GitLab Release with the generated release notes.
+
+---
+
+## Configuration
+
+- `assets`:
+  - **Type:** array of objects
+  - **Required:** no
+  - **Default:** none
+  - **Description:** A list of assets to include in the GitLab release. Each asset is an object that can have the following properties:
+    - `path`: The path to the file or directory to upload. If a directory is provided, it will be compressed into a `.zip` file before being uploaded to the project.
+    - `url`: A direct link to an asset. This will be added to the release's `links`.
+    - `label`: A description for the asset link. It will be used as the link's `name`.
 
 ---
 
@@ -8,63 +21,63 @@ A plugin that creates GitLab releases via the GitLab REST API. It validates conf
 
 ### `VerifyConditions`
 
-- Logs the start of verification.
-- When running in CI (`Context.CI` is true):
-  - Ensures the runner is GitLab CI by checking `GITLAB_CI` environment variable; if not running under GitLab CI, throws an error.
-  - Ensures a GitLab token is available in `GITLAB_TOKEN` or `GL_TOKEN`; if missing, throws an error.
-- Reads token from `GITLAB_TOKEN` or `GL_TOKEN` environment variables and stores it in `Config.token`.
-- Derives `gitlabUrl` from `GITLAB_URL` or `GL_URL`, falling back to `https://GitLab.com`. Trailing slashes are trimmed.
-- Computes `projectId` by removing the `gitlabUrl` prefix from `Context.Repository.Url`, trimming leading slashes, and URL-encoding the result (suitable for GitLab API project identifiers).
-- Calls `Test-GitPushAccessCI -context $this.Context -token $token` to verify push access and logs the returned message.
-- If running in CI, calls `TestReleasePermission()` to verify the token has sufficient permissions to create releases.
-- Logs completion of verification.
+This step ensures that the plugin is running in a valid environment.
+
+- **Validates `assets`**: Checks that the `assets` configuration is an array, if provided.
+- **Checks CI environment**: If running in a CI environment, it verifies that:
+  - It is running in a GitLab CI/CD pipeline.
+  - A `GITLAB_TOKEN` or `GL_TOKEN` is available.
+- **Determines GitLab URLs**: It automatically determines the correct GitLab instance URL from CI environment variables (`CI_SERVER_HOST`, `GITLAB_URL`, etc.).
+- **Verifies permissions**: In a CI environment, it checks if the provided token has at least `Developer` role permissions (access level >= 30), which is required to create releases.
+
+### `Prepare`
+
+This step prepares the assets for publishing. It is skipped in `DryRun` mode.
+
+- **Filters assets**: It iterates through the `assets` array and creates a list of valid assets. An asset is considered valid if its `path` exists on the filesystem or if it has a `url`.
 
 ### `Publish`
 
-- Skips the step in DryRun mode and logs a warning.
-- Logs the start of publishing.
-- Builds the release payload:
-  - `name`: `v<NextRelease.Version>`
-  - `tag_name`: `v<NextRelease.Version>`
-  - `description`: `Context.NextRelease.Notes`
-- Serializes the payload to JSON with sufficient depth.
-- Builds request headers with `PRIVATE-TOKEN: <token>` and `User-Agent`.
-- Calls `POST {gitlabUrl}/api/v4/projects/{projectId}/releases` with the payload to create the release.
-- Extracts `web_url` from the response and logs the published release URL.
-- Logs completion of publishing.
+This step creates the GitLab release and attaches the assets. It is skipped in `DryRun` mode.
+
+1.  **Processes assets**: It iterates through the list of valid assets from the `Prepare` step.
+    - For assets with a `path`, it uploads the file (or zipped directory) to the GitLab project. It then creates a release link object pointing to the uploaded file.
+    - For assets with a `url`, it directly creates a release link object.
+2.  **Creates the release**: It sends a request to the GitLab API to create a new release. The payload includes the version number, the release notes, and the array of asset links.
 
 ---
 
 ## Examples
 
-### Minimal plugin config
+### Uploading an artifact and linking to a file
 
 ```json
 {
-  "plugins": [["@ps-semantic-release/GitLab"]]
+  "plugins": [
+    [
+      "@ps-semantic-release/GitLab",
+      {
+        "assets": [
+          {
+            "path": "./dist/my-module.zip",
+            "label": "PowerShell Module (zip)"
+          },
+          {
+            "url": "https://example.com/some-asset.msi",
+            "label": "Windows Installer"
+          }
+        ]
+      }
+    ]
+  ]
 }
 ```
 
-**CI environment variables required (when running in CI):**
-
-- `GITLAB_CI=true` (set by GitLab CI)
-- `GITLAB_TOKEN` or `GL_TOKEN` — token with sufficient scope to read project metadata and create releases.
-
 ---
 
-## Logging and messages
+## Logging and Messages
 
-- **Start/Completed step** logs for `VerifyConditions` and `Publish`.
-- Informational logs for:
-  - Derived `gitlabUrl` and computed `projectId`.
-  - Result of `Test-GitPushAccessCI` (push access check).
-  - Published release URL after successful creation.
-- Success logs:
-  - When token has sufficient permissions to create releases (after `TestReleasePermission`).
-  - When verification completes successfully.
-- Errors and thrown messages:
-  - `"[<PluginName>] You are not running PSSemanticRelease using GitLab Pipeline"` when CI is true but not running under GitLab CI.
-  - `"[<PluginName>] No GitLab token (GITLAB_TOKEN or GL_TOKEN) found in CI environment."` when token is missing in CI.
-  - `"[<PluginName>] Token does not have sufficient permissions to create GitLab releases."` when access level is insufficient.
-  - `"[<PluginName>] Cannot access project or lacks permission: <message>"` for API/network errors.
-- In DryRun mode: `Publish` logs a warning and returns without calling the API.
+- The plugin logs when it starts and completes each step.
+- It provides informative logs when uploading files and creating the release.
+- It will throw an error if the environment is not configured correctly (e.g., missing token or insufficient permissions in CI).
+- In `DryRun` mode, it logs that the `Publish` step is being skipped.
