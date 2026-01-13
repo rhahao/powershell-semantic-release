@@ -125,13 +125,22 @@ function Test-GitPushAccess {
         $remoteUrl = $context.Repository.OriginRemoteUrl
         $token = $context.EnvCI.Token
 
-        # Rewrite HTTPS remote URL for CI using bot username
-        if ($token -and $remoteUrl -match '^https?://') {
-            # Remove existing username if present
-            $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
-            $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https?://','')"
-            $context.Repository.OriginRemoteUrl = $remoteUrl
-            git remote set-url origin $remoteUrl
+        # Rewrite remote URL for CI using bot username
+        if ($token) {
+            if (-not $env:CI_SERVER_HOST -or -not $env:CI_PROJECT_PATH) {
+                if ($remoteUrl -match '^https://') {
+                    # Remove existing username if present
+                    $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
+                    $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https?://','')"
+                    $context.Repository.OriginRemoteUrl = $remoteUrl
+                    git remote set-url origin $remoteUrl         
+                }    
+            }
+            else {                
+                $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($env:CI_SERVER_HOST)/$($env:CI_PROJECT_PATH)"
+                $context.Repository.OriginRemoteUrl = $remoteUrl
+                git remote set-url origin $remoteUrl
+            }
         }
     
         $currentBranch = $context.Repository.BranchCurrent
@@ -271,6 +280,8 @@ function New-GitTag {
 
 function Push-GitTag {
     param($tag)
+
+    git config --get remote.origin.url
 
     git push origin $tag
 }

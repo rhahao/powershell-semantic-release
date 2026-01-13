@@ -51,14 +51,12 @@ function Invoke-SemanticRelease {
         Add-SuccessLog $logRan
     }
 
-    Write-Host "$($context.Repository.OriginRemoteUrl)"
     try {
         Test-GitPushAccess -context $context
     }
     catch {
         throw $_
     }
-    Write-Host "$($context.Repository.OriginRemoteUrl)"
 
     Add-SuccessLog "Allowed to push to the Git repository"
 
