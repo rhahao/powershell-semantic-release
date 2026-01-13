@@ -241,7 +241,6 @@ function New-GitTag {
     param($context)
 
     $version = $context.NextRelease.Version
-    $currentBranch = $context.Repository.BranchCurrent
     $unifyTag = $context.Config.Project.unifyTag
 
     $tag = "v$Version"
@@ -261,7 +260,7 @@ function New-GitTag {
         git tag -a $tag -m $tagAnnotation
     }
     else {
-        git tag $tag $currentBranch
+        git tag $tag HEAD
     }    
 }
 

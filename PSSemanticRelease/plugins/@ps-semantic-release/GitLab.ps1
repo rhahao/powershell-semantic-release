@@ -197,7 +197,7 @@ class GitLab {
                     }
 
                     if ($asset.path) {
-                        $response = UploadFileToProject $asset.path
+                        $response = $this.UploadFileToProject($asset.path)
 
                         $name = if (-not $asset.label) { $response.Alt } else { $asset.label }
 
