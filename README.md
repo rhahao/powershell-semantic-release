@@ -1,59 +1,79 @@
-# PSSemanticRelease (Powershell Semantic Release)
+# PSSemanticRelease (PowerShell Semantic Release)
 
-Fully automated version management and release workflow for PowerShell modules. Inspired by the popular [semantic-release](https://github.com/semantic-release/semantic-release) project, PSSemanticRelease automates version determination, changelog generation, tagging, and optional publishing.
+Fully automated version management and release workflow for PowerShell modules. Inspired by the popular [semantic-release](https://github.com/semantic-release/semantic-release), **PSSemanticRelease** automates version determination, changelog generation, Git tagging, and optional publishing to GitHub, GitLab, and module registries.
 
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/PSSemanticRelease?label=version)](https://www.powershellgallery.com/packages/PSSemanticRelease)
 
 ---
 
-## Highlights
+## Key Features
 
-- Automated semantic versioning from commit messages
-- Generate release notes and changelogs automatically
-- Git tagging and optional GitHub / GitLab release support
-- Publish PowerShell modules to PSGallery / NuGet
-- DryRun mode for safe testing before real release
-- Extensible via plugins and custom scripts
+- **Automatic semantic versioning** based on commit messages
+- **Changelog and release notes generation**
+- **Git tagging** and optional **GitHub/GitLab release** creation
+- **Publish modules** to PSGallery or NuGet
+- **DryRun mode** for safe testing without affecting your repo
+- **Extensible architecture** via plugins and custom scripts
 
 ---
 
 ## How It Works
 
-**PSSemanticRelease** uses your commit messages to determine how the version should be bumped — major, minor, or patch — following semantic versioning rules. It analyzes commits, generates release notes, updates changelogs, creates Git tags, and can publish to GitHub/GitLab and module registries.
+**PSSemanticRelease** inspects your commit messages to determine how to bump the version—**major**, **minor**, or **patch**—following semantic versioning rules.
 
-By default, it relies on conventional commit formats like:
+It then:
 
-| Commit message                                                       | Release type                    |
-| -------------------------------------------------------------------- | ------------------------------- |
-| `fix(pencil): stop graphite breaking when too much pressure applied` | Patch release                   |
-| `feat(pencil): add 'graphiteWidth' option`                           | Minor release                   |
-| `perf(pencil): remove graphiteWidth option`                          | _none_                          |
-| `feat(pencil)!: The graphiteWidth option has been removed.`          | Major release (Breaking change) |
+1. Analyzes commits for meaningful changes
+2. Generates release notes and updates changelogs
+3. Creates Git tags
+4. Publishes modules to your chosen registry (optional)
+5. Can also create releases on GitHub or GitLab
+
+By default, it uses conventional commit formats:
+
+| Commit message                                      | Release type                    |
+| --------------------------------------------------- | ------------------------------- |
+| `fix(parser): handle multi-line comments correctly` | Patch release                   |
+| `feat(cli): add --verbose flag to Get-ModuleInfo`   | Minor release                   |
+| `refactor(build): simplify release script logic`    | _no release_                    |
+| `feat(api)!: remove deprecated Invoke-OldCommand`   | Major release (breaking change) |
 
 ---
 
-## Release steps
+## Release Flow
 
-A **PSSemanticRelease** run includes the following phases:
+A **PSSemanticRelease** run goes through the following phases:
 
 | Step               | Description                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------ |
-| `VerifyConditions` | Checks that your environment, tokens, and configuration are valid.                         |
-| `AnalyzeCommits`   | Scans commits to determine the type of next release (patch, minor, major).                 |
-| `VerifyRelease`    | Optional checks to ensure the release can proceed safely.                                  |
+| `VerifyConditions` | Checks that your environment, credentials, and configuration are valid.                    |
+| `AnalyzeCommits`   | Scans commits to determine the next release type (patch, minor, major).                    |
+| `VerifyRelease`    | Optional validations to ensure the release can proceed safely.                             |
 | `GenerateNotes`    | Generates release notes and changelog content from commit history.                         |
-| `Prepare`          | Updates module manifests, changelogs, or runs custom preparation scripts.                  |
+| `Prepare`          | Updates module manifests, changelogs, compresses assets, or runs preparation scripts.      |
 | `Publish`          | Creates Git tags, pushes commits, and publishes artifacts (NuGet/PSGallery/GitHub/GitLab). |
 
-This flow mirrors the official [semantic‑release](https://semantic-release.gitbook.io/semantic-release/#release-steps) pipeline.
+> This workflow mirrors the official [semantic‑release](https://semantic-release.gitbook.io/semantic-release/#release-steps) pipeline.
 
 ---
 
 ## Prerequisites
 
-To use **PSSemanticRelease** effectively, make sure you have:
+Before using **PSSemanticRelease**, ensure:
 
-- A Git repository hosting your code
-- A CI service such as GitHub Actions, GitLab CI, or others
-- Proper credentials/tokens in environment variables for publishing (e.g., GITHUB_TOKEN, NUGET_API_KEY)
-- Conventional commit discipline in your team
+- Your code is in a **Git repository**
+- You are running in a **CI environment** (GitHub Actions, GitLab CI, etc.)
+- Required tokens/credentials are set as environment variables (e.g., `GITHUB_TOKEN`, `NUGET_API_KEY`)
+- Your team follows **conventional commit discipline**
+
+---
+
+## Next Steps
+
+For more details on:
+
+- **Plugins and customization**
+- **Release notes generation**
+- **Publishing targets (GitHub, GitLab, NuGet, PSGallery)**
+
+Please refer to the dedicated pages in this documentation.
