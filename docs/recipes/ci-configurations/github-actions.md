@@ -14,6 +14,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release
@@ -42,7 +45,7 @@ jobs:
 
 ## Authentication with `GITHUB_TOKEN`
 
-The `@ps-semantic-release/github` plugin requires a token to publish a release. The easiest way to provide this is by using the `GITHUB_TOKEN` secret that is automatically available in every GitHub Actions workflow.
+The `@ps-semantic-release/GitHub` plugin requires a token to publish a release. The easiest way to provide this is by using the `GITHUB_TOKEN` secret that is automatically available in every GitHub Actions workflow.
 
 ### 1. Granting Permissions
 
@@ -60,13 +63,13 @@ This grants the `GITHUB_TOKEN` the necessary permissions to create Git tags and 
 The token must be passed to your script as an environment variable. The plugin will automatically look for `GITHUB_TOKEN` or `GH_TOKEN`.
 
 ```yaml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Publishing to NuGet
 
-If you use the `@ps-semantic-release/nuget` plugin, you will need to provide an API key as a secret.
+If you use the `@ps-semantic-release/NuGet` plugin, you will need to provide an API key as a secret.
 
 1.  In your GitHub repository, go to **Settings > Secrets and variables > Actions**.
 2.  Click **New repository secret**.
