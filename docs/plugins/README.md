@@ -1,0 +1,24 @@
+# Plugins List
+
+**PSSemanticRelease** is built around a plugin system. Each release step is implemented by one or more plugins, allowing the release process to be flexible and extensible.
+
+Plugins are referenced by name in the configuration file and are loaded automatically by **PSSemanticRelease.**
+
+---
+
+## Official plugins
+
+- [@ps-semantic-release/CommitAnalyzer](./official/CommitAnalyzer.md)
+- [@ps-semantic-release/ReleaseNotesGenerator](./official/ReleaseNotesGenerator.md)
+- [@ps-semantic-release/Changelog](./official/Changelog.md)
+- [@ps-semantic-release/Git](./official/Git.md)
+- [@ps-semantic-release/Exec](./official/Exec.md)
+- [@ps-semantic-release/NuGet](./official/NuGet.md)
+- [@ps-semantic-release/GitHub](./official/GitHub.md)
+- [@ps-semantic-release/GitLab](./official/GitLab.md)
+
+---
+
+## Community plugins
+
+Open a Pull Request to add your plugin to the list.

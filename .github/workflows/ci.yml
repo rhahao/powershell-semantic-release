@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+
+permissions:
+  contents: read
+
+jobs:
+  script_analyzer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Run PowerShell Script Analyzer
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse -Severity Error
+          if ($results) {
+              $results | Format-Table
+              throw "ScriptAnalyzer failed"
+          }
