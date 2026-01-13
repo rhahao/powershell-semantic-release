@@ -121,7 +121,11 @@ class GitLab {
             $repoUrl = $this.Context.Repository.Url
             $repo = $repoUrl.Substring($plugin.Config.gitlabUrl.Length).TrimStart('/')
 
-            $plugin.Config | Add-Member -NotePropertyName projectId -NotePropertyValue [uri]::EscapeDataString($repo)
+            Write-Host $repoUrl
+            Write-Host $plugin.Config.gitlabUrl
+
+            $projectId = [uri]::EscapeDataString($repo)
+            $plugin.Config | Add-Member -NotePropertyName projectId -NotePropertyValue $projectId
 
             if ($this.Context.EnvCI.IsCI) {
                 $this.TestReleasePermission()
