@@ -1,7 +1,3 @@
-function Get-GitStatus {
-    return git status --porcelain
-}
-
 function Get-GitModifiedFiles {
     return git ls-files -m -o
 }
@@ -257,7 +253,7 @@ function New-GitTag {
 
         $zwsp = [char]0x200B
         $tagAnnotation = $commitMessage -replace '(?m)^#', "$zwsp#"
-        
+
         git tag -a $tag -m $tagAnnotation
     }
     else {

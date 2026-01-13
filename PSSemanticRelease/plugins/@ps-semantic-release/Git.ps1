@@ -34,17 +34,11 @@ class Git {
 
         Add-InformationLog "Start step $step of plugin $typeName"
 
-        $gitStatus = Get-GitStatus
-
-        if ($gitStatus) {
-            throw "[$($this.PluginName)] Working tree is not clean. Commit or stash changes before releasing."
-        }
-
         $assets = $plugin.Config.assets
         $hasAssets = $assets -is [array]
 
         if ($hasAssets -and $assets.Count -gt 0) {
-            throw "[$($this.PluginName)] At least one asset needs to be specified."
+            throw "At least one asset needs to be specified in Git"
         }
 
         Add-SuccessLog "Completed step $step of plugin $typeName"

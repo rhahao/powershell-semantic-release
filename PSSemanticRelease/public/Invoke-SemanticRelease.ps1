@@ -42,7 +42,7 @@ function Invoke-SemanticRelease {
             return Add-InformationLog "This run was triggered on the branch ${currentBranch}, while PSSemanticRelease is configured to only publish from $releaseBranches, therefore a new version will not be published."
         }
 
-        $logRan = "Running automated release from branch $currentBranch on repository $($context.Repository.OriginalRemoteUrl)"
+        $logRan = "Running automated release from branch $currentBranch on repository $($context.Repository.Url)"
 
         if ($context.DryRun) {
             $logRan += " in DryRun mode"
