@@ -238,7 +238,7 @@ function Get-NextSemanticVersion {
 
 function Test-GitRepository {
     if (-not (Test-Path .git)) {
-        throw "[ps-semantic-release] Not a Git repository"
+        Add-FatalLog "Not a Git repository"
     }
 }
 
@@ -272,5 +272,5 @@ function New-GitTag {
 function Push-GitTag {
     param($tag)
 
-    git push origin $tag 2>$null
+    git push origin $tag
 }

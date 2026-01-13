@@ -23,7 +23,7 @@ function New-ReleaseContext {
             BranchCurrent   = $null
             Url             = $repoUrl
             OriginRemoteUrl = Get-GitOriginRemoteUrl
-            RemoteUrl       = Get-GitRemoteUrl
+            RemoteUrl       = $remoteUrl
         }
 
         Commits        = [PSCustomObject]@{
