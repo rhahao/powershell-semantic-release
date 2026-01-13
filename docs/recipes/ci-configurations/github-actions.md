@@ -1,65 +1,74 @@
-# Using PSSemanticRelease with GitHub Actions
+# GitHub Actions
 
-## Environment variables
+Here is a basic recipe for integrating `PSSemanticRelease` into a GitHub Actions workflow.
 
-To run **PSSemanticRelease** in GitHub Actions, you need environment variables for Git and optionally for NuGet publishing:
+## Basic `release.yml` Workflow
 
-| Variable                     | Description                                                                                                                                         |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GITHUB_TOKEN` or `GH_TOKEN` | Personal access token or automatically populated token for GitHub repository access. Used to push tags, create releases, and comment on PRs/issues. |
-| `NUGET_API_KEY`              | Required if publishing a PowerShell module to a NuGet repository (e.g., PSGallery).                                                                 |
+This example sets up a single `release` job that runs on pushes to the `main` branch. Create this file at `.github/workflows/release.yml`.
 
-These variables should be configured as **GitHub Secrets.**
-
-## CI Pipeline Requirements
-
-- Run **PSSemanticRelease** only after all tests succeed.
-- Ensure the branch triggering the release is correct (usually `main`).
-- Fetch the full Git history (`fetch-depth: 0`) so that commit analysis works correctly.
-
-## Minimal Workflow Example
-
-```yml
+```yaml
 name: Release
+
 on:
   push:
     branches:
       - main
-
-permissions:
-  contents: read
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # for creating Git tags and releases
+      contents: write # Required to create a GitHub release and push commits
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-          persist-credentials: true
 
-      - name: Install dependencies
+      - name: Install PSSemanticRelease
         shell: pwsh
         run: Install-Module PSSemanticRelease -Scope CurrentUser -Force
 
-      - name: Release
+      - name: Run Semantic Release
         shell: pwsh
         run: Invoke-SemanticRelease
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # optional
+          # Optional: Add NUGET_API_KEY as a secret in repository settings
+          # NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 ```
 
-## Optional: Pushing module changes automatically
+---
 
-If you want **PSSemanticRelease** to update files like the module manifest or changelog automatically:
+## Authentication with `GITHUB_TOKEN`
 
-- Use the `@ps-semantic-release/Git` plugin.
-- Make sure the GitHub token has write access.
-- For branch-protected repositories, a **Personal Access Token is required** instead of the automatically populated `GITHUB_TOKEN`.
+The `@ps-semantic-release/github` plugin requires a token to publish a release. The easiest way to provide this is by using the `GITHUB_TOKEN` secret that is automatically available in every GitHub Actions workflow.
+
+### 1. Granting Permissions
+
+For the token to have sufficient permission to create a release, you must add the `permissions` key to your job or workflow:
+
+```yaml
+permissions:
+  contents: write
+```
+
+This grants the `GITHUB_TOKEN` the necessary permissions to create Git tags and publish GitHub Releases for your repository.
+
+### 2. Passing the Token
+
+The token must be passed to your script as an environment variable. The plugin will automatically look for `GITHUB_TOKEN` or `GH_TOKEN`.
+
+```yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+## Publishing to NuGet
+
+If you use the `@ps-semantic-release/nuget` plugin, you will need to provide an API key as a secret.
+
+1.  In your GitHub repository, go to **Settings > Secrets and variables > Actions**.
+2.  Click **New repository secret**.
+3.  Create a secret named `NUGET_API_KEY` and paste your NuGet API key into the value field.
+4.  Uncomment the `NUGET_API_KEY` line in your `release.yml` file to make the secret available to your script.
