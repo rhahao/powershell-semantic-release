@@ -52,7 +52,7 @@ function Invoke-SemanticRelease {
     }
 
     try {
-        Test-GitPushAccess
+        Test-GitPushAccess -context $context
     }
     catch {
         throw $_

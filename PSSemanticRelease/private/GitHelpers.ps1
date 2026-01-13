@@ -119,10 +119,11 @@ function Get-GitOriginRemoteUrl {
 }
 
 function Test-GitPushAccess {
-    param($context, $token)
+    param($context)
     
     try {
         $remoteUrl = $context.Repository.OriginRemoteUrl
+        $token = $context.EnvCI.Token
 
         # Rewrite HTTPS remote URL for CI using bot username
         if ($token -and $remoteUrl -match '^https://') {
