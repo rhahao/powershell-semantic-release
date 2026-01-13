@@ -43,13 +43,14 @@ class GitLab {
 
         try {
             $itemObject = Get-Item -Path $path
+            $zipPath = ""
 
-            if ($itemObject.PSContainer) {
+            if ($itemObject.PSIsContainer) {
                 $parent = $itemObject.Parent.FullName
-                $destination = Join-Path $parent "$($itemObject.Name).zip"
-                Compress-Archive -Path $path -DestinationPath $destination -Force | Out-Null
+                $zipPath = Join-Path $parent "$($itemObject.Name).zip"
+                Compress-Archive -Path $path -DestinationPath $zipPath -Force | Out-Null
 
-                $path = $destination
+                $path = $zipPath
             }
 
             $headers = @{
@@ -66,6 +67,10 @@ class GitLab {
                 -Uri "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)/uploads" `
                 -Headers $headers `
                 -Form $form
+
+            if ($zipPath) {
+                Remove-Item -Path $zipPath -Force
+            }
 
                 
             $fullPath = "$($plugin.Config.gitlabUrl)$($response.full_path)"
