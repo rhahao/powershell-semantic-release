@@ -267,5 +267,7 @@ function New-GitTag {
 function Push-GitTag {
     param($repositoryUrl)
 
+    Write-Host $repositoryUrl
+
     git push --tags $repositoryUrl 2>$null
 }
