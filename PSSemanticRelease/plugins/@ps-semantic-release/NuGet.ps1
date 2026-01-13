@@ -10,9 +10,7 @@ class NuGet {
         $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
     }
 
-    [void] FormatReleaseNotes() {
-        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
-
+    [string] FormatReleaseNotes() {
         $lines = $this.Context.NextRelease.Notes -split "`n"
 
         $final = @()
@@ -43,7 +41,7 @@ class NuGet {
             $final += $line
         }
 
-        $plugin.Config | Add-Member -NotePropertyName ReleaseNotes -NotePropertyValue ($final -join "`n")
+        return $final -join "`n"
     }
 
     [void] VerifyConditions() {
@@ -95,12 +93,14 @@ class NuGet {
             throw "[$($this.PluginName)] Cannot find the module manifest in the provided $($plugin.Config.path)"
         }
 
-        $this.FormatReleaseNotes()
+        $releaseNotes = $this.FormatReleaseNotes()
+
+        Write-Host $releaseNotes
 
         $Channel = $this.Context.NextRelease.Channel
 
         $params = @{
-            ReleaseNotes = $plugin.ReleaseNotes
+            ReleaseNotes = $releaseNotes
         }
 
         # Only add -Prerelease if supported
