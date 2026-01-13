@@ -257,15 +257,18 @@ function New-GitTag {
     $version = $context.NextRelease.Version
     $unifyTag = $context.Config.Project.unifyTag
 
+    $gitConfig = $context.Config.Project.plugins | Where-Object { $_.Name -eq "@ps-semantic-release/Git" }
+    $messageTemplate = $gitConfig.Config.message
+    $assets = $gitConfig.Config.assets
+    $noAsset = $assets.Count -eq 0
+
     $tag = "v$Version"
 
     if (Test-GitTagExist $tag) {
         throw "Tag $tag already exists"
     }
 
-    if ($unifyTag) {
-        $gitConfig = $context.Config.Project.plugins | Where-Object { $_.Name -eq "@ps-semantic-release/Git" }
-        $messageTemplate = $gitConfig.Config.message
+    if ($unifyTag -or $noAsset) {        
         $commitMessage = Expand-ContextString -context $context -template $messageTemplate
 
         $zwsp = [char]0x200B
