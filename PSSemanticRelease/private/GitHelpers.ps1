@@ -155,7 +155,7 @@ function Test-GitPushAccess {
 function Test-GitTagExist {
     param ([string]$tag)
 
-    git rev-parse -q --verify "refs/tags/$tag" *> $null
+    git rev-parse -q --verify "refs/tags/$tag" *>$null
     return $LASTEXITCODE -eq 0
 }
 
@@ -281,7 +281,5 @@ function New-GitTag {
 function Push-GitTag {
     param($tag)
 
-    git config --get remote.origin.url
-
-    git push origin $tag
+    git push origin $tag *>$null
 }

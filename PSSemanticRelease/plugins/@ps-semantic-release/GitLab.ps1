@@ -128,6 +128,7 @@ class GitLab {
 
             $repoUrl = $this.Context.Repository.Url
             $repo = $repoUrl.Substring($plugin.Config.gitlabUrl.Length).TrimStart('/')
+            $plugin.Config | Add-Member -NotePropertyName projectPath -NotePropertyValue $repo
 
             $projectId = [uri]::EscapeDataString($repo)
             $plugin.Config | Add-Member -NotePropertyName projectId -NotePropertyValue $projectId
@@ -231,14 +232,14 @@ class GitLab {
                 "User-Agent"    = "PSSemanticRelease"
             }
 
-            $response = Invoke-RestMethod `
+            Invoke-RestMethod `
                 -Method Post `
                 -Uri "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)/releases" `
                 -Headers $headers `
                 -Body $bodyJson `
-                -ContentType "application/json"
+                -ContentType "application/json" | Out-Null
 
-            $releaseUrl = $response.web_url
+            $releaseUrl = "$($plugin.Config.gitlabUrl)/$($plugin.Config.projectPath)/-/releases/$tag"
 
             Add-InformationLog -Message "Published GitLab release: $releaseUrl" -Plugin $this.PluginName
 
