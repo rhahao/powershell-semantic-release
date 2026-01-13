@@ -107,7 +107,7 @@ class GitLab {
             $plugin.Config | Add-Member -NotePropertyName token -NotePropertyValue $this.Context.EnvCI.Token
 
             $gitlabUrl = if ($env:CI_SERVER_HOST) { 
-                "https://$env:CI_SERVER_HOST"
+                "$($env:CI_SERVER_PROTOCOL)://$env:CI_SERVER_HOST"
             }
             elseif ($env:GITLAB_URL) {
                 $env:GITLAB_URL.TrimEnd('/')
@@ -123,9 +123,6 @@ class GitLab {
 
             $repoUrl = $this.Context.Repository.Url
             $repo = $repoUrl.Substring($plugin.Config.gitlabUrl.Length).TrimStart('/')
-
-            Write-Host $repoUrl
-            Write-Host $plugin.Config.gitlabUrl
 
             $projectId = [uri]::EscapeDataString($repo)
             $plugin.Config | Add-Member -NotePropertyName projectId -NotePropertyValue $projectId
