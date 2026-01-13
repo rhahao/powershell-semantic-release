@@ -114,18 +114,22 @@ function Get-GitRemoteUrl {
     return "git@$($env:CI_SERVER_HOST):$($env:CI_PROJECT_PATH).git"
 }
 
+function Get-GitOriginRemoteUrl {
+    return git config --get remote.origin.url
+}
+
 function Test-GitPushAccess {
     param($context, $token)
     
     try {
-        $remoteUrl = $context.Repository.OriginalRemoteUrl
+        $remoteUrl = $context.Repository.OriginRemoteUrl
 
         # Rewrite HTTPS remote URL for CI using bot username
         if ($token -and $remoteUrl -match '^https://') {
             # Remove existing username if present
             $remoteUrl = $remoteUrl -replace '^https://[^@]+@', ''
             $remoteUrl = "https://pwsh-semantic-release-bot:$($token)@$($remoteUrl -replace '^https://','')"
-            $context.Repository.OriginalRemoteUrl = $remoteUrl
+            $context.Repository.OriginRemoteUrl = $remoteUrl
             git remote set-url origin $remoteUrl
         }
     
@@ -266,8 +270,6 @@ function New-GitTag {
 
 function Push-GitTag {
     param($repositoryUrl)
-
-    Write-Host $repositoryUrl
 
     git push --tags $repositoryUrl 2>$null
 }

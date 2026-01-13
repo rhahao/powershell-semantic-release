@@ -19,11 +19,11 @@ function New-ReleaseContext {
         }
         
         Repository     = [PSCustomObject]@{
-            BranchDefault     = Get-BranchDefault
-            BranchCurrent     = $null
-            Url               = $repoUrl
-            OriginalRemoteUrl = $remoteUrl
-            RemoteUrl         = $remoteUrl
+            BranchDefault   = Get-BranchDefault
+            BranchCurrent   = $null
+            Url             = $repoUrl
+            OriginRemoteUrl = Get-GitOriginRemoteUrl
+            RemoteUrl       = Get-GitRemoteUrl
         }
 
         Commits        = [PSCustomObject]@{
