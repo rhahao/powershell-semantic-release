@@ -71,7 +71,6 @@ class GitLab {
             if ($zipPath) {
                 Remove-Item -Path $zipPath -Force
             }
-
                 
             $fullPath = "$($plugin.Config.gitlabUrl)$($response.full_path)"
 
@@ -80,7 +79,8 @@ class GitLab {
             return [PSCustomObject]@{ Url = $fullPath; Alt = $response.alt }
         }
         catch {
-            throw "Failed to upload asset $path to the project: $($_.Exception.Message)"
+            Add-FailureLog "Failed to upload asset $path to the project: $($_.Exception.Message)"
+            return $null
         }
     }
 
@@ -204,6 +204,8 @@ class GitLab {
 
                     if ($asset.path) {
                         $response = $this.UploadFileToProject($asset.path)
+
+                        if ($null -eq $response) { continue }
 
                         $name = if (-not $asset.label) { $response.Alt } else { $asset.label }
 

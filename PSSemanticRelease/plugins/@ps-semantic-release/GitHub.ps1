@@ -52,6 +52,61 @@ class GitHub {
         }
     }
 
+    [void] UploadAssetToRelease([string]$uploadUrl, [PSCustomObject]$asset) {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
+        try {            
+            $itemObject = Get-Item -Path $asset.path
+            $zipPath = ""
+
+            if ($itemObject.PSIsContainer) {
+                $parent = $itemObject.Parent.FullName
+                $zipPath = Join-Path $parent "$($itemObject.Name).zip"
+                Compress-Archive -Path $asset.path -DestinationPath $zipPath -Force | Out-Null
+
+                $asset.path = $zipPath
+            }            
+
+            $fileName = if ($asset.name) { 
+                $asset.name 
+            } 
+            else { 
+                [System.IO.Path]::GetFileName($asset.path) 
+            }
+
+            $label = if ($asset.label) { $asset.label } else { $null }
+
+            $assetUrl = "$($uploadUrl)?name=$fileName"
+
+            if ($label) { $assetUrl += "&label=$([uri]::EscapeDataString($label))" }
+    
+            $headers = @{
+                Authorization = "Bearer $($plugin.Config.token)"
+                Accept        = "application/vnd.github+json"
+                "User-Agent"  = "PSSemanticRelease"
+            }
+            
+
+            $response = Invoke-RestMethod `
+                -Method Post `
+                -Uri $assetUrl `
+                -Headers $headers `
+                -InFile $asset.path `
+                -ContentType "application/octet-stream"
+                
+            if ($zipPath) {
+                Remove-Item -Path $zipPath -Force
+            }
+
+            $assetUrl = $response.browser_download_url
+            
+            Add-InformationLog -Message "Uploaded asset: $assetUrl" -Plugin $this.PluginName
+        }
+        catch {
+            Add-FailureLog "Failed to upload asset $($asset.path) to the project: $($_.Exception.Message)"
+        }
+    }
+
     [void] VerifyConditions() {
         $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
@@ -77,7 +132,7 @@ class GitHub {
                 }
             }
 
-            $plugin.Config.githubUrl = if ($env:GITHUB_SERVER_URL) {
+            $githubUrl = if ($env:GITHUB_SERVER_URL) {
                 $env:GITHUB_SERVER_URL.TrimEnd('/')
             }
             elseif ($env:GITHUB_URL) {
@@ -89,8 +144,10 @@ class GitHub {
             else {
                 "https://github.com"
             }
+
+            $plugin.Config | Add-Member -NotePropertyName githubUrl -NotePropertyValue $githubUrl
             
-            $plugin.Config.githubApiUrl = if ($env:GITHUB_API_URL) {
+            $githubApiUrl = if ($env:GITHUB_API_URL) {
                 $env:GITHUB_API_URL.TrimEnd('/')
             }
             elseif ($env:GH_API_URL) {
@@ -100,10 +157,13 @@ class GitHub {
                 "https://api.github.com"
             }
 
+            $plugin.Config | Add-Member -NotePropertyName githubApiUrl -NotePropertyValue $githubApiUrl
+            
             $repoUrl = $this.Context.Repository.Url
-            $plugin.Config.repo = $repoUrl.Substring($plugin.Config.githubUrl.Length).TrimStart('/')
+            $repo = $repoUrl.Substring($plugin.Config.githubUrl.Length).TrimStart('/')
 
-            $plugin.Config.token = $this.Context.EnvCI.Token
+            $plugin.Config | Add-Member -NotePropertyName repo -NotePropertyValue $repo
+            $plugin.Config | Add-Member -NotePropertyName token -NotePropertyValue $this.Context.EnvCI.Token
 
             if ($this.Context.EnvCI.IsCI) {
                 $this.TestReleasePermission()
@@ -115,6 +175,41 @@ class GitHub {
             throw $_
         }
         
+    }
+
+    [void] Prepare() {
+        $typeName = "`"$($this.PluginName)`""
+        $dryRun = $this.Context.DryRun
+        $step = "Prepare"
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
+        if ($dryRun) { 
+            Add-WarningLog "Skip step `"$step`" of plugin $typename in DryRun mode"
+            return
+        }
+
+        Add-InformationLog "Start step $step of plugin $typeName"
+
+        $assets = $plugin.Config.assets
+        $validAssets = @()
+
+        if ($assets -and $assets -is [array]) {
+            foreach ($asset in $assets) {
+                if ($asset.path -and (Test-Path $asset.path)) {
+                    $validAssets += $asset
+                }
+
+                if ($asset.url) {
+                    $validAssets += $asset
+                }
+            }
+        }
+
+        $validAssets = , $validAssets
+
+        $plugin.Config | Add-Member -NotePropertyName validAssets -NotePropertyValue $validAssets
+
+        Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 
     [void] Publish() {
@@ -154,7 +249,15 @@ class GitHub {
             -Body $body `
             -ContentType "application/json"
 
-        $releaseUrl = $response.html_url
+        $releaseUrl = $response.html_url        
+
+        if ($plugin.Config.validAssets.Count -gt 0) {
+            $uploadUrl = $response.upload_url -replace "{.*}", ""
+
+            foreach ($asset in $plugin.Config.validAssets) {
+                $this.UploadAssetToRelease($uploadUrl, $asset)
+            }
+        }   
 
         Add-InformationLog -Message "Published GitHub release: $releaseUrl" -Plugin $this.PluginName
 
