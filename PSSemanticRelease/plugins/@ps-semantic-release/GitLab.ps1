@@ -104,9 +104,9 @@ class GitLab {
                 }
             }
 
-            $plugin.Config.token = $this.Context.EnvCI.Token
+            $plugin.Config | Add-Member -NotePropertyName token -NotePropertyValue $this.Context.EnvCI.Token
 
-            $plugin.Config.gitlabUrl = if ($env:GITLAB_URL) {
+            $gitlabUrl = if ($env:GITLAB_URL) {
                 $env:GITLAB_URL.TrimEnd('/')
             }
             elseif ($env:GL_URL) {
@@ -116,9 +116,12 @@ class GitLab {
                 "https://gitlab.com"
             }
 
+            $plugin.Config | Add-Member -NotePropertyName gitlabUrl -NotePropertyValue $gitlabUrl
+
             $repoUrl = $this.Context.Repository.Url
             $repo = $repoUrl.Substring($plugin.Config.gitlabUrl.Length).TrimStart('/')
-            $plugin.Config.projectId = [uri]::EscapeDataString($repo)
+
+            $plugin.Config | Add-Member -NotePropertyName projectId -NotePropertyValue [uri]::EscapeDataString($repo)
 
             if ($this.Context.EnvCI.IsCI) {
                 $this.TestReleasePermission()
@@ -159,7 +162,9 @@ class GitLab {
             }
         }
 
-        $plugin.Config.validAssets = , $validAssets
+        $validAssets = , $validAssets
+
+        $plugin.Config | Add-Member -NotePropertyName validAssets -NotePropertyValue $validAssets
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
     }

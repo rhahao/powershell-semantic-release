@@ -95,8 +95,6 @@ class NuGet {
 
         $releaseNotes = $this.FormatReleaseNotes()
 
-        Write-Host $releaseNotes
-
         $Channel = $this.Context.NextRelease.Channel
 
         $params = @{
