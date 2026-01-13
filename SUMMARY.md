@@ -6,6 +6,7 @@
   - [Getting Started](./docs/usage/getting-started.md)
   - [Configuration](./docs/usage/configuration.md)
   - [CI Configuration](./docs/usage/ci-configuration.md)
+  - [Plugins](./docs/usage/plugins.md)
 - [Plugins](./docs/plugins/README.md)
   - [@ps-semantic-release/CommitAnalyzer](./docs/plugins/CommitAnalyzer.md)
   - [@ps-semantic-release/ReleaseNotesGenerator](./docs/plugins/ReleaseNotesGenerator.md)

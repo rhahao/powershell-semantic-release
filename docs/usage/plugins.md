@@ -72,8 +72,8 @@ Plugins are configured in `semantic-release.json` using the `plugins` array.
   "plugins": [
     "@ps-semantic-release/CommitAnalyzer",
     "@ps-semantic-release/ReleaseNotesGenerator",
-    "@ps-semantic-release/NuGet",
-    "@ps-semantic-release/Git"
+    "@ps-semantic-release/Git",
+    "@ps-semantic-release/NuGet"
   ]
 }
 ```
@@ -82,18 +82,18 @@ This configuration results in:
 
 - **VerifyConditions**
   - `@ps-semantic-release/CommitAnalyzer`
-  - `@ps-semantic-release/NuGet`
   - `@ps-semantic-release/Git`
+  - `@ps-semantic-release/NuGet`
 - **AnalyzeCommits**
   - `@ps-semantic-release/CommitAnalyzer`
 - **GenerateNotes**
   - `@ps-semantic-release/ReleaseNotesGenerator`
 - **Prepare**
-  - `@ps-semantic-release/NuGet`
   - `@ps-semantic-release/Git`
+  - `@ps-semantic-release/NuGet`
 - **Publish**
-  - `@ps-semantic-release/NuGet`
   - `@ps-semantic-release/Git`
+  - `@ps-semantic-release/NuGet`
 
 ## Plugin Options Configuration
 
