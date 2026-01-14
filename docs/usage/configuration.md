@@ -123,7 +123,7 @@ This configuration:
 - Uses a unified tag history
 - Analyzes commits for version bumps
 - Generates release notes and updates changelog
-- Commits and tags using Git
+- Commits and pushes using Git
 - Runs a custom “prepare” script
 - Publishes to NuGet/PSGallery
 - Creates a GitHub release

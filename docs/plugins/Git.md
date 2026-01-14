@@ -40,7 +40,7 @@ This step prepares the release commit. It is skipped in `DryRun` mode.
 This step tags the release and pushes changes to the remote repository. It is also skipped in `DryRun` mode.
 
 1.  **Pushes the release commit** to the current branch.
-2.  **Creates and pushes a Git tag** for the new version (e.g., `v1.2.0`).
+2.  **Pushes the Git tag** created by the core engine for the new version (e.g., `v1.2.0`).
 
 ---
 
@@ -66,7 +66,7 @@ This configuration will commit any changes to `CHANGELOG.md` in a release commit
 ### Typical Flow (when a `CHANGELOG.md` is modified)
 
 1.  **`Prepare`**: The plugin stages and commits the updated `CHANGELOG.md` with a message like `chore(release): 1.2.0 [skip ci]...`.
-2.  **`Publish`**: The plugin pushes the new commit to your branch and then pushes the `v1.2.0` tag.
+2.  **`Publish`**: The plugin pushes the new commit to your branch and then pushes the `v1.2.0` tag (created by the engine).
 
 ---
 

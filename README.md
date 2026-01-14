@@ -43,7 +43,7 @@ The real power of **PSSemanticRelease** lies in its extensibility. The release w
 | **@ps-semantic-release/CommitAnalyzer**        | Determines the release type (major, minor, patch) from commit messages.  |
 | **@ps-semantic-release/ReleaseNotesGenerator** | Generates changelog content from the analyzed commits.                   |
 | **@ps-semantic-release/Changelog**             | Updates the `CHANGELOG.md` file with the new release notes.              |
-| **@ps-semantic-release/Git**                   | Commits changes, creates Git tags, and pushes to your remote repository. |
+| **@ps-semantic-release/Git**                   | Commits changes and pushes to your remote repository.                    |
 | **@ps-semantic-release/GitHub** / **GitLab**   | Creates a release on GitHub or GitLab, including release notes.          |
 | **@ps-semantic-release/NuGet**                 | Publishes your PowerShell module to a NuGet-based repository.            |
 | **@ps-semantic-release/Exec**                  | Allows you to run custom scripts at any stage of the release process.    |
@@ -63,7 +63,7 @@ A **PSSemanticRelease** run goes through the following phases, executed by the c
 | `VerifyRelease`    | Optional validations to ensure the release can proceed safely.          |
 | `GenerateNotes`    | Generates release notes from commit history.                            |
 | `Prepare`          | Updates module manifests, changelogs, or runs preparation scripts.      |
-| `Publish`          | Creates Git tags, pushes commits, and publishes artifacts.              |
+| `Publish`          | Pushes Git tags, commits, and publishes artifacts.                      |
 
 > This workflow mirrors the official [semantic-release](https://semantic-release.gitbook.io/semantic-release/#release-steps) pipeline.
 
