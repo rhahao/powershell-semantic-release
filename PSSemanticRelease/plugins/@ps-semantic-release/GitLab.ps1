@@ -104,8 +104,8 @@ class GitLab {
                     throw "[$($this.PluginName)] You are not running PSSemanticRelease using GitLab Pipeline"
                 }
 
-                if (-not $env:GITLAB_TOKEN -and -not $env:GL_TOKEN) {
-                    throw "[$($this.PluginName)] No GitLab token (GITLAB_TOKEN or GL_TOKEN) found in CI environment."
+                if (-not $this.Context.EnvCI.Token) {
+                    throw "[$($this.PluginName)] No GitLab token (CI_JOB_TOKEN or GITLAB_TOKEN or GL_TOKEN) found in CI environment."
                 }
             }
 
