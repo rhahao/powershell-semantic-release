@@ -1,0 +1,4 @@
+# Add files here to ignore them from prettier formatting
+
+*.ps1
+*.psm1

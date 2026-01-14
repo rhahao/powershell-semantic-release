@@ -1,0 +1,33 @@
+name: Check Release Notes
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package_dryRun:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Run PSSemanticRelease in DryRun mode
+        shell: pwsh
+        run: |
+          Import-Module ./PSSemanticRelease -Force
+          Invoke-SemanticRelease -DryRun
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
+          NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}

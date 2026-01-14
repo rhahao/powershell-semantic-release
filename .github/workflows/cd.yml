@@ -1,0 +1,32 @@
+name: CD
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package_publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Run PSSemanticRelease
+        shell: pwsh
+        run: |
+          Import-Module ./PSSemanticRelease -Force
+          Invoke-SemanticRelease
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_PUBLISHER: ${{ vars.NUGET_PUBLISHER }}
+          NUGET_PACKAGE_GUID: ${{ vars.NUGET_PACKAGE_GUID }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

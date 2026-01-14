@@ -1,0 +1,37 @@
+# CI configuration
+
+## Run `Invoke-SemanticRelease` only after tests succeed
+
+The `Invoke-SemanticRelease` should be executed only after all tests in the CI build pass. If your CI runs multiple jobs (for example, testing on multiple OSs), make sure the semantic release step runs after all jobs succeed.
+
+## Authentication
+
+### Push access to the repository
+
+**PSSemanticRelease** needs push access to create Git tags. Set one of these environment variables in your CI:
+
+| Variable                     | Description                                                                                                            |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `GITHUB_TOKEN` or `GH_TOKEN` | GitHub [personal access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line) |
+| `GITLAB_TOKEN` or `GL_TOKEN` | GitLab [personal access token](https://docs.gitlab.com/ce/user/profile/personal_access_tokens.html)                    |
+
+**Note:** If your CI/CD workflow is configured with the appropriate permissions and the target branch for the release is not protected, you might not need to explicitly provide a personal access token. For example, in GitHub Actions and GitLab CI, the default tokens (`GITHUB_TOKEN` and `CI_JOB_TOKEN`) often have sufficient permissions.
+
+### Authentication for plugins
+
+Some plugins require credentials to publish packages:
+
+| Package           | Required Variable Notes                                                    |
+| ----------------- | -------------------------------------------------------------------------- |
+| GitHub releases   | `GITHUB_TOKEN` or `GH_TOKEN`, used by `@ps-semantic-release/GitHub` plugin |
+| GitLab releases   | `GITLAB_TOKEN` or `GL_TOKEN`, used by `@ps-semantic-release/GitLab` plugin |
+| NuGet / PSGallery | `NUGET_API_KEY`, used by `@ps-semantic-release/NuGet` plugin               |
+
+Make sure all tokens are configured as CI environment variables (preferably as secrets) and not hard-coded.
+
+## CI/CD Recipes
+
+For detailed examples and recommended setups, see the following recipes:
+
+- [GitHub Actions](../recipes/ci-configurations/github-actions.md)
+- [GitLab CI/CD](../recipes/ci-configurations/gitlab-ci.md)
