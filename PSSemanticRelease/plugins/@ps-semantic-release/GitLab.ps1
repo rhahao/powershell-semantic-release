@@ -61,6 +61,8 @@ class GitLab {
             $form = @{ 
                 file = Get-Item -Path $path
             }
+
+            Write-Host "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)/uploads"
             
             $response = Invoke-RestMethod `
                 -Method Post `
