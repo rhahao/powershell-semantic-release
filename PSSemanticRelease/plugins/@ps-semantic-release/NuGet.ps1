@@ -108,6 +108,8 @@ class NuGet {
 
         Update-ModuleManifest -Path $path @params
 
+        Add-InformationLog -Message "Included ReleaseNotes and Prelease properties" -Plugin $this.PluginName
+
         Add-SuccessLog "Completed step $step of plugin $typeName"
     }
 
