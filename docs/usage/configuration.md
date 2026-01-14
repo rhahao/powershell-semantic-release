@@ -88,7 +88,7 @@ Here are the core plugins available by default:
 | `@ps-semantic-release/CommitAnalyzer`        | Analyzes commit messages to determine release type |
 | `@ps-semantic-release/ReleaseNotesGenerator` | Generates release notes from commits               |
 | `@ps-semantic-release/Changelog`             | Updates or creates `CHANGELOG.md`                  |
-| `@ps-semantic-release/Git`                   | Commits, tags, and pushes to Git                   |
+| `@ps-semantic-release/Git`                   | Commits and pushes to Git                          |
 | `@ps-semantic-release/GitHub`                | Creates GitHub releases                            |
 | `@ps-semantic-release/GitLab`                | Creates GitLab releases                            |
 | `@ps-semantic-release/NuGet`                 | Publishes PowerShell modules                       |
