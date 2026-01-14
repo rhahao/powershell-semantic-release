@@ -12,7 +12,7 @@ stages:
 
 release_job:
   stage: release
-  image: mcr.microsoft.com/powershell:latest # Use an image with PowerShell
+  image: mcr.microsoft.com/dotnet/sdk:10.0 # Use an image with PowerShell
   variables:
     # Optional: Add NUGET_API_KEY as a masked CI/CD variable in project settings if needed
     # NUGET_API_KEY: $YOUR_NUGET_KEY
