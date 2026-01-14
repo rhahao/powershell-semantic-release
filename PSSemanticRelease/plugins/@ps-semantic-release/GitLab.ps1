@@ -10,17 +10,17 @@ class GitLab {
         $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
     }
 
-    [PSCustomObject] GetApiHeaders() {
+    [object] GetApiHeaders() {
         $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         if (-not $env:GL_TOKEN -and -not $env:GITLAB_TOKEN) {
-            return [PSCustomObject]@{
+            return @{
                 "JOB-TOKEN"  = $($plugin.Config.Token)
                 "User-Agent" = "PSSemanticRelease"
             }
         }
 
-        return [PSCustomObject]@{
+        return @{
             "PRIVATE-TOKEN" = $($plugin.Config.Token)
             "User-Agent"    = "PSSemanticRelease"
         }
