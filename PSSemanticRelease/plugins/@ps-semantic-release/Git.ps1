@@ -117,16 +117,11 @@ class Git {
         $message = $plugin.Config.message
         $hasAssets = $assets -is [array] -and $assets.Count -gt 0
 
-        $tag = "v$nextVersion"
-        $itemsToPush = $tag
-
         if ($message -and $hasAssets) {
-            $itemsToPush = "$currentBranch $itemsToPush"
-        }
+            git push origin $currentBranch 2>$null
 
-        git push origin $itemsToPush 2>$null
-
-        Add-InformationLog -Message "Prepared Git release: v${nextVersion}" -Plugin $this.PluginName
+            Add-InformationLog -Message "Prepared Git release: v${nextVersion}" -Plugin $this.PluginName
+        }        
 
         Add-SuccessLog "Completed step $step of plugin $typeName"
     }
