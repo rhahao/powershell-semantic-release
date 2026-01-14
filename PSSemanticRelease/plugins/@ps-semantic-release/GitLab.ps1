@@ -10,17 +10,28 @@ class GitLab {
         $this | Add-Member -NotePropertyName PluginIndex -NotePropertyValue $pluginIndex
     }
 
+    [PSCustomObject] GetApiHeaders() {
+        $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
+
+        if (-not $env:GL_TOKEN -and -not $env:GITLAB_TOKEN) {
+            return [PSCustomObject]@{
+                "JOB-TOKEN"  = $($plugin.Config.Token)
+                "User-Agent" = "PSSemanticRelease"
+            }
+        }
+
+        return [PSCustomObject]@{
+            "PRIVATE-TOKEN" = $($plugin.Config.Token)
+            "User-Agent"    = "PSSemanticRelease"
+        }
+    }
+
     [void] TestReleasePermission() {
         $plugin = $this.Context.Config.Project.plugins[$this.PluginIndex]
 
         try {
-            $headers = @{
-                "PRIVATE-TOKEN" = $($plugin.Config.Token)
-                "User-Agent"    = "PSSemanticRelease"
-            }
-
-            Write-Host "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)"
-    
+            $headers = $this.GetApiHeaders()
+            
             $project = Invoke-RestMethod `
                 -Method Get `
                 -Uri "$($plugin.Config.gitlabUrl)/api/v4/projects/$($plugin.Config.projectId)" `
@@ -236,10 +247,7 @@ class GitLab {
 
             $bodyJson = $body | ConvertTo-Json -Depth 5
 
-            $headers = @{
-                "PRIVATE-TOKEN" = $($plugin.Config.token)
-                "User-Agent"    = "PSSemanticRelease"
-            }
+            $headers = $this.GetApiHeaders()
 
             Invoke-RestMethod `
                 -Method Post `
