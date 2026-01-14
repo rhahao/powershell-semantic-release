@@ -48,7 +48,7 @@ The real power of **PSSemanticRelease** lies in its extensibility. The release w
 | **@ps-semantic-release/NuGet**                 | Publishes your PowerShell module to a NuGet-based repository.            |
 | **@ps-semantic-release/Exec**                  | Allows you to run custom scripts at any stage of the release process.    |
 
-> For detailed plugin configuration, see the [Plugins documentation](./docs/usage/plugins.md).
+> For detailed plugin configuration, see the [Plugins documentation](docs/usage/plugins.md).
 
 ---
 
@@ -73,6 +73,6 @@ A **PSSemanticRelease** run goes through the following phases, executed by the c
 
 Ready to automate your releases?
 
-1.  **[Installation](./docs/usage/installation.md)**: Add **PSSemanticRelease** to your project.
-2.  **[Configuration](./docs/usage/configuration.md)**: Create your `semantic-release.json` file.
-3.  **[CI Setup](./docs/usage/ci-configuration.md)**: Integrate it into your CI/CD pipeline (e.g., GitHub Actions).
+1.  **[Installation](docs/usage/installation.md)**: Add **PSSemanticRelease** to your project.
+2.  **[Configuration](docs/usage/configuration.md)**: Create your `semantic-release.json` file.
+3.  **[CI Setup](docs/usage/ci-configuration.md)**: Integrate it into your CI/CD pipeline (e.g., GitHub Actions).
