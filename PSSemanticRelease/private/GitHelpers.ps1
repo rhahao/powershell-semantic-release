@@ -186,68 +186,63 @@ function Set-GitIdentity {
 function Get-NextSemanticVersion {
     param ($context)
 
-    $currentVersion = ""
-    $nextVersion = ""
     $channel = $context.NextRelease.Channel
     $unifyTag = $context.Config.Project.unifyTag
     $highestTag = Get-GitTagHighest
+    $isPrerelease = $channel -ne "default" -and -not $unifyTag
 
-    if ($channel -eq "default" -or $unifyTag) {
-        $currentVersion = $highestTag
-    }
-    else {
+    if ($isPrerelease) {
         $branchVersion = Get-BaseSemanticVersion $context.CurrentVersion.Branch
+        $escapedChannel = [regex]::Escape($channel)
+        $isCurrentPrerelease = $context.CurrentVersion.Branch -match "-$escapedChannel\.\d+$"
+        $isAheadOfStable = -not $highestTag -or $branchVersion -gt $highestTag
 
-        if (-not $branchVersion) {
-            $currentVersion = $highestTag
-        }
-        elseif ($branchVersion -lt $highestTag) {
-            $currentVersion = $highestTag
-        }
-        else {
-            $currentVersion = $branchVersion
-        }
-    }
-
-    if (-not $currentVersion) {
-        $nextVersion = "1.0.0"
-    }
-
-    if ($currentVersion) {
-        if ($channel -eq "default" -or $unifyTag) {
-            $Type = $context.NextRelease.Type
-
-            $v = [version]$currentVersion
-
-            if ($Type -eq 'major') {
-                $nextVersion = "{0}.0.0" -f ($v.Major + 1)
-            }
-            elseif ($Type -eq 'minor') {
-                $nextVersion = "{0}.{1}.0" -f $v.Major, ($v.Minor + 1)
-            }
-            elseif ($Type -eq 'patch') {
-                $nextVersion = "{0}.{1}.{2}" -f $v.Major, $v.Minor, ($v.Build + 1)
-            }
+        if ($branchVersion -and $isCurrentPrerelease -and $isAheadOfStable) {
+            $nextVersion = $branchVersion.ToString()
         }
         else {
-            $nextVersion = $currentVersion
-
-            $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$($channel)\.\d+$" }
-
-            if (-not $tags) {
-                $nextVersion = "$nextVersion-$($channel).1"
-            }
-            else {
-                $last = ($tags | ForEach-Object { [int]($_ -replace ".*-$($channel)\.", "") } | Sort-Object | Select-Object -Last 1)
-
-                $nextVersion = "$nextVersion-$($channel).$($last + 1)"
-            }
+            $nextVersion = Get-BumpedSemanticVersion -Version $highestTag -Type $context.NextRelease.Type
         }
+
+        $tags = git tag | Where-Object { $_ -match "^v$nextVersion-$escapedChannel\.\d+$" }
+
+        if (-not $tags) {
+            return "$nextVersion-$channel.1"
+        }
+
+        $last = $tags |
+            ForEach-Object { [int]($_ -replace ".*-$escapedChannel\.", "") } |
+            Sort-Object |
+            Select-Object -Last 1
+
+        return "$nextVersion-$channel.$($last + 1)"
     }
-    
-    return $nextVersion
+
+    return Get-BumpedSemanticVersion -Version $highestTag -Type $context.NextRelease.Type
 }
 
+function Get-BumpedSemanticVersion {
+    param (
+        [version]$Version,
+        [string]$Type
+    )
+
+    if (-not $Version) {
+        return "1.0.0"
+    }
+
+    if ($Type -eq 'major') {
+        return "{0}.0.0" -f ($Version.Major + 1)
+    }
+
+    if ($Type -eq 'minor') {
+        return "{0}.{1}.0" -f $Version.Major, ($Version.Minor + 1)
+    }
+
+    if ($Type -eq 'patch') {
+        return "{0}.{1}.{2}" -f $Version.Major, $Version.Minor, ($Version.Build + 1)
+    }
+}
 function Test-GitRepository {
     if (-not (Test-Path .git)) {
         Add-FatalLog "Not a Git repository"
