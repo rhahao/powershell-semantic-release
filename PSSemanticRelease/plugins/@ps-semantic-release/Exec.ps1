@@ -73,10 +73,13 @@ class Exec {
         # Split into tokens
         $tokens = $scriptProp -split " "
 
-        # First token ending with .ps1 is the script file
+        # First token ending with .ps1 is the script file. Commands without a
+        # script file are executed as PowerShell command lines instead.
         $file = $tokens | Where-Object { $_ -match '\.ps1$' } | Select-Object -First 1
         if (-not $file) {
-            throw "[$($this.PluginName)] Could not find the file `"$scriptProp`""
+            $command = Expand-ContextString -context $this.Context -template $scriptProp
+            $this.RunCommand($step, $typeName, $command)
+            return
         }
 
         # Everything else is arguments
@@ -108,6 +111,25 @@ class Exec {
         }
         catch {
             throw "Exec failed executing `"$file`": $_"
+        }
+    }
+
+    [void] RunCommand([string]$step, [string]$typeName, [string]$command) {
+        Add-InformationLog -Message "Running command: $command" -Plugin $this.PluginName
+
+        try {
+            $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
+            & $processName -NoProfile -NonInteractive -Command $command
+            $exitCode = $LASTEXITCODE
+
+            if ($exitCode -ne 0) {
+                throw "[$($this.PluginName)] Command `"$command`" failed with exit code $exitCode"
+            }
+
+            Add-SuccessLog "Completed step $step of plugin $typeName"
+        }
+        catch {
+            throw "Exec failed executing command `"$command`": $_"
         }
     }
 }

@@ -1,6 +1,6 @@
 # @ps-semantic-release/Exec
 
-A plugin that runs user-provided PowerShell scripts at various lifecycle steps. It supports custom scripts for verification, commit analysis, release verification, release notes generation, preparation, and publishing. Scripts can receive expanded context placeholders as arguments and are executed in a separate PowerShell process.
+A plugin that runs user-provided PowerShell scripts or commands at various lifecycle steps. It supports custom commands for verification, commit analysis, release verification, release notes generation, preparation, and publishing. Commands can receive expanded context placeholders and are executed in a separate PowerShell process.
 
 ---
 
@@ -11,7 +11,7 @@ A plugin that runs user-provided PowerShell scripts at various lifecycle steps. 
   - Type: string
   - Required: no
   - Default: none
-  - Description: Command line string pointing to a `.ps1` script and optional arguments to run during `VerifyConditions`.
+  - Description: PowerShell command line or `.ps1` script and optional arguments to run during `VerifyConditions`.
 
 - `analyzeCommitsPsScript`:
 
@@ -57,6 +57,22 @@ A plugin that runs user-provided PowerShell scripts at various lifecycle steps. 
       {
         "preparePsScript": "scripts/prepare-release.ps1 {NextRelease.Version}",
         "publishPsScript": "scripts/publish-release.ps1 {NextRelease.Version} {NextRelease.Channel}"
+      }
+    ]
+  ]
+}
+```
+
+The existing `*PsScript` option names accept either a `.ps1` script or a direct
+command. For example, a project can build without creating a wrapper script:
+
+```json
+{
+  "plugins": [
+    [
+      "@ps-semantic-release/Exec",
+      {
+        "preparePsScript": "dotnet build --configuration Release /p:Version={NextRelease.Version}"
       }
     ]
   ]
@@ -122,8 +138,8 @@ A plugin that runs user-provided PowerShell scripts at various lifecycle steps. 
 - Logs start and completion for each step executed via `RunScript`.
 - Logs a warning and skips execution when `haltDryRun` is true and `Context.DryRun` is true.
 - Logs the exact script file and expanded arguments before execution.
+- Logs the expanded command line when executing a direct command.
 - Throws clear, actionable errors for:
-  - Missing `.ps1` token in the configured command.
   - Script file not found on disk.
-  - Non-zero script exit codes.
+  - Non-zero script or command exit codes.
   - General execution failures with the underlying error message.
