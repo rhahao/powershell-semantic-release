@@ -108,7 +108,7 @@ This example shows how you might configure a workflow for a PowerShell module:
     [
       "@ps-semantic-release/Exec",
       {
-        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version}"
+        "preparePsScript": "create-dist.ps1 {NextRelease.Version}"
       }
     ],
     ["@ps-semantic-release/NuGet", { "path": "dist/PSSemanticRelease" }],

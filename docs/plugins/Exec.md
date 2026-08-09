@@ -124,10 +124,20 @@ command. For example, a project can build without creating a wrapper script:
     [
       "@ps-semantic-release/Exec",
       {
-        "preparePsScript": "create-dist.ps1 -NoProfile -ExecutionPolicy Bypass {NextRelease.Version}"
+        "preparePsScript": "create-dist.ps1 {NextRelease.Version}"
       }
     ]
   ]
+}
+```
+
+Exec starts PowerShell with `-NoProfile -ExecutionPolicy Bypass`. Configuration
+values therefore contain only the script path and parameters accepted by that
+script:
+
+```json
+{
+  "publishPsScript": "scripts/Sign-PublishedArtifact.ps1 -SigningRepositoryPath ./signing-repo"
 }
 ```
 

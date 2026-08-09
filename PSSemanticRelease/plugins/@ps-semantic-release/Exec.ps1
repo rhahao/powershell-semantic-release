@@ -90,6 +90,7 @@ class Exec {
             Expand-ContextString -context $this.Context -template $_
         }
 
+
         # Resolve path
         if (-not (Test-Path $file)) {
             throw "[$($this.PluginName)] Script file `"$file`" not found."
@@ -99,7 +100,7 @@ class Exec {
 
         try {
             $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
-            $argsArray = @("-File", $file) + $arguments
+            $argsArray = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $file) + $arguments
 
             $process = Start-Process -FilePath $processName -ArgumentList $argsArray -NoNewWindow -Wait -PassThru
 
@@ -119,7 +120,7 @@ class Exec {
 
         try {
             $processName = if ($global:PSVersionTable.PSVersion.Major -ge 7) { "pwsh" } else { "powershell" }
-            & $processName -NoProfile -NonInteractive -Command $command
+            & $processName -NoProfile -ExecutionPolicy Bypass -NonInteractive -Command $command
             $exitCode = $LASTEXITCODE
 
             if ($exitCode -ne 0) {
