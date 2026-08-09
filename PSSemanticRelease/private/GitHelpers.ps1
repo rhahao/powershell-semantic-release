@@ -6,6 +6,24 @@ function Get-GitBranchCurrent {
     return git rev-parse --abbrev-ref HEAD 2>$null
 }
 
+function Get-GitTagForChannel {
+    param (
+        [Parameter(Mandatory)]
+        [string]$Channel
+    )
+
+    $describeArguments = @('describe', '--tags', '--abbrev=0', '--first-parent')
+
+    if ($Channel -eq 'default') {
+        $describeArguments += @('--match', 'v[0-9]*', '--exclude', '*-*')
+    }
+    else {
+        $describeArguments += @('--match', "v*-$Channel.*")
+    }
+
+    return git @describeArguments HEAD 2>$null
+}
+
 function Get-CommitUrl {
     param (
         [string]$RepositoryUrl,
@@ -44,14 +62,9 @@ function Get-CompareUrl {
 }
 
 function Get-ConventionalCommits {
-    $lastTag = try {
-        git describe --tags --abbrev=0 HEAD 2>$null
-    }
-    catch {
-        $null
-    }
+    param ([string]$LastTag)
 
-    $range = if ($lastTag) { "$lastTag..HEAD" } else { 'HEAD' }
+    $range = if ($LastTag) { "$LastTag..HEAD" } else { 'HEAD' }
 
     $commits = @()
 
@@ -91,11 +104,15 @@ function Get-GitTagHighest {
 }
 
 function Get-CurrentSemanticVersion {
-    param ($UnifyTag)
+    param (
+        $UnifyTag,
+        [Parameter(Mandatory)]
+        [string]$Channel
+    )
 
     if (-not $UnifyTag) {
         git fetch --tags --quiet
-        $lastTag = git describe --tags --abbrev=0 HEAD 2>$null
+        $lastTag = Get-GitTagForChannel -Channel $Channel
         return $lastTag -replace '^v', ''
     }
     else {

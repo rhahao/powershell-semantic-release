@@ -72,7 +72,8 @@ function Invoke-SemanticRelease {
     $plugins.VerifyConditions()
 
     $unifyTag = $context.Config.Project.unifyTag
-    $currentVersion = Get-CurrentSemanticVersion $unifyTag
+    $channel = $context.NextRelease.Channel
+    $currentVersion = Get-CurrentSemanticVersion -UnifyTag $unifyTag -Channel $channel
     $context.CurrentVersion.Branch = $currentVersion
 
     if (-not $currentVersion) {
@@ -93,7 +94,8 @@ function Invoke-SemanticRelease {
             
     }
 
-    $commitsList = Get-ConventionalCommits
+    $currentTag = if ($currentVersion) { "v$currentVersion" } else { $null }
+    $commitsList = Get-ConventionalCommits -LastTag $currentTag
     $context.Commits.List = $commitsList
     $context.Commits.Formatted = if ($commitsList.Count -eq 1) { "1 commit" } else { "$($commitsList.Count) commits" }
 
