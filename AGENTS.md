@@ -16,6 +16,8 @@ package in `dist/`. GitHub Actions workflows are in `.github/workflows/`.
   development. Re-import after changing module files.
 - `Invoke-ScriptAnalyzer ./PSSemanticRelease -Recurse -Severity Error` runs the
   same static-analysis gate as CI. Install PSScriptAnalyzer if unavailable.
+- `Invoke-Pester ./tests` runs the Pester test suite. Install Pester if unavailable:
+  `Install-Module -Name Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0`
 - `./create-dist.ps1 -Version 1.2.3` recreates `dist/PSSemanticRelease`, generates
   its manifest, and validates the result.
 - `Invoke-SemanticRelease -DryRun` exercises release analysis without publishing.
@@ -34,11 +36,27 @@ from Prettier and must pass PSScriptAnalyzer.
 
 ## Testing Guidelines
 
-There is currently no committed unit-test suite or coverage threshold. Every
-change must pass PSScriptAnalyzer. For behavior changes, run a dry release and
-document the repository/configuration used. If adding Pester tests, place them in
-`tests/`, name files `*.Tests.ps1`, and keep tests isolated from real remotes,
-registries, and credentials.
+Pester tests are located in `tests/` and follow the `*.Tests.ps1` naming convention.
+The test suite focuses on testing actual business logic and behavior rather than structural validation.
+The test suite is organized as follows:
+- `tests/Invoke-SemanticRelease.Tests.ps1` - Integration tests for the main public command
+- `tests/Config.Tests.ps1` - Tests for branch validation logic
+- `tests/Context.Tests.ps1` - Tests for DryRun and CI context behavior
+- `tests/GitHelpers.Tests.ps1` - Tests for URL generation and version bumping logic
+- `tests/plugins/*.Tests.ps1` - Plugin-specific tests:
+  - `CommitAnalyzer.Tests.ps1` - Commit analysis logic and config merging
+  - `ReleaseNotesGenerator.Tests.ps1` - Release notes generation behavior
+  - `Changelog.Tests.ps1` - Changelog file generation behavior
+  - `Git.Tests.ps1` - Git tagging behavior
+  - `GitHub.Tests.ps1` - GitHub release validation and DryRun behavior
+  - `GitLab.Tests.ps1` - GitLab release validation and DryRun behavior
+  - `NuGet.Tests.ps1` - NuGet publishing validation and DryRun behavior
+  - `Exec.Tests.ps1` - Custom script execution DryRun behavior
+
+Every change must pass both PSScriptAnalyzer and Pester tests. Run tests locally with
+`Invoke-Pester ./tests` (runs all tests) or `Invoke-Pester ./tests/plugins` (runs only plugin tests).
+Keep tests isolated from real remotes, registries, and credentials by using mocks. For behavior
+changes, also run a dry release and document the repository/configuration used.
 
 ## Commit & Pull Request Guidelines
 

@@ -26,3 +26,24 @@ jobs:
               $results | Format-Table
               throw "ScriptAnalyzer failed"
           }
+
+  pester_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Install Pester
+        shell: pwsh
+        run: Install-Module -Name Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0
+
+      - name: Run Pester tests
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Import-Module Pester -MinimumVersion 5.0.0
+          $results = Invoke-Pester ./tests -Output Detailed -PassThru
+          if ($results.FailedCount -gt 0) {
+              throw "Pester tests failed"
+          }
